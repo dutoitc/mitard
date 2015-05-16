@@ -1,8 +1,11 @@
-[ ] github
-[ ] composants non utilisés
+[*] github
+[*] composants non utilisés
 [ ] métriques
 [ ] liens composants
 [ ] vues composants
 [ ] best practices
 [ ] recherche de composants et exploration
 [ ] produire dans un dossier à publier (pas dans template) à la fin du dev
+[ ] nom auteur
+[ ] vue globale routes, services, process, filtrable par date, auteur, mot-clé, violations...
+[ ] Créer des services pour lire les JSON

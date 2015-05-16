@@ -1,9 +1,18 @@
 <h1>Overview</h1>
 
-{{stats.nbRoutes}} <a href="#/routes">Routes</a><br/>
-{{stats.nbServices}} <a href="#/services">Services</a><br/>
-{{stats.nbProcesses}} <a href="#/processes">Processes</a><br/>
-{{stats.nbComponents}} Components<br/>
+
+<div class="row">
+    <div class="col-lg-3">
+        {{stats.nbRoutes}} <a href="#/routes">Routes</a><br/>
+        {{stats.nbServices}} <a href="#/services">Services</a><br/>
+        {{stats.nbProcesses}} <a href="#/processes">Processes</a><br/>
+        {{stats.nbComponents}} Components<br/>
+    </div>
+    <div class="col-lg-3">
+        General violations:  <a href="#/violations">{{violations.nbGeneralViolations}}</a><br/>
+        Component violations: <a href="#/violations">{{violations.nbComponentViolations}}</a><br/>
+    </div>
+</div>
 <br/>
 
 <div ng-repeat="cc in stats.componentCountsList | orderBy:'-nb' ">

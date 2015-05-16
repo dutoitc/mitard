@@ -56,44 +56,15 @@ angular.module('mitardApp.overview', ['ngRoute', 'jqwidgets'])
 
 
 
-            //self.updateTreemap();
-
-//            $( document ).ready(function() {
-//                console.log("Ready");
-//                google.setOnLoadCallback(self.updateTreemap());
-//            });
 
     });
 
-    /*this.updateTreemap = function() {
-        var container = document.getElementById('visualization');
-        console.log("update tree map " + container);
-        if (container==null) {
-            setTimeout(this.updateTreemap, 1000);
-            return;
-        }
 
-        var TreeMapVisualization = new google.visualization.TreeMap(container);
-
-        var table=[['Name', 'Nb']];
-        jQuery.each( scope.stats.componentCounts, function( key, value ) {
-            table.push([key, value]);
-        });
-
-        var data = google.visualization.arrayToDataTable(table);
-
-        TreeMapVisualization.draw(data, {
-                height: 400,
-                width: 600,
-                minColor: '#f00',
-                midColor: '#ddd',
-                maxColor: '#0d0',
-                headerHeight: 15,
-                fontColor: 'black',
-                showScale: true,
-                showTooltips: true
+    $http.get('data/violations.json')
+        .success(function(data) {
+            $scope.violations=data;
             });
-    };
-*/
+
+
 
 }]);

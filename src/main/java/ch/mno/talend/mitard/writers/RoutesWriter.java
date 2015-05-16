@@ -30,7 +30,7 @@ public class RoutesWriter extends AbstractNodeWriter {
             List<String> screenshots = extractScreenshots(file);
 
             String data = IOUtils.toString(new FileReader(file.getPropertiesFilename()));
-            jsonRoutes.addRoute(file.getName(), file.getVersion(), readPurpose(data), readDescription(data), readCreationDate(data), readModificationDate(data), screenshots);
+            jsonRoutes.addRoute(file.getPath(), file.getName(), file.getVersion(), readPurpose(data), readDescription(data), readCreationDate(data), readModificationDate(data), screenshots);
         }
         writeJson("routes.json", jsonRoutes);
     }

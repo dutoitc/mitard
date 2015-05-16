@@ -13,8 +13,8 @@ public class JsonServices {
     private List<JsonService> services = new ArrayList<>();
 
 
-    public void addService(String name, String version, String purpose, String description, Date creationDate, Date modificationDate, List<String> screenshots) {
-        services.add(new JsonService(name, version, purpose, description, creationDate, modificationDate, screenshots));
+    public void addService(String path, String name, String version, String purpose, String description, Date creationDate, Date modificationDate, List<String> screenshots) {
+        services.add(new JsonService(path, name, version, purpose, description, creationDate, modificationDate, screenshots));
     }
 
     public List<JsonService> getServices() {
@@ -27,8 +27,8 @@ public class JsonServices {
 
         private final List<String> screenshots;
 
-        public JsonService(String name, String version, String purpose, String description, Date creationDate, Date modificationDate, List<String> screenshots) {
-            super(name, version, purpose, description, creationDate, modificationDate);
+        public JsonService(String path, String name, String version, String purpose, String description, Date creationDate, Date modificationDate, List<String> screenshots) {
+            super(path, name, version, purpose, description, creationDate, modificationDate);
             this.screenshots = screenshots;
         }
 

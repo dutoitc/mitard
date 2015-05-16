@@ -11,8 +11,8 @@ public class JsonProcesses {
 
     private List<JsonProcess> processes = new ArrayList<>();
 
-    public void addProcess(String name, String version, String purpose, String description, Date creationDate, Date modificationDate, List<String> screenshots) {
-        processes.add(new JsonProcess(name, version, purpose, description, creationDate, modificationDate, screenshots));
+    public void addProcess(String path, String name, String version, String purpose, String description, Date creationDate, Date modificationDate, List<String> screenshots) {
+        processes.add(new JsonProcess(path, name, version, purpose, description, creationDate, modificationDate, screenshots));
     }
 
     public List<JsonProcess> getProcesses() {
@@ -23,8 +23,8 @@ public class JsonProcesses {
 
         private final List<String> screenshots;
 
-        public JsonProcess(String name, String version, String purpose, String description, Date creationDate, Date modificationDate, List<String> screenshots) {
-            super(name, version, purpose, description, creationDate, modificationDate);
+        public JsonProcess(String path, String name, String version, String purpose, String description, Date creationDate, Date modificationDate, List<String> screenshots) {
+            super(path, name, version, purpose, description, creationDate, modificationDate);
             this.screenshots = screenshots;
         }
 

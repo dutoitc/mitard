@@ -48,4 +48,14 @@ public class TalendFile {
     public String getVersion() {
         return this.version;
     }
+
+    /**
+     *
+     * @return path after routes/, services/, process/
+     */
+    public String getPath() {
+        int p = Math.max(path.indexOf("routes"), Math.max(path.indexOf("services"), path.indexOf("process")));
+        p = Math.max(path.indexOf("/", p), path.indexOf('\\', p));
+        return path.substring(p+1);
+    }
 }

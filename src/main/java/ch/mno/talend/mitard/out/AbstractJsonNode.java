@@ -6,6 +6,8 @@ import java.util.Date;
  * Created by dutoitc on 14.05.2015.
  */
 public class AbstractJsonNode {
+
+    private String path;
     private String name;
     private String version;
     private String purpose;
@@ -13,13 +15,22 @@ public class AbstractJsonNode {
     private Date creationDate;
     private Date modificationDate;
 
-    public AbstractJsonNode(String name, String version, String purpose, String description, Date creationDate, Date modificationDate) {
+    public AbstractJsonNode(String path, String name, String version, String purpose, String description, Date creationDate, Date modificationDate) {
+        this.path = path;
         this.name = name;
         this.version = version;
         this.purpose = purpose;
         this.description = description;
         this.creationDate = creationDate;
         this.modificationDate = modificationDate;
+    }
+
+    public String getPath() {
+        return path;
+    }
+
+    public void setPath(String path) {
+        this.path = path;
     }
 
     public String getName() {

@@ -17,7 +17,7 @@
 
 <div class='panel panel-default' ng-repeat="process in processes | filter:searchText">
     <div class="panel-body">
-        <big><b>{{process.name}} {{process.version}}</b></big>
+        <big><b>{{process.path}} {{process.name}} {{process.version}}</b></big>
         <p class="text-right"><small>Créé le {{process.creationDate | date:'dd-MM-yy'}}, modifié le {{process.modificationDate | date:'dd-MM-yy'}}</small>
             <div ng-repeat="filename in process.screenshots">
                 <a href="data/{{filename}}" class="pull-right">{{filename}}</a>

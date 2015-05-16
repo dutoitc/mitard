@@ -12,8 +12,8 @@ public class JsonRoutes {
     private List<JsonRoute> routes = new ArrayList<>();
 
 
-    public void addRoute(String name, String version, String purpose, String description, Date creationDate, Date modificationDate, List<String> screenshots) {
-        routes.add(new JsonRoute(name, version, purpose, description, creationDate, modificationDate, screenshots));
+    public void addRoute(String path, String name, String version, String purpose, String description, Date creationDate, Date modificationDate, List<String> screenshots) {
+        routes.add(new JsonRoute(path, name, version, purpose, description, creationDate, modificationDate, screenshots));
     }
 
     public List<JsonRoute> getRoutes() {
@@ -26,8 +26,8 @@ public class JsonRoutes {
 
         private List<String> screenshots;
 
-        public JsonRoute(String name, String version, String purpose, String description, Date creationDate, Date modificationDates, List<String> screenshots) {
-            super(name, version, purpose, description, creationDate, modificationDates);
+        public JsonRoute(String path, String name, String version, String purpose, String description, Date creationDate, Date modificationDates, List<String> screenshots) {
+            super(path, name, version, purpose, description, creationDate, modificationDates);
             this.screenshots = screenshots;
         }
 

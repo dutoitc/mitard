@@ -18,7 +18,7 @@
 
 <div class='panel panel-default' ng-repeat="service in services | filter:searchText">
     <div class="panel-body">
-        <big><b>{{service.name}} {{service.version}}</b></big>
+        <big><b>{{service.path}} {{service.name}} {{service.version}}</b></big>
         <p class="text-right"><small>Créé le {{service.creationDate | date:'dd-MM-yy'}}, modifié le {{service.modificationDate | date:'dd-MM-yy'}}</small>
             <div ng-repeat="filename in service.screenshots">
                 <a href="data/{{filename}}" class="pull-right">{{filename}}</a>

@@ -30,7 +30,7 @@ public class ServicesWriter extends AbstractNodeWriter {
 
 
             String data = IOUtils.toString(new FileReader(file.getPropertiesFilename()));
-            jsonServices.addService(file.getName(), file.getVersion(), readPurpose(data), readDescription(data), readCreationDate(data), readModificationDate(data), screenshots);
+            jsonServices.addService(file.getPath(), file.getName(), file.getVersion(), readPurpose(data), readDescription(data), readCreationDate(data), readModificationDate(data), screenshots);
         }
         writeJson("services.json", jsonServices);
     }

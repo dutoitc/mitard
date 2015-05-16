@@ -33,7 +33,7 @@ public class ProcessesWriter extends AbstractNodeWriter {
 
             String data = IOUtils.toString(new FileReader(file.getPropertiesFilename()));
 
-            jsonProcesses.addProcess(file.getName(), file.getVersion(), readPurpose(data), readDescription(data), readCreationDate(data), readModificationDate(data), screenshots);
+            jsonProcesses.addProcess(file.getPath(), file.getName(), file.getVersion(), readPurpose(data), readDescription(data), readCreationDate(data), readModificationDate(data), screenshots);
         }
         writeJson("processes.json", jsonProcesses);
     }
