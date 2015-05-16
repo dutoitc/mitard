@@ -1,0 +1,35 @@
+<h1>Violations</h1>
+
+General violations: {{violations.nbGeneralViolations}}<br/>
+Component violations: {{violations.nbComponentViolations}}<br/>
+
+
+<div class='panel panel-default' ng-repeat="fileViolations in violations.fileViolationses">
+    <div class="panel-body">
+        <big><b>{{fileViolations.name}}</b></big>
+
+        <ul>
+            <li ng-repeat="violation in fileViolations.generalViolations">{{violation}}</li>
+        </ul>
+        <br/><br/>
+
+        <div ng-repeat="(key, values) in fileViolations.componentViolations">
+            {{key}}
+            <ul>
+                <li ng-repeat="value in values">{{value}}</li>
+            </ul>
+        </div>
+
+
+    </div>
+</div>
+
+
+<hr/>
+
+<h3>Definitions</h3>
+<div class='panel panel-default' ng-repeat="def in violations.jsonViolationsDefinition">
+    <b>{{def.name}}</b><br/>
+    {{def.description}}<br/>
+    {{def.explanations}}
+</div>

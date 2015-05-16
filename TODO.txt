@@ -1,0 +1,8 @@
+[ ] github
+[ ] composants non utilisés
+[ ] métriques
+[ ] liens composants
+[ ] vues composants
+[ ] best practices
+[ ] recherche de composants et exploration
+[ ] produire dans un dossier à publier (pas dans template) à la fin du dev

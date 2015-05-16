@@ -1,0 +1,25 @@
+<h1>Overview</h1>
+
+{{stats.nbRoutes}} <a href="#/routes">Routes</a><br/>
+{{stats.nbServices}} <a href="#/services">Services</a><br/>
+{{stats.nbProcesses}} <a href="#/processes">Processes</a><br/>
+{{stats.nbComponents}} Components<br/>
+<br/>
+
+<div ng-repeat="cc in stats.componentCountsList | orderBy:'-nb' ">
+    {{cc.name}}: {{cc.nb}}
+</div>
+
+<!--<div id="visualization"></div>-->
+
+<h3>Components usage</h3>
+<div>
+<jqx-tree-map jqx-source="data" jqx-settings="treeMapSettings"></jqx-tree-map>
+</div>
+
+
+<script>
+//google.load("visualization", "1", {packages: ["treemap"]});
+//google.setOnLoadCallback(drawChart);
+</script>
+

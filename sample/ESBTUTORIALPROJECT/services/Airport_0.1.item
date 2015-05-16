@@ -1,0 +1,6 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<xmi:XMI xmi:version="2.0" xmlns:xmi="http://www.omg.org/XMI" xmlns:Services="http://www.talend.org/Services">
+  <Services:ServiceConnection xmi:id="_w1ZVcE2QEeGAcs8cFiRs6w" WSDLPath="C:/data/airport_soap.wsdl" servicePort="_w1ZVcU2QEeGAcs8cFiRs6w"/>
+  <Services:ServicePort xmi:id="_w1ZVcU2QEeGAcs8cFiRs6w" name="airportSoap" id="_w1W5ME2QEeGAcs8cFiRs6w" serviceOperation="_w1ZVck2QEeGAcs8cFiRs6w"/>
+  <Services:ServiceOperation xmi:id="_w1ZVck2QEeGAcs8cFiRs6w" label="getAirportInformationByISOCountryCode-airportSoap_getAirportInformationByISOCountryCode" name="getAirportInformationByISOCountryCode" id="_w1XgQE2QEeGAcs8cFiRs6w" referenceJobId="_8gjVAE2QEeGAcs8cFiRs6w"/>
+</xmi:XMI>
