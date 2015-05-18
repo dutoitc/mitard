@@ -10,6 +10,8 @@ import java.util.Map;
  */
 public class JsonFileViolations {
 
+    private final String version;
+    private final String path;
     /** Route, service or process name */
     private String name;
 
@@ -17,8 +19,10 @@ public class JsonFileViolations {
     private Map<String, List<JsonViolationEnum>> componentViolations = new HashMap<>();
 
 
-    public JsonFileViolations(String name) {
+    public JsonFileViolations(String path, String name, String version) {
+        this.path = path;
         this.name = name;
+        this.version = version;
     }
 
     public void addGeneralViolation(JsonViolationEnum violation) {
@@ -61,5 +65,13 @@ public class JsonFileViolations {
 
     public boolean hasViolations() {
         return !generalViolations.isEmpty() || !componentViolations.isEmpty();
+    }
+
+    public String getVersion() {
+        return version;
+    }
+
+    public String getPath() {
+        return path;
     }
 }

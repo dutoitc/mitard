@@ -4,9 +4,23 @@ General violations: {{violations.nbGeneralViolations}}<br/>
 Component violations: {{violations.nbComponentViolations}}<br/>
 
 
-<div class='panel panel-default' ng-repeat="fileViolations in violations.fileViolationses">
+<div class="row">
+    <div class="col-lg-4">
+        <div class="input-group">
+            <span class="input-group-addon glyphicon glyphicon-search" style="top:0px"/>
+            <input type="text" placeholder="Search..." class="form-control" ng-model="searchText"/>
+        </div>
+    </div>
+    <div class="col-lg-8">
+    </div>
+</div>
+<br/>
+
+
+<div class='panel panel-default' ng-repeat="fileViolations in violations.fileViolationses | orderBy:'-nbViolations' | filter:searchText">
     <div class="panel-body">
-        <big><b>{{fileViolations.name}}</b></big>
+
+        <big><b>{{fileViolations.path}} {{fileViolations.name}} {{fileViolations.version}}</b></big>
 
         <ul>
             <li ng-repeat="violation in fileViolations.generalViolations">{{violation}}</li>

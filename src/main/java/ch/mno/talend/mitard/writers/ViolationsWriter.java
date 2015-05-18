@@ -35,7 +35,7 @@ public class ViolationsWriter extends AbstractNodeWriter {
 
             String properties = IOUtils.toString(new FileReader(file.getPropertiesFilename()));
             String item = IOUtils.toString(new FileReader(file.getItemFilename()));
-            JsonFileViolations fileViolations = new JsonFileViolations(file.getName());
+            JsonFileViolations fileViolations = new JsonFileViolations(file.getPath(), file.getName(), file.getVersion());
 
             FileInputStream fis = new FileInputStream(file.getItemFilename());
             ProcessType process = ProcessReader.reader(fis);
