@@ -15,9 +15,9 @@ public class TalendFileHelper {
 
     public static TalendFiles findLatestVersions(String talendWorkspacePath) {
         TalendFiles talendFiles = new TalendFiles();
-        talendFiles.setProcesses(findLatestVersionsInternal(new File(talendWorkspacePath + "\\process")));
-        talendFiles.setRoutes(findLatestVersionsInternal(new File(talendWorkspacePath + "\\routes")));
-        talendFiles.setServices(findLatestVersionsInternal(new File(talendWorkspacePath + "\\services")));
+        talendFiles.setProcesses(findLatestVersionsInternal(new File(talendWorkspacePath + File.separatorChar+"process")));
+        talendFiles.setRoutes(findLatestVersionsInternal(new File(talendWorkspacePath +  File.separatorChar+"routes")));
+        talendFiles.setServices(findLatestVersionsInternal(new File(talendWorkspacePath +  File.separatorChar+"services")));
 
         return talendFiles;
 

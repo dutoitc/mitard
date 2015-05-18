@@ -102,7 +102,7 @@ public class AbstractNodeWriter extends AbstractWriter {
                     try {
                         byte[] decoded = Base64.decodeBase64(base64Png);
                         FileOutputStream fos = null;
-                        fos = new FileOutputStream(getContext().getProductionPath() + "\\" + file.getName() + ".png");
+                        fos = new FileOutputStream(getContext().getProductionPath() + File.separatorChar + file.getName() + ".png");
                         fos.write(decoded);
                         fos.close();
                         return Arrays.asList(file.getName() + ".png");

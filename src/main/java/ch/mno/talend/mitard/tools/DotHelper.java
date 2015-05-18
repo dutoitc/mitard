@@ -12,14 +12,29 @@ import java.io.InputStream;
 public class DotHelper {
 
     public static void generatePNG(String dotPath, String filename, File dotData) throws IOException {
-        String command = dotPath + "\\dot.exe -Tpng -o" + filename+" "+dotData.getAbsolutePath();
+        // TODO: dot.exe ou dot ?
+        String command;
+
+        if (new File(dotPath +  File.separatorChar+"dot").exists()) {
+            command = dotPath + File.separatorChar + "dot -Tpng -o" + filename + " " + dotData.getAbsolutePath();
+        } else if (new File(dotPath +  File.separatorChar+"dot.exe").exists()) {
+            command = dotPath + File.separatorChar + "dot.exe -Tpng -o" + filename + " " + dotData.getAbsolutePath();
+        } else {
+            throw new RuntimeException("Graphviz Dot not found !");
+        }
         System.out.println(command);
         Process process = Runtime.getRuntime().exec(command);
         InputStream is = process.getInputStream();
         InputStream is2 = process.getErrorStream();
-        while (process.isAlive()) {
-            System.out.println("1");
-            try {
+
+        try {
+            Thread.sleep(3000); // TODO: improve ?!
+        }
+        catch (InterruptedException e) {
+            e.printStackTrace();
+        }
+
+        try {
                 if (is.available()>0) {
                     System.out.println("2");
                     int l = is.available();
@@ -36,7 +51,7 @@ public class DotHelper {
             } catch (InterruptedException e) {
                 e.printStackTrace();
             }
-        }
+
         String error = IOUtils.toString(process.getErrorStream());
         System.out.println(error);
     }
