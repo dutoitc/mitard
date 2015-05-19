@@ -11,7 +11,8 @@ public enum JsonViolationEnum {
     COMPONENT_MUST_USE_EXISTING_CONNECTION("Every connected component should share an existing connection (tOracleConnection, tMDMConnection...)", "Shared connection are pooled-optimized, and easier to maintain: you only need to update the connection values instead of checking each components. "),
     COMPONENT_MUST_NOT_CLOSE_CONNECTION("A commit component must not close the connection. Use explicit connection close component instead.", "Asking to close a connection from a component could be an easy way to close a connexion, but it is not easily readable. A connection close component is more readable."),
     MISSING_DOCUMENTATION_PURPOSE("The job 'purpose' documentation must be filled", "It is a best-practise to document job. Fill the purpose field in job parameters."),
-    MISSING_DOCUMENTATION_DESCRIPTION("The job 'description' documentation must be filled", "It is a best-practise to document job. Fill the description field in job parameters.");
+    MISSING_DOCUMENTATION_DESCRIPTION("The job 'description' documentation must be filled", "It is a best-practise to document job. Fill the description field in job parameters."),
+    LOGCATCHER_MUST_NOT_CHAIN_TDIE("The tLogCatcher component must not be chained to a tDie", "a TDie will be catched by a tLogCatcher, which will recall the tDie, etc... in an eternal loop.");
 
     private String description;
     private String explanations;

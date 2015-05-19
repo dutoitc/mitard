@@ -146,6 +146,8 @@ public class ProcessReader extends DefaultHandler {
                 default:
                     System.out.println("Missing reader for " + componentName);
             }
+        } else if (localName.equals("connection")) {
+            process.addConnection(getAttribute(attributes, "source"), getAttribute(attributes, "target"));
         }
 
         if (reader != null) {
@@ -233,7 +235,6 @@ public class ProcessReader extends DefaultHandler {
 
         @Override
         protected void handleElement(String name, String value) {
-
         }
     }
 

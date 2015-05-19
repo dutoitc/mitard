@@ -7,7 +7,7 @@ import java.util.List;
  * Created by dutoitc on 13.05.2015.
  */
 public class Context {
-    private String workspacePath="C:\\github\\Mitard\\local\\RCENT";
+    private String workspacePath="C:\\github\\Mitard\\mitard\\local\\RCENT";
     //String workspacePath = "C:\\projets\\talend-mitard\\mitard\\src\\main\\test\\resources\\ESBTUTORIALPROJECT";
 
 //    private String productionPath = "C:\\projets\\talend-mitard\\mitard\\produced";

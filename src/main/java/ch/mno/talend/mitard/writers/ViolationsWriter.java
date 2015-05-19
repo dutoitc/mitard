@@ -45,49 +45,11 @@ public class ViolationsWriter extends AbstractNodeWriter {
                     nbInactive++;
                     continue;
                 }
-
-                // REST_ENDPOINT should be with port 8040
-                if (node instanceof TRestRequestType) {
-                    if (!((TRestRequestType) node).getEndpointURI().contains(":8040")) {
-                        fileViolations.addComponentViolation(node.getUniqueName(), JsonViolationEnum.SERVICE_PORT_MUST_BE_8040);
-                    }
-                }
-
-
-                if (!node.isUseExistingConnection() && (node.getComponentName().equals("tMDMInput") || node.getComponentName().equals("tOracleInput"))) {
-                    fileViolations.addComponentViolation(node.getUniqueName(), JsonViolationEnum.COMPONENT_MUST_USE_EXISTING_CONNECTION);
-                }
-                if (node.getComponentName().equals("tMDMCommit")) {
-                    if (((TMDMCommitType) node).isClose()) {
-                        fileViolations.addComponentViolation(node.getUniqueName(), JsonViolationEnum.COMPONENT_MUST_NOT_CLOSE_CONNECTION);
-                    }
-                }
-                if (node.getComponentName().equals("tOracleCommit")) {
-                    if (((TOracleCommitType) node).isClose()) {
-                        fileViolations.addComponentViolation(node.getUniqueName(), JsonViolationEnum.COMPONENT_MUST_NOT_CLOSE_CONNECTION);
-                    }
-                }
-                if (node.getComponentName().equals("tJava")) {
-                    TJavaType tJava = (TJavaType)node;
-                    if (tJava.getCode().contains("System.out") || tJava.getCode().contains("System.err")){
-                        fileViolations.addComponentViolation(node.getUniqueName(), JsonViolationEnum.AVOID_SYSTEM_OUT);
-                    }
-                }
-                if (node.getComponentName().equals("tJavaRow")) {
-                    TJavaRowType tJavaRow = (TJavaRowType)node;
-                    if (tJavaRow.getCode().contains("System.out") || tJavaRow.getCode().contains("System.err")){
-                        fileViolations.addComponentViolation(node.getUniqueName(), JsonViolationEnum.AVOID_SYSTEM_OUT);
-                    }
-                }
-                if (node.getComponentName().equals("tJavaFlex")) {
-                    TJavaFlexType tJava = (TJavaFlexType)node;
-                    if (tJava.getCodeStart().contains("System.out") || tJava.getCodeStart().contains("System.err")
-                            || tJava.getCodeMain().contains("System.out") || tJava.getCodeMain().contains("System.err")
-                            || tJava.getCodeEnd().contains("System.out") || tJava.getCodeEnd().contains("System.err")){
-                        fileViolations.addComponentViolation(node.getUniqueName(), JsonViolationEnum.AVOID_SYSTEM_OUT);
-                    }
-                }
-
+                checkSERVICE_PORT_MUST_BE_8040(fileViolations, node);
+                checkCOMPONENT_MUST_USE_EXISTING_CONNECTION(fileViolations, node);
+                checkCOMPONENT_MUST_NOT_CLOSE_CONNECTION(fileViolations, node);
+                checkAVOID_SYSTEM_OUT(fileViolations, node);
+                checkTLOGCATCHER_MUST_NOT_CHAIN_TDIE(fileViolations, node, process);
             }
 
             // RATIO_INACTIVE_MUST_BE_MAX_30_PERCENT
@@ -104,7 +66,6 @@ public class ViolationsWriter extends AbstractNodeWriter {
             if (node.getDescription()==null || node.getDescription().isEmpty()) {
                 fileViolations.addGeneralViolation(JsonViolationEnum.MISSING_DOCUMENTATION_DESCRIPTION);
             }*/
-
 
 
             // Missing test
@@ -134,6 +95,86 @@ public class ViolationsWriter extends AbstractNodeWriter {
         allViolations.setNbComponentViolations(nbComponentViolations);
 
         writeJson("violations.json", allViolations);
+    }
+
+    private void checkTLOGCATCHER_MUST_NOT_CHAIN_TDIE(JsonFileViolations fileViolations, AbstractNodeType node, ProcessType process) {
+        if (node.getComponentName().equals("tLogCatcher")) {
+            String source = node.getUniqueName();
+            if (isConnectedToTDie(process, source)) {
+                fileViolations.addComponentViolation(node.getUniqueName(), JsonViolationEnum.LOGCATCHER_MUST_NOT_CHAIN_TDIE);
+            }
+
+            // TODO: only check depending on theses values ?
+//            <elementParameter field="CHECK" name="CATCH_JAVA_EXCEPTION" value="true"/>
+//            <elementParameter field="CHECK" name="CATCH_TDIE" value="true"/>
+//            <elementParameter field="CHECK" name="CATCH_TWARN" value="true"/>
+
+//            <connection connectorName="FLOW" label="row5" lineStyle="0" metaname="tLogCatcher_1" offsetLabelX="0" offsetLabelY="0" source="tLogCatcher_1" target="RCEntLog4jLogger_1">
+//            <connection connectorName="FLOW" label="row6" lineStyle="0" metaname="RCEntLog4jLogger_1" offsetLabelX="0" offsetLabelY="0" source="RCEntLog4jLogger_1" target="tDie_1">
+//            <node componentName="tDie" componentVersion="0.101" offsetLabelX="0" offsetLabelY="0" posX="1152" posY="0">
+        }
+    }
+
+    private boolean isConnectedToTDie(ProcessType process, String source) {
+        if (source==null) return false;
+        if (source.startsWith("tDie")) return true;
+        List<String> connections = process.getConnections(source);
+        if (connections!=null) {
+            for (String target : connections) {
+                if (isConnectedToTDie(process, target)) return true;
+            }
+        }
+        return false;
+    }
+
+    private void checkSERVICE_PORT_MUST_BE_8040(JsonFileViolations fileViolations, AbstractNodeType node) {
+        if (node instanceof TRestRequestType) {
+            if (!((TRestRequestType) node).getEndpointURI().contains(":8040")) {
+                fileViolations.addComponentViolation(node.getUniqueName(), JsonViolationEnum.SERVICE_PORT_MUST_BE_8040);
+            }
+        }
+    }
+
+    private void checkCOMPONENT_MUST_USE_EXISTING_CONNECTION(JsonFileViolations fileViolations, AbstractNodeType node) {
+        if (!node.isUseExistingConnection() && (node.getComponentName().equals("tMDMInput") || node.getComponentName().equals("tOracleInput"))) {
+            fileViolations.addComponentViolation(node.getUniqueName(), JsonViolationEnum.COMPONENT_MUST_USE_EXISTING_CONNECTION);
+        }
+    }
+
+    private void checkCOMPONENT_MUST_NOT_CLOSE_CONNECTION(JsonFileViolations fileViolations, AbstractNodeType node) {
+        if (node.getComponentName().equals("tMDMCommit")) {
+            if (((TMDMCommitType) node).isClose()) {
+                fileViolations.addComponentViolation(node.getUniqueName(), JsonViolationEnum.COMPONENT_MUST_NOT_CLOSE_CONNECTION);
+            }
+        }
+        if (node.getComponentName().equals("tOracleCommit")) {
+            if (((TOracleCommitType) node).isClose()) {
+                fileViolations.addComponentViolation(node.getUniqueName(), JsonViolationEnum.COMPONENT_MUST_NOT_CLOSE_CONNECTION);
+            }
+        }
+    }
+
+    private void checkAVOID_SYSTEM_OUT(JsonFileViolations fileViolations, AbstractNodeType node) {
+        if (node.getComponentName().equals("tJava")) {
+            TJavaType tJava = (TJavaType) node;
+            if (tJava.getCode().contains("System.out") || tJava.getCode().contains("System.err")) {
+                fileViolations.addComponentViolation(node.getUniqueName(), JsonViolationEnum.AVOID_SYSTEM_OUT);
+            }
+        }
+        if (node.getComponentName().equals("tJavaRow")) {
+            TJavaRowType tJavaRow = (TJavaRowType) node;
+            if (tJavaRow.getCode().contains("System.out") || tJavaRow.getCode().contains("System.err")) {
+                fileViolations.addComponentViolation(node.getUniqueName(), JsonViolationEnum.AVOID_SYSTEM_OUT);
+            }
+        }
+        if (node.getComponentName().equals("tJavaFlex")) {
+            TJavaFlexType tJava = (TJavaFlexType) node;
+            if (tJava.getCodeStart().contains("System.out") || tJava.getCodeStart().contains("System.err")
+                    || tJava.getCodeMain().contains("System.out") || tJava.getCodeMain().contains("System.err")
+                    || tJava.getCodeEnd().contains("System.out") || tJava.getCodeEnd().contains("System.err")) {
+                fileViolations.addComponentViolation(node.getUniqueName(), JsonViolationEnum.AVOID_SYSTEM_OUT);
+            }
+        }
     }
 
     class JsonViolations {
