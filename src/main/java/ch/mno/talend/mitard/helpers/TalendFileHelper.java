@@ -24,6 +24,8 @@ public class TalendFileHelper {
     }
 
     private static List<TalendFile> findLatestVersionsInternal(File folder) {
+
+        System.out.println(folder.getAbsolutePath());
         HashMap data = new HashMap();
         File[] var3 = folder.listFiles(new DirectoryFilter());
         int var4 = var3.length;

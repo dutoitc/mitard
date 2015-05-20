@@ -126,11 +126,11 @@ public class DependenciesWriter extends AbstractWriter {
         sb.append("}\n");
 
         //File tempFile = File.createTempFile("dottemp","tmp");
-        File tempFile = new File(getContext().getProductionPath()+File.separatorChar + "dependencies.dot");
+        File tempFile = new File(getContext().getProductionPath()+File.separatorChar+"data"+File.separatorChar + "dependencies.dot");
         FileWriter writer = new FileWriter(tempFile);
         IOUtils.write(sb.toString(), writer);
         writer.flush();
-        DotHelper.generatePNG(getContext().getDotPath(), getContext().getProductionPath() + File.separatorChar + "dependencies.png", tempFile);
+        DotHelper.generatePNG(getContext().getDotPath(), getContext().getProductionPath()+File.separatorChar+"data"+ File.separatorChar + "dependencies.png", tempFile);
         //System.out.println(sb.toString());
     }
 }

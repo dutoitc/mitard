@@ -1,43 +1,58 @@
 package ch.mno.talend.mitard.data;
 
+import java.io.IOException;
+import java.io.InputStream;
 import java.util.Arrays;
 import java.util.List;
+import java.util.Properties;
 
 /**
  * Created by dutoitc on 13.05.2015.
  */
 public class Context {
-    private String workspacePath="C:\\github\\Mitard\\mitard\\local\\RCENT";
-    //String workspacePath = "C:\\projets\\talend-mitard\\mitard\\src\\main\\test\\resources\\ESBTUTORIALPROJECT";
 
-//    private String productionPath = "C:\\projets\\talend-mitard\\mitard\\produced";
-    private String productionPath = "C:\\github\\Mitard\\mitard\\src\\main\\resources\\template\\data";
-    private List<String> BLACKLIST = Arrays.asList(".*TEST*", ".*TEMPLATE.*", ".*test_.*", ".*Copy_of.*", ".*MOCK.*", ".*Old", ".*Copy", ".*_old");
-    private String dotPath = "C:\\Program Files (x86)\\Graphviz2.38\\bin";
-    private String jiraUrl = "http://todo/jira/";
-    private String jiraPrefix = "SIREF-";
+    Properties properties = new Properties();
 
-    public String getWorkspacePath() {
-        return workspacePath;
+    public Context(InputStream is) {
+        properties = new Properties();
+        if (is==null) {
+            throw new RuntimeException("Canot load null properties file.");
+        }
+        try {
+            properties.load(is);
+        } catch (IOException e) {
+            throw new RuntimeException("Cannot load properties: " + e.getMessage());
+        }
     }
 
+    private String getProperty(String name) {
+        String property = properties.getProperty(name);
+        if (property==null) {
+            throw new RuntimeException("Missing context.properties' property \""+name+"\"");
+        }
+        return property;
+    }
+
+    public String getWorkspacePath() {
+        return getProperty("talendWorkspacePath");}
+
     public String getProductionPath() {
-        return productionPath;
+        return getProperty("productionPath");
     }
 
     public List<String> getBLACKLIST() {
-        return BLACKLIST;
+        return Arrays.asList(getProperty("blacklist").split(","));
     }
 
     public String getDotPath() {
-        return dotPath;
+        return getProperty("dotPath");
     }
 
     public String getJiraUrl() {
-        return jiraUrl;
+        return getProperty("jiraUrl");
     }
 
     public String getJiraPrefix() {
-        return jiraPrefix;
+        return getProperty("jiraPrefix");
     }
 }
