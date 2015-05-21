@@ -22,7 +22,6 @@ angular.module('mitardApp.violations', ['ngRoute'])
                 fileViolations.nbViolations=nbViolations;
             }
             $scope.violations=data;
-            console.log(data);
         });
 
 

@@ -1,3 +1,26 @@
 <h1>Dependencies</h1>
+<a href="data/dependencies.png" target="_blank"><img src="data/dependencies.png" style="max-width:100%; border: 1px solid silver; padding: 2px; margin: 5px;"/></a>
 
-<img src="data/dependencies.png"/>
+Under construction... links could be missing.
+
+<div ng-repeat="(key, values) in dependencies.processDependencies">
+    <b>{{key}}</b> ->
+    <ul>
+        <li ng-repeat="value in values">{{value}}</li>
+    </ul>
+</div>
+<div ng-repeat="(key, values) in dependencies.routeDependencies">
+    <b>{{key}}</b> ->
+    <ul>
+        <li ng-repeat="value in values">{{value}}</li>
+    </ul>
+</div>
+<div ng-repeat="(key, values) in service.processDependencies">
+    <b>{{key}}</b> ->
+    <ul>
+        <li ng-repeat="value in values">{{value}}</li>
+    </ul>
+</div>
+
+
+

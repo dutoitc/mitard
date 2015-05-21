@@ -10,5 +10,9 @@ angular.module('mitardApp.dependencies', ['ngRoute'])
 
 .controller('DependenciesCtrl', ['$http', '$scope', function($http, $scope) {
 
+    $http.get('data/dependencies.json')
+        .success(function(data) {
+            $scope.dependencies=data;
+    });
 
 }]);

@@ -30,10 +30,10 @@ public class Main {
         productionDir.delete();
         productionDir.mkdir();
         new File(context.getProductionPath()+File.separatorChar+"data").mkdir();
-        copyResources("/template/app", context.getProductionPath()+"/app");
-        copyResources("/template/css", context.getProductionPath()+"/css");
-        copyResources("/template/fonts", context.getProductionPath()+"/fonts");
-        copyResources("/template/js", context.getProductionPath()+"/js");
+        copyResources("/template/app", context.getProductionPath());
+        copyResources("/template/css", context.getProductionPath());
+        copyResources("/template/fonts", context.getProductionPath());
+        copyResources("/template/js", context.getProductionPath());
         copyResourcesFile("/template/index.html", context.getProductionPath() + "/index.html");
         copyResourcesFile("/template/mitard.png", context.getProductionPath()+"/mitard.png");
 
