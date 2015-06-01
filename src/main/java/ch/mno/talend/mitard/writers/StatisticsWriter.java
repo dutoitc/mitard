@@ -26,7 +26,7 @@ public class StatisticsWriter extends AbstractWriter {
         Map<String, Integer> componentTypes = new HashMap<>();
         //
         for (TalendFile file : talendFiles.getProcesses()) {
-            if (isBlacklisted(file.getName())) continue;
+            if (isBlacklisted(file.getName())|| isBlacklisted(file.getPath())) continue;
             System.out.println("Reading " + new File(file.getItemFilename()).getName());
             FileInputStream fis = new FileInputStream(file.getItemFilename());
             ProcessType process = ProcessReader.reader(fis);
@@ -44,15 +44,15 @@ public class StatisticsWriter extends AbstractWriter {
         int nbRoutes=0;
         int nbServices = 0;
         for (TalendFile file : talendFiles.getProcesses()) {
-            if (isBlacklisted(file.getName())) continue;
+            if (isBlacklisted(file.getName())|| isBlacklisted(file.getPath())) continue;
             nbProcesses++;
         }
         for (TalendFile file : talendFiles.getRoutes()) {
-            if (isBlacklisted(file.getName())) continue;
+            if (isBlacklisted(file.getName())|| isBlacklisted(file.getPath())) continue;
             nbRoutes++;
         }
         for (TalendFile file : talendFiles.getServices()) {
-            if (isBlacklisted(file.getName())) continue;
+            if (isBlacklisted(file.getName())|| isBlacklisted(file.getPath())) continue;
             nbServices++;
         }
 

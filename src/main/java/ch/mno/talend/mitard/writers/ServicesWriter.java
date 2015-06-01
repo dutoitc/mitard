@@ -23,7 +23,7 @@ public class ServicesWriter extends AbstractNodeWriter {
     public void write(TalendFiles talendFiles) throws IOException {
         JsonServices jsonServices = new JsonServices();
         for (TalendFile file : talendFiles.getServices()) {
-            if (isBlacklisted(file.getName())) continue;
+            if (isBlacklisted(file.getName())|| isBlacklisted(file.getPath())) continue;
             System.out.println("Reading " + new File(file.getItemFilename()).getName());
 
             List<String> screenshots = extractScreenshots(file);

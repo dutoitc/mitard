@@ -90,17 +90,17 @@ public class DependenciesWriter extends AbstractWriter {
 
     private void computeDependencies(TalendFiles talendFiles) throws IOException, SAXException, ParserConfigurationException {
         for (TalendFile f : talendFiles.getProcesses()) {
-            if (isBlacklisted(f.getName())) continue;
+            if (isBlacklisted(f.getName()) || isBlacklisted(f.getPath())) continue;
             String name = "P_" + normalize(f.getName());
             processDependencies.put(name, new ArrayList<String>());
         }
         for (TalendFile f : talendFiles.getRoutes()) {
-            if (isBlacklisted(f.getName())) continue;
+            if (isBlacklisted(f.getName())|| isBlacklisted(f.getPath())) continue;
             String name = "R_" + normalize(f.getName());
             routeDependencies.put(name, new ArrayList<String>());
         }
         for (TalendFile f : talendFiles.getServices()) {
-            if (isBlacklisted(f.getName())) continue;
+            if (isBlacklisted(f.getName())|| isBlacklisted(f.getPath())) continue;
             String name = "S_" + normalize(f.getName());
             serviceDependencies.put(name, new ArrayList<String>());
         }
@@ -108,7 +108,7 @@ public class DependenciesWriter extends AbstractWriter {
 
         for (TalendFile file : talendFiles.getProcesses()) {
 //            if (file.getItemFilename().contains("process")) {
-            if (isBlacklisted(file.getName())) continue;
+            if (isBlacklisted(file.getName())|| isBlacklisted(file.getPath())) continue;
             System.out.println("Reading " + new File(file.getItemFilename()).getName());
             FileInputStream fis = new FileInputStream(file.getItemFilename());
             ProcessType process = ProcessReader.reader(fis);

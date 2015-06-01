@@ -30,7 +30,7 @@ public class ViolationsWriter extends AbstractNodeWriter {
 
 
         for (TalendFile file : talendFiles.getProcesses()) {
-            if (isBlacklisted(file.getName())) continue;
+            if (isBlacklisted(file.getName()) || isBlacklisted(file.getPath())) continue;
             System.out.println("Reading " + new File(file.getItemFilename()).getName());
 
             String properties = IOUtils.toString(new FileReader(file.getPropertiesFilename()));
