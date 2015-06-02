@@ -24,7 +24,7 @@ public class RoutesWriter extends AbstractNodeWriter {
         // Routes
         JsonRoutes jsonRoutes = new JsonRoutes();
         for (TalendFile file: talendFiles.getRoutes()) {
-            if (isBlacklisted(file.getName())) continue;
+            if (isBlacklisted(file.getName())|| isBlacklisted(file.getPath())) continue;
             System.out.println("Reading " + new File(file.getItemFilename()).getName());
 
             List<String> screenshots = extractScreenshots(file);
