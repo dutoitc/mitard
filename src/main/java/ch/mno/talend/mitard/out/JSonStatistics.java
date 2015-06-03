@@ -7,6 +7,7 @@ public class JSonStatistics {
     private int nbServices;
     private int nbProcesses;
     private Map<String, Integer> componentCounts;
+    private long lastUpdate;
 
     public JSonStatistics() {
     }
@@ -41,5 +42,13 @@ public class JSonStatistics {
 
     public Map<String, Integer> getComponentCounts() {
         return componentCounts;
+    }
+
+    public long getLastUpdate() {
+        return lastUpdate;
+    }
+
+    public void setLastUpdate(long lastUpdate) {
+        this.lastUpdate = lastUpdate;
     }
 }

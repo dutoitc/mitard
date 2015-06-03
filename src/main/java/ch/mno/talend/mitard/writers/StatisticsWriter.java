@@ -62,6 +62,7 @@ public class StatisticsWriter extends AbstractWriter {
         stats.setNbRoutes(nbRoutes);
         stats.setNbServices(nbServices);
         stats.setComponentCounts(componentTypes);
+        stats.setLastUpdate(System.currentTimeMillis());
         // TODO: number of components of each type
         writeJson("statistics.json", stats);
     }
