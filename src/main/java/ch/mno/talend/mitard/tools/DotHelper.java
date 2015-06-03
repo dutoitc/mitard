@@ -20,7 +20,7 @@ public class DotHelper {
         } else if (new File(dotPath +  File.separatorChar+"dot.exe").exists()) {
             command = dotPath + File.separatorChar + "dot.exe -Tpng -o" + filename + " " + dotData.getAbsolutePath();
         } else {
-            throw new RuntimeException("Graphviz Dot not found !");
+            throw new RuntimeException("Graphviz Dot not found in "+dotPath+"!");
         }
         System.out.println(command);
         Process process = Runtime.getRuntime().exec(command);
