@@ -9,3 +9,6 @@
 [ ] nom auteur
 [ ] vue globale routes, services, process, filtrable par date, auteur, mot-clé, violations...
 [ ] Créer des services pour lire les JSON
+[ ] input, last(si tBufferOutput) devrait avoir les stats du tStatCatcher activés
+[ ] afficher les missingTests
+[ ] Criticité pour les violations
