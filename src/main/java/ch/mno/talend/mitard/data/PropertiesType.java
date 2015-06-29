@@ -10,32 +10,31 @@ import java.util.Map;
  */
 public class PropertiesType {
 
-    private List<AbstractNodeType> nodeList = new ArrayList<>();
-    private Map<String, List<String>> connections = new HashMap<>();
+    private String purpose;
+    private String description;
+    private String version;
 
-    public void addNode(AbstractNodeType node) {
-        nodeList.add(node);
+    public String getPurpose() {
+        return purpose;
     }
 
-    public List<AbstractNodeType> getNodeList() {
-        return nodeList;
+    public void setPurpose(String purpose) {
+        this.purpose = purpose;
     }
 
-    public void addConnection(String source, String target) {
-        if (connections.containsKey(source)) {
-            connections.get(source).add(target);
-        } else {
-            List<String> arr = new ArrayList<>();
-            arr.add(target);
-            connections.put(source, arr);
-        }
+    public String getDescription() {
+        return description;
     }
 
-    public List<String> getConnections(String name) {
-        return connections.get(name);
+    public void setDescription(String description) {
+        this.description = description;
     }
 
-    public Map<String, List<String>> getConnections() {
-        return connections;
+    public void setVersion(String version) {
+        this.version = version;
+    }
+
+    public String getVersion() {
+        return version;
     }
 }

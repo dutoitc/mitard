@@ -7,8 +7,10 @@ import ch.mno.talend.mitard.out.JsonRoutes;
 import org.apache.commons.io.IOUtils;
 
 import java.io.File;
+import java.io.FileInputStream;
 import java.io.FileReader;
 import java.io.IOException;
+import java.io.InputStreamReader;
 import java.util.List;
 
 /**
@@ -29,7 +31,8 @@ public class RoutesWriter extends AbstractNodeWriter {
 
             List<String> screenshots = extractScreenshots(file);
 
-            String data = IOUtils.toString(new FileReader(file.getPropertiesFilename()));
+            String data = IOUtils.toString(new InputStreamReader(new FileInputStream(file.getPropertiesFilename()), "UTF-8"));
+
             jsonRoutes.addRoute(file.getPath(), file.getName(), file.getVersion(), readPurpose(data), readDescription(data), readCreationDate(data), readModificationDate(data), screenshots);
         }
         writeJson("routes.json", jsonRoutes);

@@ -4,7 +4,10 @@ import ch.mno.talend.mitard.data.*;
 import ch.mno.talend.mitard.out.JsonFileViolations;
 import ch.mno.talend.mitard.out.JsonViolationEnum;
 import ch.mno.talend.mitard.readers.ProcessReader;
+import ch.mno.talend.mitard.readers.PropertiesReader;
+
 import org.apache.commons.io.IOUtils;
+import org.apache.commons.lang3.StringUtils;
 import org.xml.sax.SAXException;
 
 import javax.xml.parsers.ParserConfigurationException;
@@ -14,6 +17,7 @@ import java.io.FileReader;
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Map;
 
 /**
  * Created by dutoitc on 13.05.2015.
@@ -33,9 +37,10 @@ public class ViolationsWriter extends AbstractNodeWriter {
             if (isBlacklisted(file.getName()) || isBlacklisted(file.getPath())) continue;
             System.out.println("Reading " + new File(file.getItemFilename()).getName());
 
-            String properties = IOUtils.toString(new FileReader(file.getPropertiesFilename()));
-            String item = IOUtils.toString(new FileReader(file.getItemFilename()));
+//            String properties = IOUtils.toString(new FileReader(file.getPropertiesFilename()));
+//            String item = IOUtils.toString(new FileReader(file.getItemFilename()));
             JsonFileViolations fileViolations = new JsonFileViolations(file.getPath(), file.getName(), file.getVersion());
+
 
             FileInputStream fis = new FileInputStream(file.getItemFilename());
             ProcessType process = ProcessReader.reader(fis);
@@ -51,26 +56,29 @@ public class ViolationsWriter extends AbstractNodeWriter {
                 checkAVOID_SYSTEM_OUT(fileViolations, node);
                 checkTLOGCATCHER_MUST_NOT_CHAIN_TDIE(fileViolations, node, process);
             }
+            checkSERVICE_MUST_NOT_SET_DB_CONNECTION_IN_PREJOB(fileViolations, process);
 
             // RATIO_INACTIVE_MUST_BE_MAX_30_PERCENT
             if (nbInactive > process.getNodeList().size() / 3) {
                 fileViolations.addGeneralViolation(JsonViolationEnum.RATIO_INACTIVE_MUST_BE_MAX_30_PERCENT);
             }
 
+            // Properties
+            fis = new FileInputStream(file.getPropertiesFilename());
+            PropertiesType properties = PropertiesReader.reader(fis);
 
-            /*if (process.getPurpose()==null || node.getPurpose().isEmpty()) {
+
+            if (StringUtils.isEmpty(properties.getPurpose())) {
                 fileViolations.addGeneralViolation(JsonViolationEnum.MISSING_DOCUMENTATION_PURPOSE);
             }
 
 
-            if (node.getDescription()==null || node.getDescription().isEmpty()) {
+            if (StringUtils.isEmpty(properties.getDescription())) {
                 fileViolations.addGeneralViolation(JsonViolationEnum.MISSING_DOCUMENTATION_DESCRIPTION);
-            }*/
+            }
 
 
             // Missing test
-
-            // Missing documentation
 
             if (fileViolations.hasViolations()) {
                 allViolations.add(fileViolations);
@@ -95,6 +103,27 @@ public class ViolationsWriter extends AbstractNodeWriter {
         allViolations.setNbComponentViolations(nbComponentViolations);
 
         writeJson("violations.json", allViolations);
+    }
+
+    private void checkSERVICE_MUST_NOT_SET_DB_CONNECTION_IN_PREJOB(JsonFileViolations fileViolations, ProcessType process) {
+        boolean foundListener=false;
+        for (AbstractNodeType node: process.getNodeList()) {
+            if ((node.getComponentName().equals("tESBProviderRequest") || node.getComponentName().equals("tRESTRequest")) && node.isActive()) {
+                foundListener=true;
+                break;
+            }
+        }
+        if (!foundListener) return;
+        for (Map.Entry<String, List<String>> entry: process.getConnections().entrySet()) {
+            if (entry.getKey().startsWith("tPrejob")) {
+                for (String target : entry.getValue()) {
+                    if (target.startsWith("tOracleConnection") || target.startsWith("tMDMConnection")) {
+                        fileViolations.addGeneralViolation(JsonViolationEnum.SERVICE_MUST_NOT_SET_DB_CONNECTION_IN_PREJOB);
+                        return;
+                    }
+                }
+            }
+        }
     }
 
     private void checkTLOGCATCHER_MUST_NOT_CHAIN_TDIE(JsonFileViolations fileViolations, AbstractNodeType node, ProcessType process) {

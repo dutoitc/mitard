@@ -35,4 +35,7 @@ public class ProcessType {
         return connections.get(name);
     }
 
+    public Map<String, List<String>> getConnections() {
+        return connections;
+    }
 }

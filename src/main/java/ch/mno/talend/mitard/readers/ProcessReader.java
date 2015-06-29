@@ -1,6 +1,8 @@
 package ch.mno.talend.mitard.readers;
 
 import ch.mno.talend.mitard.data.*;
+
+import org.apache.commons.lang3.StringUtils;
 import org.xml.sax.Attributes;
 import org.xml.sax.InputSource;
 import org.xml.sax.SAXException;
@@ -13,6 +15,7 @@ import javax.xml.parsers.SAXParserFactory;
 import java.io.FileInputStream;
 import java.io.IOException;
 import java.io.InputStream;
+import java.io.InputStreamReader;
 
 /**
  * Note: seems to be impossible to work with XSD for Talend file (namespace not correct ?), so a parse is necessary.
@@ -69,6 +72,9 @@ public class ProcessReader extends DefaultHandler {
                 case "tJavaFlex":
                     reader = new TJavaFlexReader(componentName);
                     break;
+                case "tBonitaInstantiateProcess":
+                    reader = new TBonitaInstanciateProcessReader(componentName);
+                    break;
                 case "tLogRow":
                 case "tXMLMap":
                 case "tFixedFlowInput":
@@ -119,7 +125,6 @@ public class ProcessReader extends DefaultHandler {
                 case "tXMLInsert":
                 case "tRouteInput":
                 case "tWarn":
-                case "tBonitaInstantiateProcess":
                 case "tStatCatcher":
                 case "tOracleRollback":
                 case "tReplicate":
@@ -231,11 +236,24 @@ public class ProcessReader extends DefaultHandler {
 
         public TNodeReader(String componentName) {
             super(new TNodeType(), componentName);
+            obj = (TNodeType) super.getNode();
         }
 
         @Override
         protected void handleElement(String name, String value) {
         }
+
+
+        public void startElement(String localName, Attributes attributes) {
+            super.startElement(localName, attributes);
+            if ("NODE".equals(localName.toUpperCase())) {
+                String x = attributes.getValue("posX");
+                if (StringUtils.isNotBlank(x)) obj.setX(Integer.parseInt(x));
+                String y = attributes.getValue("posY");
+                if (StringUtils.isNotBlank(y)) obj.setX(Integer.parseInt(y));
+            }
+        }
+
     }
 
 
@@ -387,6 +405,28 @@ public class ProcessReader extends DefaultHandler {
             }
         }
     }
+
+
+    // ========================================================================================
+
+    private class TBonitaInstanciateProcessReader extends AbstractTReader {
+
+        TBonitaInstanciateProcessType obj;
+
+        public TBonitaInstanciateProcessReader(String componentName) {
+            super(new TBonitaInstanciateProcessType(), componentName);
+            obj = (TBonitaInstanciateProcessType) super.getNode();
+        }
+
+        @Override
+        protected void handleElement(String name, String value) {
+            switch (name) {
+            case "PROCESS_NAME":
+                obj.setProcessName(value);
+                break;
+            }
+        }
+    }
     // ========================================================================================
 
     private class TJavaFlexReader extends AbstractTReader {
@@ -450,7 +490,10 @@ public class ProcessReader extends DefaultHandler {
         XMLReader xmlReader = saxParser.getXMLReader();
         ProcessReader reader = new ProcessReader();
         xmlReader.setContentHandler(reader);
-        InputSource is = new InputSource(xml);
+        //InputSource is = new InputSource(xml);
+
+        InputSource is = new InputSource();
+        is.setCharacterStream(new InputStreamReader(xml, "UTF-8"));
         xmlReader.parse(is);
         return reader.process;
     }

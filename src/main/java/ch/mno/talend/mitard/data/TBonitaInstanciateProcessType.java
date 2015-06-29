@@ -9,7 +9,7 @@ public class TBonitaInstanciateProcessType extends AbstractNodeType {
 
     @Override
     public String toString() {
-        return "TJavaFlex["+getUniqueName()+"]";
+        return "TBonitaInstanciateProcessType["+getUniqueName()+"]";
     }
 
     public String getProcessName() {

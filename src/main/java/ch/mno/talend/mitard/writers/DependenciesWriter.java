@@ -55,7 +55,7 @@ public class DependenciesWriter extends AbstractWriter {
 
 
     private String normalize(String name) {
-        return name.replace("-", "_");
+        return name.replace("-", "_").replace(".", "_");
     }
 
     private void addProcessDependency(String process, String dep) {
@@ -120,6 +120,14 @@ public class DependenciesWriter extends AbstractWriter {
                 } else if (node instanceof TESBProviderRequestType) {
                     String name = "P_" + normalize(file.getName());
                     String serviceName = "S_" + normalize(((TESBProviderRequestType) node).getServiceName());
+                    addProcessDependency(name, serviceName);
+                } else if (node instanceof  TBonitaInstanciateProcessType) {
+                    String name = "P_" + normalize(file.getName());
+                    String processName=((TBonitaInstanciateProcessType) node).getProcessName();
+                    if (processName.startsWith("context.")) {
+                        processName = getContext().getProjectProperties(processName.substring(8));
+                    }
+                    String serviceName = "B_" + normalize(processName);
                     addProcessDependency(name, serviceName);
                 } else if (node instanceof TRunJobType) {
                     String name = "P_" + normalize(file.getName());

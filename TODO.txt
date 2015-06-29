@@ -12,3 +12,4 @@
 [ ] input, last(si tBufferOutput) devrait avoir les stats du tStatCatcher activés
 [ ] afficher les missingTests
 [ ] Criticité pour les violations
+[ ] afficher tous les jobs qui ont des oracle qui sont en builtin
