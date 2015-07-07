@@ -6,6 +6,7 @@ package ch.mno.talend.mitard.data;
 public class TBonitaInstanciateProcessType extends AbstractNodeType {
 
     private String processName;
+    private String processVersion;
 
     @Override
     public String toString() {
@@ -18,5 +19,13 @@ public class TBonitaInstanciateProcessType extends AbstractNodeType {
 
     public void setProcessName(String processName) {
         this.processName = processName;
+    }
+
+    public void setProcessVersion(String processVersion) {
+        this.processVersion = processVersion;
+    }
+
+    public String getProcessVersion() {
+        return processVersion;
     }
 }

@@ -57,6 +57,9 @@ public class ProcessReader extends DefaultHandler {
                 case "tRunJob":
                     reader = new TRunJobReader(componentName);
                     break;
+                case "cTalendJob":
+                    reader = new CTalendJobReader(componentName);
+                    break;
                 case "tOracleCommit":
                     reader = new TOracleCommitReader(componentName);
                     break;
@@ -306,6 +309,30 @@ public class ProcessReader extends DefaultHandler {
 
     // ========================================================================================
 
+    private class CTalendJobReader extends AbstractTReader {
+
+        CTalendJobType obj;
+
+        public CTalendJobReader(String componentName) {
+            super(new CTalendJobType(), componentName);
+            obj = (CTalendJobType) super.getNode();
+        }
+
+        @Override
+        protected void handleElement(String name, String value) {
+            switch (name) {
+            case "SELECTED_JOB_NAME":
+                obj.setProcessName(value);
+                break;
+            case "SELECTED_JOB_NAME:PROCESS_TYPE_VERSION":
+                obj.setProcessVersion(value);
+                break;
+            }
+        }
+    }
+
+    // ========================================================================================
+
     private class TRunJobReader extends AbstractTReader {
 
         TRunJobType obj;
@@ -320,6 +347,9 @@ public class ProcessReader extends DefaultHandler {
             switch (name) {
                 case "PROCESS":
                     obj.setProcessName(value);
+                    break;
+                case "PROCESS:PROCESS_TYPE_VERSION":
+                    obj.setProcessVersion(value);
                     break;
             }
         }
@@ -423,6 +453,9 @@ public class ProcessReader extends DefaultHandler {
             switch (name) {
             case "PROCESS_NAME":
                 obj.setProcessName(value);
+                break;
+            case "PROCESS_VERSION":
+                obj.setProcessVersion(value);
                 break;
             }
         }

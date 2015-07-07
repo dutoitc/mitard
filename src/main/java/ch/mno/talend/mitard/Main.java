@@ -2,8 +2,11 @@ package ch.mno.talend.mitard;
 
 
 import ch.mno.talend.mitard.data.Context;
+import ch.mno.talend.mitard.data.TalendFile;
 import ch.mno.talend.mitard.data.TalendFiles;
+import ch.mno.talend.mitard.data.TalendProjectType;
 import ch.mno.talend.mitard.helpers.TalendFileHelper;
+import ch.mno.talend.mitard.readers.TalendProjectReader;
 import ch.mno.talend.mitard.writers.*;
 import org.apache.commons.io.FileUtils;
 import org.apache.commons.io.IOUtils;
@@ -27,6 +30,10 @@ public class Main {
         Context context = new Context(new FileInputStream(args[0]));
 
         TalendFiles talendFiles = TalendFileHelper.findLatestVersions(context.getWorkspacePath());
+        for (TalendFile f: talendFiles.getProcesses()) {
+            System.out.println(f.getName() + " " + f.getVersion());
+        }
+        TalendProjectType project = TalendProjectReader.read(new FileInputStream(context.getWorkspacePath() + "/talend.project"));
 
         // Init production path
         File productionDir = new File(context.getProductionPath());
@@ -40,9 +47,9 @@ public class Main {
         new DependenciesWriter(context).write(talendFiles);
 
         // JSON
-        new ProcessesWriter(context).write(talendFiles);
-        new RoutesWriter(context).write(talendFiles);
-        new ServicesWriter(context).write(talendFiles);
+        new ProcessesWriter(context).write(talendFiles, project);
+        new RoutesWriter(context).write(talendFiles, project);
+        new ServicesWriter(context).write(talendFiles, project);
         new StatisticsWriter(context).write(talendFiles);
         new ViolationsWriter(context).write(talendFiles);
     }

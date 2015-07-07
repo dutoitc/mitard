@@ -19,7 +19,7 @@
 <div class='panel panel-default' ng-repeat="route in routes | filter:searchText">
     <div class="panel-body">
         <big><b>{{route.path}} {{route.name}} {{route.version}}</b></big>
-        <p class="text-right"><small>Créé le {{route.creationDate | date:'dd-MM-yy'}}, modifié le {{route.modificationDate | date:'dd-MM-yy'}}</small>
+        <p class="text-right"><small>Créé le {{route.creationDate | date:'dd-MM-yy'}} par {{route.authorFirstname}} {{route.authorLastname}}, Dernière modification le {{route.modificationDate | date:'dd-MM-yy'}}</small>
             <div ng-repeat="filename in route.screenshots">
                 <a href="data/{{filename}}" class="pull-right">{{filename}}</a>
             </div>

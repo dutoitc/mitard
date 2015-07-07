@@ -27,34 +27,31 @@ public class TalendFileHelper {
 
         System.out.println(folder.getAbsolutePath());
         HashMap data = new HashMap();
-        File[] var3 = folder.listFiles(new DirectoryFilter());
-        int var4 = var3.length;
+        File[] files = folder.listFiles(new DirectoryFilter());
 
-        int var5;
-        File file;
-        for(var5 = 0; var5 < var4; ++var5) {
-            file = var3[var5];
+        for (File file: files) {
             List name = findLatestVersionsInternal(file);
             Iterator p = name.iterator();
 
             while(p.hasNext()) {
-                TalendFile p2 = (TalendFile)p.next();
-                if(!data.containsKey(p2.getName()) || ((TalendFile)data.get(p2.getName())).isVersionLowerThan(p2)) {
-                    data.put(p2.getName(), p2);
+                TalendFile talendFile = (TalendFile)p.next();
+                if(!data.containsKey(talendFile.getName()) || ((TalendFile)data.get(talendFile.getName())).isVersionLowerThan(talendFile)) {
+                    data.put(talendFile.getName(), talendFile);
                 }
             }
         }
 
-        var3 = folder.listFiles(new FileItemFilter());
-        var4 = var3.length;
+        files = folder.listFiles(new FileItemFilter());
 
-        for(var5 = 0; var5 < var4; ++var5) {
-            file = var3[var5];
-            String var11 = file.getName();
-            int var12 = var11.lastIndexOf("_");
-            int var13 = var11.lastIndexOf(".");
-            TalendFile talendFile = new TalendFile(folder.getAbsolutePath(), var11.substring(0, var12), var11.substring(var12 + 1, var13));
-            data.put(talendFile.getName(), talendFile);
+        for (File file: files) {
+            String name = file.getName();
+            int var12 = name.lastIndexOf("_");
+            int var13 = name.lastIndexOf(".");
+            TalendFile talendFile = new TalendFile(folder.getAbsolutePath(), name.substring(0, var12), name.substring(var12 + 1, var13));
+//            data.put(talendFile.getName(), talendFile);
+            if(!data.containsKey(talendFile.getName()) || ((TalendFile)data.get(talendFile.getName())).isVersionLowerThan(talendFile)) {
+                data.put(talendFile.getName(), talendFile);
+            }
         }
 
         return new ArrayList(data.values());
