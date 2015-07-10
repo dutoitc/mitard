@@ -9,10 +9,15 @@ angular.module('mitardApp.dependencies', ['ngRoute'])
 }])
 
 .controller('DependenciesCtrl', ['$http', '$scope', function($http, $scope) {
+        var self = this;
 
     $http.get('data/dependencies.json')
         .success(function(data) {
             $scope.dependencies=data;
     });
+
+        this.computeTree=function() {
+            self.treeResult = "Query was " + self.treeQuery;
+        };
 
 }]);

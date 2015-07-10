@@ -15,7 +15,7 @@ import ch.mno.talend.mitard.data.TalendProjectType;
 public class TalendProjectReader {
 
 	public static TalendProjectType read(InputStream talendProjectStream) throws IOException {
-		String data = IOUtils.toString(talendProjectStream);
+		String data = IOUtils.toString(talendProjectStream, "UTF-8");
 
 		TalendProjectType project = new TalendProjectType();
 
