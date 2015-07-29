@@ -63,6 +63,11 @@ public class ViolationsWriter extends AbstractNodeWriter {
                 fileViolations.addGeneralViolation(JsonViolationEnum.RATIO_INACTIVE_MUST_BE_MAX_30_PERCENT);
             }
 
+            // TOO_MUCH_COMPONENTS
+            if (process.getNodeList().size() > 50) {
+                fileViolations.addGeneralViolation(JsonViolationEnum.TOO_MUCH_COMPONENTS);
+            }
+
             // Properties
             fis = new FileInputStream(file.getPropertiesFilename());
             PropertiesType properties = PropertiesReader.reader(fis);
@@ -205,6 +210,8 @@ public class ViolationsWriter extends AbstractNodeWriter {
             }
         }
     }
+
+
 
     class JsonViolations {
         private List<JsonFileViolations> fileViolationses = new ArrayList<>();

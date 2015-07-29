@@ -13,7 +13,8 @@ public enum JsonViolationEnum {
     MISSING_DOCUMENTATION_PURPOSE("The job 'purpose' documentation must be filled", "It is a best-practise to document job. Fill the purpose field in job parameters."),
     MISSING_DOCUMENTATION_DESCRIPTION("The job 'description' documentation must be filled", "It is a best-practise to document job. Fill the description field in job parameters."),
     LOGCATCHER_MUST_NOT_CHAIN_TDIE("The tLogCatcher component must not be chained to a tDie", "a TDie will be catched by a tLogCatcher, which will recall the tDie, etc... in an eternal loop."),
-    SERVICE_MUST_NOT_SET_DB_CONNECTION_IN_PREJOB("A job with listener must not set a DB Connection in a tPrejob", "Setting a DB connection in a tPrejob will only work for lucky times: if the database is shutdown, then again up, the connection is lost, and your job will crash on a closed connection.");
+    SERVICE_MUST_NOT_SET_DB_CONNECTION_IN_PREJOB("A job with listener must not set a DB Connection in a tPrejob", "Setting a DB connection in a tPrejob will only work for lucky times: if the database is shutdown, then again up, the connection is lost, and your job will crash on a closed connection."),
+    TOO_MUCH_COMPONENTS("Too much components (>50)", "Talend recommands 15 job maximum per process");
 
     private String description;
     private String explanations;
