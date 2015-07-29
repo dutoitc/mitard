@@ -64,9 +64,14 @@ public class ViolationsWriter extends AbstractNodeWriter {
             }
 
             // TOO_MUCH_COMPONENTS
-            if (process.getNodeList().size() > 50) {
+            // FAR_TOO_MUCH_COMPONENTS
+            if (process.getNodeList().size() > 100) {
+                fileViolations.addGeneralViolation(JsonViolationEnum.FAR_TOO_MUCH_COMPONENTS);
+            } else if (process.getNodeList().size() > 50) {
                 fileViolations.addGeneralViolation(JsonViolationEnum.TOO_MUCH_COMPONENTS);
             }
+
+
 
             // Properties
             fis = new FileInputStream(file.getPropertiesFilename());
