@@ -2,6 +2,7 @@ package ch.mno.talend.mitard.writers;
 
 import ch.mno.talend.mitard.data.*;
 import ch.mno.talend.mitard.readers.ProcessReader;
+import ch.mno.talend.mitard.readers.WorkflowReader;
 import ch.mno.talend.mitard.tools.DotHelper;
 import org.apache.commons.io.IOUtils;
 import org.xml.sax.SAXException;
@@ -24,6 +25,7 @@ public class DependenciesWriter extends AbstractWriter {
     private Map<String, List<String>> processDependencies = new HashMap<>();
     private Map<String, List<String>> routeDependencies = new HashMap<>();
     private Map<String, List<String>> serviceDependencies = new HashMap<>();
+    private Map<String, List<String>> workflowDependencies = new HashMap<>();
 
 
     /**
@@ -94,6 +96,16 @@ public class DependenciesWriter extends AbstractWriter {
         }
     }
 
+    private void addWorkflowDependency(String process, String dep) {
+        if (workflowDependencies.containsKey(process)) {
+            workflowDependencies.get(process).add(dep);
+        } else {
+            List<String> list = new ArrayList<>();
+            list.add(dep);
+            workflowDependencies.put(process, list);
+        }
+    }
+
     private void computeDependencies(TalendFiles talendFiles) throws IOException, SAXException, ParserConfigurationException {
         // 1st-pass: keep latests versions, processes by id, dependencies
         Map<String, String> latestsVersions = new HashMap<>();
@@ -141,7 +153,7 @@ public class DependenciesWriter extends AbstractWriter {
 
             // Services -> P_xxx (implementing process)
             String properties = IOUtils.toString(new FileInputStream(f.getItemFilename()));
-            System.out.println(properties);
+//            System.out.println(properties);
             Matcher matcherItem = Pattern.compile("referenceJobId=\"(.*?)\"").matcher(properties);
             if (matcherItem.find()) {
                 // Note: some external services could be defined, to call for example services on the internet, which of course are not implemented in the workspace !
@@ -152,6 +164,20 @@ public class DependenciesWriter extends AbstractWriter {
                 } else {
                     addProcessDependency(name, process);
                 }
+            }
+        }
+
+        for (TalendFile f: talendFiles.getMDMWorkflowProc()) {
+            if (isBlacklisted(f.getName()) || isBlacklisted(f.getPath())) continue;
+            String filename = f.getProcFilename();
+            System.out.println("Reading " + filename);
+            FileInputStream fis = new FileInputStream(filename);
+            WorkflowType workflow = WorkflowReader.read(fis);
+            String source = "B_" +  normalize(f.getName(), f.getVersion());
+
+            for (String service: workflow.getServices()) {
+                String dest = findLatestService(service);
+                addWorkflowDependency(source, dest);
             }
         }
 
@@ -215,6 +241,30 @@ public class DependenciesWriter extends AbstractWriter {
         }
     }
 
+    private boolean isBetter(String id1, String best, String current) {
+        int p = id1.length()+1;
+        String v1 = best.substring(p);
+        String v2 = current.substring(p);
+        v1 = v1.replace("_", ".");
+        v2 = v2.replace("_", ".");
+        if (v2.charAt(0)<='0' || v2.charAt(0)>='9') return false;
+        if (v1.charAt(0)<='0' || v2.charAt(0)>='9') return false;
+        float v1f = Float.parseFloat(v1);
+        float v2f = Float.parseFloat(v2);
+        return v2f>v1f;
+    }
+
+    private String findLatestService(String service) {
+        String needle = "S_" + service;
+        String best = "";
+        for (String key: serviceDependencies.keySet()) {
+            if (key.startsWith(needle) && (best=="" || isBetter(needle, best, key))) {
+                best = key;
+            }
+        }
+        return best;
+    }
+
     private String getLatestVersion(Map<String, String> latestsVersions, String id) {
         String value = latestsVersions.get(id);
         if (value==null) {
@@ -236,6 +286,9 @@ public class DependenciesWriter extends AbstractWriter {
         for (String name : serviceDependencies.keySet()) {
             sb.append("   " + name + " [shape=ellipse, style=filled, fillcolor=green, color=green, label=\"" + name + "\"];\r\n");
         }
+        for (String name : workflowDependencies.keySet()) {
+            sb.append("   " + name + " [shape=house, style=filled, fillcolor=green, color=green, label=\"" + name + "\"];\r\n");
+        }
 
         for (Map.Entry<String, List<String>> entry : processDependencies.entrySet()) {
             for (String target : entry.getValue()) {
@@ -248,6 +301,11 @@ public class DependenciesWriter extends AbstractWriter {
             }
         }
         for (Map.Entry<String, List<String>> entry : serviceDependencies.entrySet()) {
+            for (String target : entry.getValue()) {
+                sb.append("   " + entry.getKey() + "->" + target + "\r\n");
+            }
+        }
+        for (Map.Entry<String, List<String>> entry : workflowDependencies.entrySet()) {
             for (String target : entry.getValue()) {
                 sb.append("   " + entry.getKey() + "->" + target + "\r\n");
             }

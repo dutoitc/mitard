@@ -25,6 +25,10 @@ public class TalendFile {
         return this.path + File.separatorChar + this.name + "_" + this.version + ".screenshot";
     }
 
+    public String getProcFilename() {
+        return this.path + File.separatorChar + this.name + "_" + this.version + ".proc";
+    }
+
     public String getName() {
         return this.name;
     }
@@ -58,4 +62,5 @@ public class TalendFile {
         p = Math.max(path.indexOf("/", p), path.indexOf('\\', p));
         return path.substring(p+1);
     }
+
 }

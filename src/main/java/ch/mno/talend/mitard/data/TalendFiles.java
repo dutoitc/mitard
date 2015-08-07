@@ -10,6 +10,7 @@ public class TalendFiles {
     private List<TalendFile> processes;
     private List<TalendFile> routes;
     private List<TalendFile> services;
+    private List<TalendFile> mdmWorkflowProc;
 
     public List<TalendFile> getProcesses() {
         return processes;
@@ -33,5 +34,13 @@ public class TalendFiles {
 
     public void setServices(List<TalendFile> services) {
         this.services = services;
+    }
+
+    public void setMDMWorkflowProc(List<TalendFile> MDMWorkflowProc) {
+        this.mdmWorkflowProc = MDMWorkflowProc;
+    }
+
+    public List<TalendFile> getMDMWorkflowProc() {
+        return mdmWorkflowProc;
     }
 }

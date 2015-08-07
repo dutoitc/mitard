@@ -4,9 +4,11 @@
 Under construction... some links could be missing.<br/><br/>
 
 
-Tree query: <input ng-model="treeQuery" ng-change="computeTree()"></input>
-<div ng-model="treeResult">
-    </div>
+Tree query: <input ng-model="treeQuery" ng-change="computeTree()">
+<br/>
+
+<div data-ng-bind-html="treeResult" style="border: 1px solid lightblue; padding: 7px;"></div>
+
 
 
 <a href="data/dependencies.png" target="_blank"><img src="data/dependencies.png" style="max-width:800px; border: 1px solid silver; padding: 2px; margin: 5px;"/></a>
