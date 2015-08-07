@@ -241,17 +241,22 @@ public class DependenciesWriter extends AbstractWriter {
         }
     }
 
-    private boolean isBetter(String id1, String best, String current) {
+    private boolean isBetter(String id1, String reference, String candidate) {
+        if (candidate.equals("latest")) return true;
         int p = id1.length()+1;
-        String v1 = best.substring(p);
-        String v2 = current.substring(p);
+        String v1 = reference.substring(p);
+        String v2 = candidate.substring(p);
         v1 = v1.replace("_", ".");
         v2 = v2.replace("_", ".");
         if (v2.charAt(0)<='0' || v2.charAt(0)>='9') return false;
         if (v1.charAt(0)<='0' || v2.charAt(0)>='9') return false;
-        float v1f = Float.parseFloat(v1);
-        float v2f = Float.parseFloat(v2);
-        return v2f>v1f;
+        try {
+            float v1f = Float.parseFloat(v1);
+            float v2f = Float.parseFloat(v2);
+            return v2f>v1f;
+        } catch (Exception e) {
+            return false;
+        }
     }
 
     private String findLatestService(String service) {
