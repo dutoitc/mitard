@@ -33,8 +33,10 @@ angular.module('mitardApp.dependencies', ['ngRoute'])
             var lst = $.extend({}, $scope.dependencies.processDependencies, $scope.dependencies.serviceDependencies, $scope.dependencies.routeDependencies);
 
 
+            var lquery = query.toLowerCase();
             for (var key in lst) {
-                if ((contains && key.indexOf(query)>=0) || (!contains && key==query)) {
+                var lkey = key.toLowerCase();
+                if ((contains && lkey.indexOf(lquery)>=0) || (!contains && lkey==lquery)) {
                     for (var i=0; i<indent; i++) result+="&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;";
                     result+=key+"<br/>";
                     if (limit>0) {

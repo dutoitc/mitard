@@ -253,7 +253,9 @@ public class ProcessReader extends DefaultHandler {
                 String x = attributes.getValue("posX");
                 if (StringUtils.isNotBlank(x)) obj.setX(Integer.parseInt(x));
                 String y = attributes.getValue("posY");
-                if (StringUtils.isNotBlank(y)) obj.setX(Integer.parseInt(y));
+                if (StringUtils.isNotBlank(y)) obj.setY(Integer.parseInt(y));
+            } else if ("ELEMENTPARAMETER".equals(localName.toUpperCase())) {
+                obj.addElementParameter(attributes.getValue("field"), attributes.getValue("name"), attributes.getValue("value"));
             }
         }
 

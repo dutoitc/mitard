@@ -55,6 +55,7 @@ public class ViolationsWriter extends AbstractNodeWriter {
                 checkCOMPONENT_MUST_NOT_CLOSE_CONNECTION(fileViolations, node);
                 checkAVOID_SYSTEM_OUT(fileViolations, node);
                 checkTLOGCATCHER_MUST_NOT_CHAIN_TDIE(fileViolations, node, process);
+                checkFIRECREATEEVENT_MUST_BE_SET(fileViolations, node, process);
             }
             checkSERVICE_MUST_NOT_SET_DB_CONNECTION_IN_PREJOB(fileViolations, process);
 
@@ -135,6 +136,18 @@ public class ViolationsWriter extends AbstractNodeWriter {
             }
         }
     }
+
+
+    private void checkFIRECREATEEVENT_MUST_BE_SET(JsonFileViolations fileViolations, AbstractNodeType node, ProcessType process) {
+        if (node.getComponentName().equals("tMDMOutput")) {
+            String source = node.getUniqueName();
+            TNodeType nodeType = (TNodeType) node;
+            if ("false".equals(nodeType.getValue("WITHREPORT"))) {
+                fileViolations.addComponentViolation(node.getUniqueName(), JsonViolationEnum.FIRECREATEEVENT_MUST_BE_SET);
+            }
+        }
+    }
+
 
     private void checkTLOGCATCHER_MUST_NOT_CHAIN_TDIE(JsonFileViolations fileViolations, AbstractNodeType node, ProcessType process) {
         if (node.getComponentName().equals("tLogCatcher")) {

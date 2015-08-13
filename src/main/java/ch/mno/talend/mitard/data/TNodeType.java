@@ -1,11 +1,15 @@
 package ch.mno.talend.mitard.data;
 
+import java.util.HashMap;
+import java.util.Map;
+
 /**
  * Created by dutoitc on 10.05.2015.
  */
 public class TNodeType extends AbstractNodeType {
 
     private int x, y;
+    private Map<String, String> fieldValues = new HashMap<>();
 
 
     @Override
@@ -27,6 +31,14 @@ public class TNodeType extends AbstractNodeType {
 
     public void setY(int y) {
         this.y = y;
+    }
+
+    public void addElementParameter(String field, String name, String value) {
+        fieldValues.put(name, value);
+    }
+
+    public String getValue(String name) {
+        return fieldValues.get(name);
     }
 
 }
