@@ -56,6 +56,7 @@ public class ViolationsWriter extends AbstractNodeWriter {
                 checkAVOID_SYSTEM_OUT(fileViolations, node);
                 checkTLOGCATCHER_MUST_NOT_CHAIN_TDIE(fileViolations, node, process);
                 checkFIRECREATEEVENT_MUST_BE_SET(fileViolations, node, process);
+                checkTRUNJOB_MUST_PROPAGATE_CHILD_RESULT(fileViolations, node);
             }
             checkSERVICE_MUST_NOT_SET_DB_CONNECTION_IN_PREJOB(fileViolations, process);
 
@@ -186,6 +187,15 @@ public class ViolationsWriter extends AbstractNodeWriter {
             }
         }
     }
+
+    private void checkTRUNJOB_MUST_PROPAGATE_CHILD_RESULT(JsonFileViolations fileViolations, AbstractNodeType node) {
+        if (node instanceof TRunJobType) {
+            if (!((TRunJobType) node).getPropagateChildResult().equals("true")) {
+                fileViolations.addComponentViolation(node.getUniqueName(), JsonViolationEnum.TRUNJOB_MUST_PROPAGATE_CHILD_RESULT);
+            }
+        }
+    }
+
 
     private void checkCOMPONENT_MUST_USE_EXISTING_CONNECTION(JsonFileViolations fileViolations, AbstractNodeType node) {
         if (!node.isUseExistingConnection() && (node.getComponentName().equals("tMDMInput") || node.getComponentName().equals("tOracleInput"))) {

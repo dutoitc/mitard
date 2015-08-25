@@ -7,6 +7,7 @@ public class TRunJobType extends AbstractNodeType {
 
     private String processName;
     private String processVersion;
+    private String propagateChildResult;
 
 
     public String getProcessName() {
@@ -28,5 +29,13 @@ public class TRunJobType extends AbstractNodeType {
 
     public String getProcessVersion() {
         return processVersion;
+    }
+
+    public void setPropagateChildResult(String propagateChildResult) {
+        this.propagateChildResult = propagateChildResult;
+    }
+
+    public String getPropagateChildResult() {
+        return propagateChildResult;
     }
 }

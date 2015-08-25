@@ -16,7 +16,8 @@ public enum JsonViolationEnum {
     SERVICE_MUST_NOT_SET_DB_CONNECTION_IN_PREJOB("A job with listener must not set a DB Connection in a tPrejob", "Setting a DB connection in a tPrejob will only work for lucky times: if the database is shutdown, then again up, the connection is lost, and your job will crash on a closed connection."),
     FIRECREATEEVENT_MUST_BE_SET("A tMDMOutput must have fireEvent set (WITHREPORT)", ""),
     TOO_MUCH_COMPONENTS("Too much components (>50)", "Talend recommands 15 job maximum per process"),
-    FAR_TOO_MUCH_COMPONENTS("Too much components (>100)", "Talend recommands 15 job maximum per process");
+    FAR_TOO_MUCH_COMPONENTS("Too much components (>100)", "Talend recommands 15 job maximum per process"),
+    TRUNJOB_MUST_PROPAGATE_CHILD_RESULT("a tRunJob should propagate child result", "Child result propagation COULD happen if the schema is the same, but not always. It is a best-practise to propagate child result.");
 
     private String description;
     private String explanations;

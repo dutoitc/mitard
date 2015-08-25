@@ -353,6 +353,9 @@ public class ProcessReader extends DefaultHandler {
                 case "PROCESS:PROCESS_TYPE_VERSION":
                     obj.setProcessVersion(value);
                     break;
+                case "PROPAGATE_CHILD_RESULT":
+                    obj.setPropagateChildResult(value);
+                    break;
             }
         }
     }
