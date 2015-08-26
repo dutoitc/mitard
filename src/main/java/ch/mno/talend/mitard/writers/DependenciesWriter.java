@@ -59,6 +59,7 @@ public class DependenciesWriter extends AbstractWriter {
 
 
     private String normalize(String name, String version) {
+        if (version==null) return "";
         if (version.startsWith("context")) {
             version = getContext().getProjectProperties(version.substring(8));
         }
