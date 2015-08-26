@@ -213,8 +213,8 @@ public class DependenciesWriter extends AbstractWriter {
                         processName = getContext().getProjectProperties(processName.substring(8));
                     }
                     String version = ((TBonitaInstanciateProcessType) node).getProcessVersion();
-                    if (version.startsWith("context")) version = getContext().getProjectProperties(version.substring(8));
-                    if (version.toLowerCase().equals("latest")) version = getLatestVersion(latestsVersions, "S_"+processName);
+                    if (version!=null && version.startsWith("context")) version = getContext().getProjectProperties(version.substring(8));
+                    if (version!=null && version.toLowerCase().equals("latest")) version = getLatestVersion(latestsVersions, "S_"+processName);
                     String serviceName = "B_" + normalize(processName, version);
                     addProcessDependency(name, serviceName);
 
