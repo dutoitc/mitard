@@ -52,6 +52,7 @@ public class Main {
         new ServicesWriter(context).write(talendFiles, project);
         new StatisticsWriter(context).write(talendFiles);
         new ViolationsWriter(context).write(talendFiles);
+        new SearchWriter(context).write(talendFiles);
     }
 
     private static void initTemplate(Context context) throws IOException {

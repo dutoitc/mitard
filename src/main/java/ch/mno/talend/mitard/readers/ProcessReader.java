@@ -78,6 +78,9 @@ public class ProcessReader extends DefaultHandler {
                 case "tBonitaInstantiateProcess":
                     reader = new TBonitaInstanciateProcessReader(componentName);
                     break;
+                case "tDie":
+                    reader = new TDieReader(componentName);
+                    break;
                 case "tLogRow":
                 case "tXMLMap":
                 case "tFixedFlowInput":
@@ -119,7 +122,6 @@ public class ProcessReader extends DefaultHandler {
                 case "tUniqRow":
                 case "tUnite":
                 case "tAggregateRow":
-                case "tDie":
                 case "tBufferInput":
                 case "tFilterRow":
                 case "tOracleRow":
@@ -488,6 +490,26 @@ public class ProcessReader extends DefaultHandler {
                 case "CODE_END":
                     obj.setCodeEnd(value);
                     break;
+            }
+        }
+    }
+    // ========================================================================================
+
+    private class TDieReader extends AbstractTReader {
+
+        TDieType obj;
+
+        public TDieReader(String componentName) {
+            super(new TDieType(), componentName);
+            obj = (TDieType) super.getNode();
+        }
+
+        @Override
+        protected void handleElement(String name, String value) {
+            switch (name) {
+            case "MESSAGE":
+                obj.setMessage(value);
+                break;
             }
         }
     }
