@@ -4,7 +4,9 @@
 ./app/views
 ./app/views/routes.html
 ./app/views/overview.html
+./app/views/search.html
 ./app/views/services.html
+./app/views/versions.html
 ./app/views/dependencies.html
 ./app/views/help.html
 ./app/views/processes.html
@@ -14,7 +16,11 @@
 ./app/controllers/violations.js
 ./app/controllers/components.js
 ./app/controllers/applicationController.js
+./app/controllers/versions.js
 ./app/controllers/overview.js
+./app/controllers/search.js
+./data
+./refreshIndexTxt.sh
 ./mitard.png
 ./index.txt
 ./js
@@ -38,5 +44,6 @@
 ./css
 ./css/dashboard.css
 ./css/jqx.base.css
+./css/mitard.css
 ./css/bootstrap.min.css
 ./index.html

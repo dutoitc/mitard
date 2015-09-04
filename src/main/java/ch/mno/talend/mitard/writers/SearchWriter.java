@@ -17,6 +17,7 @@ import ch.mno.talend.mitard.data.Context;
 import ch.mno.talend.mitard.data.ProcessType;
 import ch.mno.talend.mitard.data.PropertiesType;
 import ch.mno.talend.mitard.data.TDieType;
+import ch.mno.talend.mitard.data.TFixedFlowInputType;
 import ch.mno.talend.mitard.data.TJavaFlexType;
 import ch.mno.talend.mitard.data.TJavaRowType;
 import ch.mno.talend.mitard.data.TJavaType;
@@ -73,6 +74,10 @@ public class SearchWriter extends AbstractNodeWriter {
                 } else if (node instanceof TDieType) {
                     TDieType node1 = (TDieType) node;
                     String text = node1.getMessage();
+                    textFile.addText(node.getUniqueName(), text);
+                } else if (node instanceof TFixedFlowInputType) {
+                    TFixedFlowInputType node1 = (TFixedFlowInputType) node;
+                    String text = node1.getText();
                     textFile.addText(node.getUniqueName(), text);
                 }
             }

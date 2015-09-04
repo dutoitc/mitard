@@ -81,9 +81,11 @@ public class ProcessReader extends DefaultHandler {
                 case "tDie":
                     reader = new TDieReader(componentName);
                     break;
+                case "tFixedFlowInput":
+                    reader = new TFixedFlowInputReader(componentName);
+                    break;
                 case "tLogRow":
                 case "tXMLMap":
-                case "tFixedFlowInput":
                 case "tFlowToIterate":
                 case "tMysqlInput":
                 case "tRowGenerator":
@@ -509,6 +511,27 @@ public class ProcessReader extends DefaultHandler {
             switch (name) {
             case "MESSAGE":
                 obj.setMessage(value);
+                break;
+            }
+        }
+    }
+
+    // ========================================================================================
+
+    private class TFixedFlowInputReader extends AbstractTReader {
+
+        TFixedFlowInputType obj;
+
+        public TFixedFlowInputReader(String componentName) {
+            super(new TFixedFlowInputType(), componentName);
+            obj = (TFixedFlowInputType) super.getNode();
+        }
+
+        @Override
+        protected void handleElement(String name, String value) {
+            switch (name) {
+            case "VALUE":
+                obj.addText(value);
                 break;
             }
         }

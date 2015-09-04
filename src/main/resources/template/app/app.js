@@ -7,6 +7,7 @@ var mitardApp = angular.module('mitardApp', [
   'mitardApp.components',
   'mitardApp.dependencies',
   'mitardApp.violations',
+  'mitardApp.versions',
   'mitardApp.search',
   'ui.bootstrap'
 ])
