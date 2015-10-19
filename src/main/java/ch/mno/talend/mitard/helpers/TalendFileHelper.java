@@ -30,14 +30,16 @@ public class TalendFileHelper {
 
     private static List<TalendFile> findLatestVersionsInternal(File folder) {
 
-        System.out.println(folder.getAbsolutePath());
+//        System.out.println(folder.getAbsolutePath());
         HashMap data = new HashMap();
         File[] files = folder.listFiles(new DirectoryFilter());
 
+        // Folder
         for (File file: files) {
             List name = findLatestVersionsInternal(file);
             Iterator p = name.iterator();
 
+            // Add files found by recursion call
             while(p.hasNext()) {
                 TalendFile talendFile = (TalendFile)p.next();
                 if(!data.containsKey(talendFile.getName()) || ((TalendFile)data.get(talendFile.getName())).isVersionLowerThan(talendFile)) {
@@ -46,15 +48,14 @@ public class TalendFileHelper {
             }
         }
 
+        // Files
         files = folder.listFiles(new FileItemFilter());
-
         for (File file: files) {
             String name = file.getName();
             int var12 = name.lastIndexOf("_");
             int var13 = name.lastIndexOf(".");
             TalendFile talendFile = new TalendFile(folder.getAbsolutePath(), name.substring(0, var12), name.substring(var12 + 1, var13));
-//            data.put(talendFile.getName(), talendFile);
-            if(!data.containsKey(talendFile.getName()) || ((TalendFile)data.get(talendFile.getName())).isVersionLowerThan(talendFile)) {
+            if(talendFile.existThreeFiles() && (!data.containsKey(talendFile.getName()) || ((TalendFile)data.get(talendFile.getName())).isVersionLowerThan(talendFile))) {
                 data.put(talendFile.getName(), talendFile);
             }
         }

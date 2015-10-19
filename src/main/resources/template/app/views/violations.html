@@ -30,7 +30,7 @@ Component violations: {{violations.nbComponentViolations}}<br/>
         <div ng-repeat="(key, values) in fileViolations.componentViolations">
             {{key}}
             <ul>
-                <li ng-repeat="value in values">{{value}}</li>
+                <li ng-repeat="value in values" data-toggle="tooltip" data-placement="right" title="Tooltip on right">{{value}}</li>
             </ul>
         </div>
 

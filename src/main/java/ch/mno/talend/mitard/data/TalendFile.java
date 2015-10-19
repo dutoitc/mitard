@@ -63,4 +63,7 @@ public class TalendFile {
         return path.substring(p+1);
     }
 
+    public boolean existThreeFiles() {
+        return new File(getItemFilename()).exists() && new File(getPropertiesFilename()).exists() && new File(getScreenshotFilename()).exists();
+    }
 }

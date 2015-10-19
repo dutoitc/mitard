@@ -118,11 +118,15 @@ public class DependenciesWriter extends AbstractWriter {
             latestsVersions.put("P_"+f.getName(), f.getVersion());
 
             // Read id for services which are linked to processes
-            String properties = IOUtils.toString(new FileInputStream(f.getPropertiesFilename()));
-            Matcher matcherItem = Pattern.compile("TalendProperties:Property.*?\\ id=\"(.*?)\"").matcher(properties);
-            matcherItem.find();
-            String fileId = matcherItem.group(1);
-            processesById.put(fileId, name);
+            try {
+                String properties = IOUtils.toString(new FileInputStream(f.getPropertiesFilename()));
+                Matcher matcherItem = Pattern.compile("TalendProperties:Property.*?\\ id=\"(.*?)\"").matcher(properties);
+                matcherItem.find();
+                String fileId = matcherItem.group(1);
+                processesById.put(fileId, name);
+            } catch (Exception e) {
+                e.printStackTrace();
+            }
         }
         for (TalendFile f : talendFiles.getRoutes()) {
             if (isBlacklisted(f.getName())|| isBlacklisted(f.getPath())) continue;
