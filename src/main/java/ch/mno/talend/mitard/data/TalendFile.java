@@ -64,6 +64,7 @@ public class TalendFile {
     }
 
     public boolean existThreeFiles() {
-        return new File(getItemFilename()).exists() && new File(getPropertiesFilename()).exists() && new File(getScreenshotFilename()).exists();
+        // Note: services have .wsdl but no .screenshot
+        return new File(getItemFilename()).exists() && new File(getPropertiesFilename()).exists() && (this.path.contains("services") || new File(getScreenshotFilename()).exists());
     }
 }

@@ -1,6 +1,9 @@
 package ch.mno.talend.mitard.writers;
 
+import jdk.nashorn.internal.scripts.JS;
+
 import ch.mno.talend.mitard.data.*;
+import ch.mno.talend.mitard.helpers.TalendFileHelper;
 import ch.mno.talend.mitard.out.JsonFileViolations;
 import ch.mno.talend.mitard.out.JsonViolationEnum;
 import ch.mno.talend.mitard.readers.ProcessReader;
@@ -31,6 +34,12 @@ public class ViolationsWriter extends AbstractNodeWriter {
 
     public void write(TalendFiles talendFiles) throws IOException, ParserConfigurationException, SAXException {
         JsonViolations allViolations = new JsonViolations();
+
+        for (TalendFile file: talendFiles.getUnstableFiles()) {
+            JsonFileViolations fileViolations = new JsonFileViolations(file.getPath(), file.getName(), file.getVersion());
+            fileViolations.addGeneralViolation(JsonViolationEnum.UNSTABLE_FILES);
+            allViolations.add(fileViolations);
+        }
 
 
         for (TalendFile file : talendFiles.getProcesses()) {
@@ -101,6 +110,8 @@ public class ViolationsWriter extends AbstractNodeWriter {
         // TODO: routes
 
         // TODO: services
+
+
 
         // Count
         int nbGeneralViolations = 0;

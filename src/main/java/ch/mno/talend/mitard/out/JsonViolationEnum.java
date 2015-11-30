@@ -17,7 +17,8 @@ public enum JsonViolationEnum {
     FIRECREATEEVENT_MUST_BE_SET("A tMDMOutput must have fireEvent set (WITHREPORT)", ""),
     TOO_MUCH_COMPONENTS("Too much components (>50)", "Talend recommands 15 job maximum per process"),
     FAR_TOO_MUCH_COMPONENTS("Too much components (>100)", "Talend recommands 15 job maximum per process"),
-    TRUNJOB_MUST_PROPAGATE_CHILD_RESULT("a tRunJob should propagate child result", "Child result propagation COULD happen if the schema is the same, but not always. It is a best-practise to propagate child result.");
+    TRUNJOB_MUST_PROPAGATE_CHILD_RESULT("a tRunJob should propagate child result", "Child result propagation COULD happen if the schema is the same, but not always. It is a best-practise to propagate child result."),
+    UNSTABLE_FILES("missing files for a component, 3 needed", "a component (process) must have 3 files. Some are missing. This could lead in unpredictable behaviour");
 
     private String description;
     private String explanations;
