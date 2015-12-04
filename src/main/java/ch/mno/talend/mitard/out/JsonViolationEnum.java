@@ -12,7 +12,13 @@ public enum JsonViolationEnum {
     COMPONENT_MUST_NOT_CLOSE_CONNECTION("A commit component must not close the connection. Use explicit connection close component instead.", "Asking to close a connection from a component could be an easy way to close a connexion, but it is not easily readable. A connection close component is more readable."),
     MISSING_DOCUMENTATION_PURPOSE("The job 'purpose' documentation must be filled", "It is a best-practise to document job. Fill the purpose field in job parameters."),
     MISSING_DOCUMENTATION_DESCRIPTION("The job 'description' documentation must be filled", "It is a best-practise to document job. Fill the description field in job parameters."),
-    LOGCATCHER_MUST_NOT_CHAIN_TDIE("The tLogCatcher component must not be chained to a tDie", "a TDie will be catched by a tLogCatcher, which will recall the tDie, etc... in an eternal loop.");
+    LOGCATCHER_MUST_NOT_CHAIN_TDIE("The tLogCatcher component must not be chained to a tDie", "a TDie will be catched by a tLogCatcher, which will recall the tDie, etc... in an eternal loop."),
+    SERVICE_MUST_NOT_SET_DB_CONNECTION_IN_PREJOB("A job with listener must not set a DB Connection in a tPrejob", "Setting a DB connection in a tPrejob will only work for lucky times: if the database is shutdown, then again up, the connection is lost, and your job will crash on a closed connection."),
+    FIRECREATEEVENT_MUST_BE_SET("A tMDMOutput must have fireEvent set (WITHREPORT)", ""),
+    TOO_MUCH_COMPONENTS("Too much components (>50)", "Talend recommands 15 job maximum per process"),
+    FAR_TOO_MUCH_COMPONENTS("Too much components (>100)", "Talend recommands 15 job maximum per process"),
+    TRUNJOB_MUST_PROPAGATE_CHILD_RESULT("a tRunJob should propagate child result", "Child result propagation COULD happen if the schema is the same, but not always. It is a best-practise to propagate child result."),
+    UNSTABLE_FILES("missing files for a component, 3 needed", "a component (process) must have 3 files. Some are missing. This could lead in unpredictable behaviour");
 
     private String description;
     private String explanations;

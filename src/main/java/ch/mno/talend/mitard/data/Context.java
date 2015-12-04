@@ -1,10 +1,15 @@
 package ch.mno.talend.mitard.data;
 
+import java.io.File;
+import java.io.FileInputStream;
+import java.io.FileNotFoundException;
 import java.io.IOException;
 import java.io.InputStream;
 import java.util.Arrays;
 import java.util.List;
 import java.util.Properties;
+
+import org.apache.commons.io.IOUtils;
 
 /**
  * Created by dutoitc on 13.05.2015.
@@ -12,6 +17,7 @@ import java.util.Properties;
 public class Context {
 
     Properties properties = new Properties();
+    Properties projectProperties = new Properties();
 
     public Context(InputStream is) {
         properties = new Properties();
@@ -23,6 +29,27 @@ public class Context {
         } catch (IOException e) {
             throw new RuntimeException("Cannot load properties: " + e.getMessage());
         }
+
+        // Load project properties
+        for (String path:  properties.getProperty("properties").split(",")) {
+            String location = properties.getProperty("talendWorkspacePath") + File.separatorChar + path;
+            try (FileInputStream fis = new FileInputStream(location)) {
+                assert fis != null;
+                for (String line: IOUtils.toString(fis).split("\n")) {
+                    String[] spl = line.split(";");
+                    if (spl.length==2) {
+                        projectProperties.put(spl[0], spl[1]);
+                    }
+                }
+            }
+            catch (FileNotFoundException e) {
+                e.printStackTrace();
+            }
+            catch (IOException e) {
+                e.printStackTrace();
+            }
+        }
+
     }
 
     private String getProperty(String name) {
@@ -54,5 +81,10 @@ public class Context {
 
     public String getJiraPrefix() {
         return getProperty("jiraPrefix");
+    }
+
+
+    public String getProjectProperties(String key) {
+        return projectProperties.getProperty(key);
     }
 }

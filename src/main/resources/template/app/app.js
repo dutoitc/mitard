@@ -7,6 +7,8 @@ var mitardApp = angular.module('mitardApp', [
   'mitardApp.components',
   'mitardApp.dependencies',
   'mitardApp.violations',
+  'mitardApp.versions',
+  'mitardApp.search',
   'ui.bootstrap'
 ])
 .config(['$routeProvider', '$httpProvider', function($routeProvider, $httpProvider) {
@@ -20,5 +22,4 @@ var mitardApp = angular.module('mitardApp', [
         return function(text) {
             return $sce.trustAsHtml(text);
         };
-    }]);
-;
+}]);

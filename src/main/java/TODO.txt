@@ -1,0 +1,7 @@
+TODO-List Mitard
+
+Technical Debt: count the number of jobs calling tRunJob which version is not the latest
+
+Violation priorities and criticities
+
+Violation : "[" + ... + "]" -> MDM.createFK()

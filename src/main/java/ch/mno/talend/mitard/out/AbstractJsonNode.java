@@ -15,7 +15,9 @@ public class AbstractJsonNode {
     private Date creationDate;
     private Date modificationDate;
 
-    public AbstractJsonNode(String path, String name, String version, String purpose, String description, Date creationDate, Date modificationDate) {
+    private String authorId, authorLogin, authorFirstname, authorLastname;
+
+    public AbstractJsonNode(String path, String name, String version, String purpose, String description, Date creationDate, Date modificationDate, String authorId, String authorLogin, String authorFirstname, String authorLastname) {
         this.path = path;
         this.name = name;
         this.version = version;
@@ -23,6 +25,10 @@ public class AbstractJsonNode {
         this.description = description;
         this.creationDate = creationDate;
         this.modificationDate = modificationDate;
+        this.authorId = authorId;
+        this.authorLogin = authorLogin;
+        this.authorFirstname = authorFirstname;
+        this.authorLastname = authorLastname;
     }
 
     public String getPath() {
@@ -79,5 +85,37 @@ public class AbstractJsonNode {
 
     public void setModificationDate(Date modificationDate) {
         this.modificationDate = modificationDate;
+    }
+
+    public String getAuthorId() {
+        return authorId;
+    }
+
+    public void setAuthorId(String authorId) {
+        this.authorId = authorId;
+    }
+
+    public String getAuthorLogin() {
+        return authorLogin;
+    }
+
+    public void setAuthorLogin(String authorLogin) {
+        this.authorLogin = authorLogin;
+    }
+
+    public String getAuthorFirstname() {
+        return authorFirstname;
+    }
+
+    public void setAuthorFirstname(String authorFirstname) {
+        this.authorFirstname = authorFirstname;
+    }
+
+    public String getAuthorLastname() {
+        return authorLastname;
+    }
+
+    public void setAuthorLastname(String authorLastname) {
+        this.authorLastname = authorLastname;
     }
 }

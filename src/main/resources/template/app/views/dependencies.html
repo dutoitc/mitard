@@ -1,24 +1,36 @@
-<h1>Dependencies</h1>
-<a href="data/dependencies.png" target="_blank"><img src="data/dependencies.png" style="max-width:100%; border: 1px solid silver; padding: 2px; margin: 5px;"/></a>
+<h1>Dependencies1</h1>
 
-Under construction... links could be missing.
 
+Under construction... some links could be missing.<br/><br/>
+
+
+Tree query: <input ng-model="treeQuery" ng-change="computeTree()">
+<br/>
+
+<div data-ng-bind-html="treeResult" style="border: 1px solid lightblue; padding: 7px;"></div>
+
+
+
+<a href="data/dependencies.png" target="_blank"><img src="data/dependencies.png" style="max-width:800px; border: 1px solid silver; padding: 2px; margin: 5px;"/></a>
+
+
+<br/><br/>
 <div ng-repeat="(key, values) in dependencies.processDependencies">
     <b>{{key}}</b> ->
     <ul>
-        <li ng-repeat="value in values">{{value}}</li>
+        <li ng-repeat="value in values track by $index">{{value}}</li>
     </ul>
 </div>
 <div ng-repeat="(key, values) in dependencies.routeDependencies">
     <b>{{key}}</b> ->
     <ul>
-        <li ng-repeat="value in values">{{value}}</li>
+        <li ng-repeat="value in values track by $index">{{value}}</li>
     </ul>
 </div>
 <div ng-repeat="(key, values) in service.processDependencies">
     <b>{{key}}</b> ->
     <ul>
-        <li ng-repeat="value in values">{{value}}</li>
+        <li ng-repeat="value in values track by $index">{{value}}</li>
     </ul>
 </div>
 

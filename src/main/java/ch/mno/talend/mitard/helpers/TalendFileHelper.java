@@ -6,6 +6,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import java.io.File;
+import java.io.FileFilter;
 import java.io.IOException;
 import java.nio.file.Files;
 import java.util.ArrayList;
@@ -27,6 +28,11 @@ public class TalendFileHelper {
         talendFiles.setProcesses(findLatestVersionsInternal(new File(talendWorkspacePath + File.separatorChar+"process")));
         talendFiles.setRoutes(findLatestVersionsInternal(new File(talendWorkspacePath +  File.separatorChar+"routes")));
         talendFiles.setServices(findLatestVersionsInternal(new File(talendWorkspacePath +  File.separatorChar+"services")));
+
+
+        talendFiles.setMDMWorkflowProc(
+                findLatestVersionsInternal(new File(talendWorkspacePath + File.separatorChar + "MDM" + File.separatorChar + "workflow")));
+
         return talendFiles;
     }
 

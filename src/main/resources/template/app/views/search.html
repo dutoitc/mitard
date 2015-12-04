@@ -1,0 +1,31 @@
+<h1>Search</h1>
+
+Enter search terms below to search for text in tJava*, tDie messages, etc...<br/>
+
+
+<div class="row">
+    <div class="col-lg-4">
+        <div class="input-group">
+            <span class="input-group-addon glyphicon glyphicon-search" style="top:0px"/>
+            <input type="text" placeholder="Search..." class="form-control" ng-model="searchText" ng-change="search()"/>
+        </div>
+    </div>
+    <div class="col-lg-8">
+    </div>
+</div>
+<br/>
+
+
+<div class='panel panel-default'>
+    <div class="panel-body" ng-show="searchResult">
+
+
+        <div ng-repeat="result in searchResult" style="margin-bottom: 30px;">
+            <b>{{result.filename}}</b>:{{result.nodeName}}<br/>
+            <small>
+                <span ng-bind-html="highlight(result.text, searchText)"></span>
+            </small>
+        </div>
+
+    </div>
+</div>

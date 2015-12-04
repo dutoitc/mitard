@@ -24,5 +24,14 @@ angular.module('mitardApp.violations', ['ngRoute'])
             $scope.violations=data;
         });
 
+        $scope.showBubble = function(violation) {
+
+        }
+
+
+        $(function () {
+            $('[data-toggle="tooltip"]').tooltip()
+        })
+
 
 }]);

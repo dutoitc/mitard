@@ -25,6 +25,10 @@ public class TalendFile {
         return this.path + File.separatorChar + this.name + "_" + this.version + ".screenshot";
     }
 
+    public String getProcFilename() {
+        return this.path + File.separatorChar + this.name + "_" + this.version + ".proc";
+    }
+
     public String getName() {
         return this.name;
     }
@@ -57,5 +61,10 @@ public class TalendFile {
         int p = Math.max(path.indexOf("routes"), Math.max(path.indexOf("services"), path.indexOf("process")));
         p = Math.max(path.indexOf("/", p), path.indexOf('\\', p));
         return path.substring(p+1);
+    }
+
+    public boolean existThreeFiles() {
+        // Note: services have .wsdl but no .screenshot
+        return new File(getItemFilename()).exists() && new File(getPropertiesFilename()).exists() && (this.path.contains("services") || new File(getScreenshotFilename()).exists());
     }
 }

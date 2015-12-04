@@ -3,12 +3,15 @@ package ch.mno.talend.mitard.data;
 /**
  * Created by dutoitc on 10.05.2015.
  */
-public class TRunJobType extends AbstractNodeType {
+public class TBonitaInstanciateProcessType extends AbstractNodeType {
 
     private String processName;
     private String processVersion;
-    private String propagateChildResult;
 
+    @Override
+    public String toString() {
+        return "TBonitaInstanciateProcessType["+getUniqueName()+"]";
+    }
 
     public String getProcessName() {
         return processName;
@@ -18,24 +21,11 @@ public class TRunJobType extends AbstractNodeType {
         this.processName = processName;
     }
 
-    @Override
-    public String toString() {
-        return "TRunJob["+getUniqueName()+", "+processName+"]";
-    }
-
     public void setProcessVersion(String processVersion) {
         this.processVersion = processVersion;
     }
 
     public String getProcessVersion() {
         return processVersion;
-    }
-
-    public void setPropagateChildResult(String propagateChildResult) {
-        this.propagateChildResult = propagateChildResult;
-    }
-
-    public String getPropagateChildResult() {
-        return propagateChildResult;
     }
 }

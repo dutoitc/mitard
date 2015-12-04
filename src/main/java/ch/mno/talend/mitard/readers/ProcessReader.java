@@ -1,6 +1,8 @@
 package ch.mno.talend.mitard.readers;
 
 import ch.mno.talend.mitard.data.*;
+
+import org.apache.commons.lang3.StringUtils;
 import org.xml.sax.Attributes;
 import org.xml.sax.InputSource;
 import org.xml.sax.SAXException;
@@ -13,6 +15,7 @@ import javax.xml.parsers.SAXParserFactory;
 import java.io.FileInputStream;
 import java.io.IOException;
 import java.io.InputStream;
+import java.io.InputStreamReader;
 
 /**
  * Note: seems to be impossible to work with XSD for Talend file (namespace not correct ?), so a parse is necessary.
@@ -54,6 +57,9 @@ public class ProcessReader extends DefaultHandler {
                 case "tRunJob":
                     reader = new TRunJobReader(componentName);
                     break;
+                case "cTalendJob":
+                    reader = new CTalendJobReader(componentName);
+                    break;
                 case "tOracleCommit":
                     reader = new TOracleCommitReader(componentName);
                     break;
@@ -69,9 +75,17 @@ public class ProcessReader extends DefaultHandler {
                 case "tJavaFlex":
                     reader = new TJavaFlexReader(componentName);
                     break;
+                case "tBonitaInstantiateProcess":
+                    reader = new TBonitaInstanciateProcessReader(componentName);
+                    break;
+                case "tDie":
+                    reader = new TDieReader(componentName);
+                    break;
+                case "tFixedFlowInput":
+                    reader = new TFixedFlowInputReader(componentName);
+                    break;
                 case "tLogRow":
                 case "tXMLMap":
-                case "tFixedFlowInput":
                 case "tFlowToIterate":
                 case "tMysqlInput":
                 case "tRowGenerator":
@@ -110,7 +124,6 @@ public class ProcessReader extends DefaultHandler {
                 case "tUniqRow":
                 case "tUnite":
                 case "tAggregateRow":
-                case "tDie":
                 case "tBufferInput":
                 case "tFilterRow":
                 case "tOracleRow":
@@ -119,7 +132,6 @@ public class ProcessReader extends DefaultHandler {
                 case "tXMLInsert":
                 case "tRouteInput":
                 case "tWarn":
-                case "tBonitaInstantiateProcess":
                 case "tStatCatcher":
                 case "tOracleRollback":
                 case "tReplicate":
@@ -231,11 +243,26 @@ public class ProcessReader extends DefaultHandler {
 
         public TNodeReader(String componentName) {
             super(new TNodeType(), componentName);
+            obj = (TNodeType) super.getNode();
         }
 
         @Override
         protected void handleElement(String name, String value) {
         }
+
+
+        public void startElement(String localName, Attributes attributes) {
+            super.startElement(localName, attributes);
+            if ("NODE".equals(localName.toUpperCase())) {
+                String x = attributes.getValue("posX");
+                if (StringUtils.isNotBlank(x)) obj.setX(Integer.parseInt(x));
+                String y = attributes.getValue("posY");
+                if (StringUtils.isNotBlank(y)) obj.setY(Integer.parseInt(y));
+            } else if ("ELEMENTPARAMETER".equals(localName.toUpperCase())) {
+                obj.addElementParameter(attributes.getValue("field"), attributes.getValue("name"), attributes.getValue("value"));
+            }
+        }
+
     }
 
 
@@ -288,6 +315,30 @@ public class ProcessReader extends DefaultHandler {
 
     // ========================================================================================
 
+    private class CTalendJobReader extends AbstractTReader {
+
+        CTalendJobType obj;
+
+        public CTalendJobReader(String componentName) {
+            super(new CTalendJobType(), componentName);
+            obj = (CTalendJobType) super.getNode();
+        }
+
+        @Override
+        protected void handleElement(String name, String value) {
+            switch (name) {
+            case "SELECTED_JOB_NAME":
+                obj.setProcessName(value);
+                break;
+            case "SELECTED_JOB_NAME:PROCESS_TYPE_VERSION":
+                obj.setProcessVersion(value);
+                break;
+            }
+        }
+    }
+
+    // ========================================================================================
+
     private class TRunJobReader extends AbstractTReader {
 
         TRunJobType obj;
@@ -302,6 +353,12 @@ public class ProcessReader extends DefaultHandler {
             switch (name) {
                 case "PROCESS":
                     obj.setProcessName(value);
+                    break;
+                case "PROCESS:PROCESS_TYPE_VERSION":
+                    obj.setProcessVersion(value);
+                    break;
+                case "PROPAGATE_CHILD_RESULT":
+                    obj.setPropagateChildResult(value);
                     break;
             }
         }
@@ -387,6 +444,31 @@ public class ProcessReader extends DefaultHandler {
             }
         }
     }
+
+
+    // ========================================================================================
+
+    private class TBonitaInstanciateProcessReader extends AbstractTReader {
+
+        TBonitaInstanciateProcessType obj;
+
+        public TBonitaInstanciateProcessReader(String componentName) {
+            super(new TBonitaInstanciateProcessType(), componentName);
+            obj = (TBonitaInstanciateProcessType) super.getNode();
+        }
+
+        @Override
+        protected void handleElement(String name, String value) {
+            switch (name) {
+            case "PROCESS_NAME":
+                obj.setProcessName(value);
+                break;
+            case "PROCESS_VERSION":
+                obj.setProcessVersion(value);
+                break;
+            }
+        }
+    }
     // ========================================================================================
 
     private class TJavaFlexReader extends AbstractTReader {
@@ -410,6 +492,47 @@ public class ProcessReader extends DefaultHandler {
                 case "CODE_END":
                     obj.setCodeEnd(value);
                     break;
+            }
+        }
+    }
+    // ========================================================================================
+
+    private class TDieReader extends AbstractTReader {
+
+        TDieType obj;
+
+        public TDieReader(String componentName) {
+            super(new TDieType(), componentName);
+            obj = (TDieType) super.getNode();
+        }
+
+        @Override
+        protected void handleElement(String name, String value) {
+            switch (name) {
+            case "MESSAGE":
+                obj.setMessage(value);
+                break;
+            }
+        }
+    }
+
+    // ========================================================================================
+
+    private class TFixedFlowInputReader extends AbstractTReader {
+
+        TFixedFlowInputType obj;
+
+        public TFixedFlowInputReader(String componentName) {
+            super(new TFixedFlowInputType(), componentName);
+            obj = (TFixedFlowInputType) super.getNode();
+        }
+
+        @Override
+        protected void handleElement(String name, String value) {
+            switch (name) {
+            case "VALUE":
+                obj.addText(value);
+                break;
             }
         }
     }
@@ -450,7 +573,10 @@ public class ProcessReader extends DefaultHandler {
         XMLReader xmlReader = saxParser.getXMLReader();
         ProcessReader reader = new ProcessReader();
         xmlReader.setContentHandler(reader);
-        InputSource is = new InputSource(xml);
+        //InputSource is = new InputSource(xml);
+
+        InputSource is = new InputSource();
+        is.setCharacterStream(new InputStreamReader(xml, "UTF-8"));
         xmlReader.parse(is);
         return reader.process;
     }
