@@ -23,7 +23,6 @@ import java.io.InputStreamReader;
 public class ProcessReader extends DefaultHandler {
 
     private ProcessType process;
-    private String buffer = "";
     private String path = "";
     private AbstractTReader reader;
 
@@ -178,15 +177,13 @@ public class ProcessReader extends DefaultHandler {
             process.addNode(reader.getNode());
             reader = null;
         }
-
-
-        buffer = "";
+        //buffer = "";
     }
 
 
     public void characters(char ch[], int start, int length)
             throws SAXException {
-        buffer += new String(ch, start, length);
+       // buffer += new String(ch, start, length);
     }
 
 
@@ -567,6 +564,10 @@ public class ProcessReader extends DefaultHandler {
 
 
     public static ProcessType reader(InputStream xml) throws ParserConfigurationException, SAXException, IOException {
+        if (xml==null) {
+            throw new IOException("InputStream cannot be null");
+        }
+
         SAXParserFactory spf = SAXParserFactory.newInstance();
         spf.setNamespaceAware(true);
         SAXParser saxParser = spf.newSAXParser();

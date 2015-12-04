@@ -1,34 +1,19 @@
 package ch.mno.talend.mitard.readers;
 
-import java.io.FileInputStream;
-import java.io.IOException;
-import java.io.InputStream;
-import java.io.InputStreamReader;
-
-import javax.xml.parsers.ParserConfigurationException;
-import javax.xml.parsers.SAXParser;
-import javax.xml.parsers.SAXParserFactory;
-
-import org.apache.commons.lang3.StringUtils;
+import ch.mno.talend.mitard.data.PropertiesType;
 import org.xml.sax.Attributes;
 import org.xml.sax.InputSource;
 import org.xml.sax.SAXException;
 import org.xml.sax.XMLReader;
 import org.xml.sax.helpers.DefaultHandler;
 
-import ch.mno.talend.mitard.data.AbstractNodeType;
-import ch.mno.talend.mitard.data.ProcessType;
-import ch.mno.talend.mitard.data.PropertiesType;
-import ch.mno.talend.mitard.data.TBonitaInstanciateProcessType;
-import ch.mno.talend.mitard.data.TESBConsumerType;
-import ch.mno.talend.mitard.data.TJavaFlexType;
-import ch.mno.talend.mitard.data.TJavaRowType;
-import ch.mno.talend.mitard.data.TJavaType;
-import ch.mno.talend.mitard.data.TMDMCommitType;
-import ch.mno.talend.mitard.data.TNodeType;
-import ch.mno.talend.mitard.data.TOracleCommitType;
-import ch.mno.talend.mitard.data.TRestRequestType;
-import ch.mno.talend.mitard.data.TRunJobType;
+import javax.xml.parsers.ParserConfigurationException;
+import javax.xml.parsers.SAXParser;
+import javax.xml.parsers.SAXParserFactory;
+import java.io.FileInputStream;
+import java.io.IOException;
+import java.io.InputStream;
+import java.io.InputStreamReader;
 
 /**
  * Note: seems to be impossible to work with XSD for Talend file (namespace not correct ?), so a parse is necessary.
@@ -36,7 +21,6 @@ import ch.mno.talend.mitard.data.TRunJobType;
 public class PropertiesReader extends DefaultHandler {
 
     private PropertiesType properties;
-    private String buffer = "";
     private String path = "";
 
     public void startDocument() throws SAXException {
@@ -69,13 +53,13 @@ public class PropertiesReader extends DefaultHandler {
         String lastPath = path.substring(p + 1);
         path = path.substring(0, p);
 
-        buffer = "";
+//        buffer = "";
     }
 
 
     public void characters(char ch[], int start, int length)
             throws SAXException {
-        buffer += new String(ch, start, length);
+//        buffer += new String(ch, start, length);
     }
 
 

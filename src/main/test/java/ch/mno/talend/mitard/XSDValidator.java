@@ -3,6 +3,7 @@ package ch.mno.talend.mitard;
 import ch.mno.talend.mitard.data.ProcessType;
 import org.apache.commons.io.IOUtils;
 import org.junit.Assert;
+import org.junit.Ignore;
 import org.junit.Test;
 import org.xml.sax.SAXException;
 
@@ -20,6 +21,7 @@ import java.io.StringReader;
 import java.net.URISyntaxException;
 import java.net.URL;
 
+@Ignore
 public class XSDValidator {
 
     @Test

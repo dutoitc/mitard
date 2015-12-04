@@ -7,7 +7,13 @@ import ch.mno.talend.mitard.data.TalendFiles;
 import ch.mno.talend.mitard.data.TalendProjectType;
 import ch.mno.talend.mitard.helpers.TalendFileHelper;
 import ch.mno.talend.mitard.readers.TalendProjectReader;
-import ch.mno.talend.mitard.writers.*;
+import ch.mno.talend.mitard.writers.DependenciesWriter;
+import ch.mno.talend.mitard.writers.ProcessesWriter;
+import ch.mno.talend.mitard.writers.RoutesWriter;
+import ch.mno.talend.mitard.writers.SearchWriter;
+import ch.mno.talend.mitard.writers.ServicesWriter;
+import ch.mno.talend.mitard.writers.StatisticsWriter;
+import ch.mno.talend.mitard.writers.ViolationsWriter;
 import org.apache.commons.io.FileUtils;
 import org.apache.commons.io.IOUtils;
 import org.xml.sax.SAXException;
@@ -16,9 +22,10 @@ import javax.xml.bind.JAXBException;
 import javax.xml.parsers.ParserConfigurationException;
 import java.io.File;
 import java.io.FileInputStream;
-import java.io.FileOutputStream;
 import java.io.IOException;
-import java.io.InputStream;
+import java.nio.file.Files;
+import java.nio.file.Paths;
+import java.nio.file.StandardCopyOption;
 
 public class Main {
 
@@ -61,20 +68,25 @@ public class Main {
         for (String line: s.split("\n")) {
             if (line.length()<2) continue;
             line = line.substring(2); // Remove "./" at start
+            if (line.endsWith("\r")) line = line.substring(0, line.length()-1);
             if (line.contains(".")) {
-                // File
-                InputStream is =Main.class.getResourceAsStream("/template/" + line);
-                assert is!=null;
-                File target = new File(context.getProductionPath() + File.separatorChar + line);
-                try (FileOutputStream fis = new FileOutputStream(target)) {
-                    IOUtils.copy(is, fis);
+                if (File.separatorChar=='\\') {
+                    line = line.replaceAll("/", "\\\\");
                 }
+                // File
+//                InputStream is =Main.class.getResourceAsStream("/template/" + line);
+                System.out.println(context.getProductionPath() + File.separatorChar + line);
+                Files.copy(Main.class.getResourceAsStream("/template/"+line),
+                        Paths.get(context.getProductionPath() + File.separatorChar + line), StandardCopyOption.REPLACE_EXISTING);
+
+//                try (FileOutputStream fis = new FileOutputStream(target)) {
+//                    IOUtils.copy(is, fis);
+//                }
             } else {
                 // Folder
                 String pathname = context.getProductionPath() + File.separatorChar + line;
                 System.out.println("Creating path " + pathname);
-                new File(pathname).mkdir();
-
+                new File(pathname).mkdirs();
             }
             //./app
             //./app/app.js
