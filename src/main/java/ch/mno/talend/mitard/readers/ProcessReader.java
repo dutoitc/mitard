@@ -123,7 +123,7 @@ public class ProcessReader extends DefaultHandler {
                 case "tStatCatcher":
                 case "tOracleRollback":
                 case "tReplicate":
-                    case "tWriteXMLField":
+                case "tWriteXMLField":
                 case "tCreateTable":
                 case "tFilterColumns":
                 case "tMDMRollback":

@@ -47,6 +47,7 @@ public class Main {
         new ServicesWriter(context).write(talendFiles);
         new StatisticsWriter(context).write(talendFiles);
         new ViolationsWriter(context).write(talendFiles);
+        System.out.println("Wrote Mitard site to " + context.getProductionPath());
     }
 
     private static void copyResources(String sourcePath, String targetPath) throws IOException {

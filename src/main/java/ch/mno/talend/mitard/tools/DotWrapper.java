@@ -7,9 +7,9 @@ import java.io.IOException;
 import java.io.InputStream;
 
 /**
- * Created by dutoitc on 10.05.2015.
+ * Wrapper around the DOT (graphviz) command
  */
-public class DotHelper {
+public class DotWrapper {
 
     public static void generatePNG(String dotPath, String filename, File dotData) throws IOException {
         // TODO: dot.exe ou dot ?

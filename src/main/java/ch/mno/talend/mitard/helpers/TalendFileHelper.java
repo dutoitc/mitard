@@ -2,61 +2,69 @@ package ch.mno.talend.mitard.helpers;
 
 import ch.mno.talend.mitard.data.TalendFile;
 import ch.mno.talend.mitard.data.TalendFiles;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import java.io.File;
+import java.io.IOException;
+import java.nio.file.Files;
 import java.util.ArrayList;
 import java.util.HashMap;
-import java.util.Iterator;
 import java.util.List;
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
 
 public class TalendFileHelper {
+
+    private static final Logger LOG = LoggerFactory.getLogger(TalendFileHelper.class);
+
     public TalendFileHelper() {
     }
 
-    public static TalendFiles findLatestVersions(String talendWorkspacePath) {
+    /** Find latest process, routes, services versions in workspace path subfolders */
+    public static TalendFiles findLatestVersions(String talendWorkspacePath)  {
         TalendFiles talendFiles = new TalendFiles();
         talendFiles.setProcesses(findLatestVersionsInternal(new File(talendWorkspacePath + File.separatorChar+"process")));
         talendFiles.setRoutes(findLatestVersionsInternal(new File(talendWorkspacePath +  File.separatorChar+"routes")));
         talendFiles.setServices(findLatestVersionsInternal(new File(talendWorkspacePath +  File.separatorChar+"services")));
-
         return talendFiles;
-
     }
 
     private static List<TalendFile> findLatestVersionsInternal(File folder) {
+        try {
+            HashMap data = new HashMap();
 
-        System.out.println(folder.getAbsolutePath());
-        HashMap data = new HashMap();
-        File[] var3 = folder.listFiles(new DirectoryFilter());
-        int var4 = var3.length;
+            // Folders
+            Files.list(folder.toPath())
+                    .filter(pathname -> pathname.toFile().isDirectory() && !pathname.toFile().getName().startsWith("/") && !pathname.toFile().getName().startsWith("."))
+                    .forEach(file -> {
+                        // Keep subfiles recursively if first or greater version
+                        findLatestVersionsInternal(file.toFile())
+                                .stream()
+                                .filter(subfile -> !data.containsKey(subfile.getName()) || ((TalendFile) data.get(subfile.getName())).isVersionLowerThan(subfile))
+                                .forEach(subfile -> data.put(subfile.getName(), subfile));
+                    });
 
-        int var5;
-        File file;
-        for(var5 = 0; var5 < var4; ++var5) {
-            file = var3[var5];
-            List name = findLatestVersionsInternal(file);
-            Iterator p = name.iterator();
+            // Files
+            Pattern patFilename = Pattern.compile("(.*)_(\\d+\\.\\d+)\\.item");
+            Files.list(folder.toPath())
+                    .filter(path -> path.toFile().isFile() && path.toFile().getName().endsWith(".item"))
+                    .forEach(file -> {
+                        String filename = file.toFile().getName();       // XXX_123.456.item
+                        Matcher matcher = patFilename.matcher(filename);
+                        if (matcher.matches()) {
+                            String processName = matcher.group(1);
+                            String version = matcher.group(2);
+                            TalendFile talendFile = new TalendFile(folder.getAbsolutePath(), processName, version);
+                            data.put(talendFile.getName(), talendFile);
+                        } else {
+                            LOG.warn("Cannot find processName or version in [" + filename + "]; Skipping.");
+                        }
+                    });
 
-            while(p.hasNext()) {
-                TalendFile p2 = (TalendFile)p.next();
-                if(!data.containsKey(p2.getName()) || ((TalendFile)data.get(p2.getName())).isVersionLowerThan(p2)) {
-                    data.put(p2.getName(), p2);
-                }
-            }
+            return new ArrayList(data.values());
+        } catch (IOException e) {
+            throw new RuntimeException(e);
         }
-
-        var3 = folder.listFiles(new FileItemFilter());
-        var4 = var3.length;
-
-        for(var5 = 0; var5 < var4; ++var5) {
-            file = var3[var5];
-            String var11 = file.getName();
-            int var12 = var11.lastIndexOf("_");
-            int var13 = var11.lastIndexOf(".");
-            TalendFile talendFile = new TalendFile(folder.getAbsolutePath(), var11.substring(0, var12), var11.substring(var12 + 1, var13));
-            data.put(talendFile.getName(), talendFile);
-        }
-
-        return new ArrayList(data.values());
     }
 }

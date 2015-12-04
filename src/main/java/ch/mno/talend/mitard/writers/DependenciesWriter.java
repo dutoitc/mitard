@@ -2,7 +2,7 @@ package ch.mno.talend.mitard.writers;
 
 import ch.mno.talend.mitard.data.*;
 import ch.mno.talend.mitard.readers.ProcessReader;
-import ch.mno.talend.mitard.tools.DotHelper;
+import ch.mno.talend.mitard.tools.DotWrapper;
 import org.apache.commons.io.IOUtils;
 import org.xml.sax.SAXException;
 
@@ -42,7 +42,7 @@ public class DependenciesWriter extends AbstractWriter {
         IOUtils.write(dot, writer);
         writer.flush();
         try {
-            DotHelper.generatePNG(getContext().getDotPath(), getContext().getProductionPath() + File.separatorChar + "data" + File.separatorChar + "dependencies.png", tempFile);
+            DotWrapper.generatePNG(getContext().getDotPath(), getContext().getProductionPath() + File.separatorChar + "data" + File.separatorChar + "dependencies.png", tempFile);
         } catch (RuntimeException e) {
             System.err.println("Ignoring Dot generation due to an error: " + e.getMessage());
         }

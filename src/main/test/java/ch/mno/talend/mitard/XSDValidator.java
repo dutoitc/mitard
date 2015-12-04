@@ -1,10 +1,10 @@
 package ch.mno.talend.mitard;
 
+import ch.mno.talend.mitard.data.ProcessType;
 import org.apache.commons.io.IOUtils;
 import org.junit.Assert;
 import org.junit.Test;
 import org.xml.sax.SAXException;
-import platform.resource.org_talend_model.model.talendfile.ProcessType;
 
 import javax.xml.XMLConstants;
 import javax.xml.bind.JAXBContext;
