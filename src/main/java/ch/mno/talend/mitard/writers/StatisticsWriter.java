@@ -29,7 +29,7 @@ public class StatisticsWriter extends AbstractWriter {
             if (isBlacklisted(file.getName())|| isBlacklisted(file.getPath())) continue;
             System.out.println("Reading " + new File(file.getItemFilename()).getName());
             FileInputStream fis = new FileInputStream(file.getItemFilename());
-            ProcessType process = ProcessReader.reader(fis);
+            ProcessType process = ProcessReader.read(fis);
             for (AbstractNodeType node : process.getNodeList()) {
 //                    if (node.isActive()) {
                 if (componentTypes.containsKey(node.getComponentName())) {

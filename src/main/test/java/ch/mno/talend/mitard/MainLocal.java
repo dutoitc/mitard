@@ -24,12 +24,12 @@ public class MainLocal {
         for (TalendFile file: talendFiles.getProcesses()) {
             System.out.println(new File(file.getItemFilename()).getName());
             FileInputStream fis = new FileInputStream(file.getItemFilename());
-            ProcessType process = ProcessReader.reader(fis);
+            ProcessType process = ProcessReader.read(fis);
             for (AbstractNodeType node : process.getNodeList()) {
                 System.out.println("   "+node.toString());
             }
         }
 
-        ProcessType process = ProcessReader.reader(new FileInputStream("C:\\projets\\talend-mitard\\mitard\\src\\main\\test\\resources\\ESBTUTORIALPROJECT\\process\\GreetingServiceConsumer_0.1.item"));
+        ProcessType process = ProcessReader.read(new FileInputStream("C:\\projets\\talend-mitard\\mitard\\src\\main\\test\\resources\\ESBTUTORIALPROJECT\\process\\GreetingServiceConsumer_0.1.item"));
     }
 }

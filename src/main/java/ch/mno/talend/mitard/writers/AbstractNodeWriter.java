@@ -3,13 +3,13 @@ package ch.mno.talend.mitard.writers;
 import ch.mno.talend.mitard.data.Context;
 import ch.mno.talend.mitard.data.TalendFile;
 import org.apache.commons.codec.binary.Base64;
-import org.apache.commons.io.IOUtils;
 import org.apache.commons.lang3.StringEscapeUtils;
 
 import java.io.File;
 import java.io.FileOutputStream;
-import java.io.FileReader;
 import java.io.IOException;
+import java.nio.file.Files;
+import java.nio.file.Paths;
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
@@ -25,10 +25,10 @@ import java.util.regex.Pattern;
 public class AbstractNodeWriter extends AbstractWriter {
 
 
-    Pattern patPurpose = Pattern.compile("purpose=\"(.*?)\"");
-    Pattern patDescription = Pattern.compile("description=\"(.*?)\"");
-    Pattern patCreationDate = Pattern.compile("creationDate=\"(.*?)\"");
-    Pattern patModificationDate = Pattern.compile("modificationDate=\"(.*?)\"");
+    private static Pattern patPurpose = Pattern.compile("purpose=\"(.*?)\"");
+    private static Pattern patDescription = Pattern.compile("description=\"(.*?)\"");
+    private static Pattern patCreationDate = Pattern.compile("creationDate=\"(.*?)\"");
+    private static Pattern patModificationDate = Pattern.compile("modificationDate=\"(.*?)\"");
     SimpleDateFormat SDF = new SimpleDateFormat("yyyy-MM-dd'T'HH:mm:ss.SSSZ");
 
     public AbstractNodeWriter(Context context) {
@@ -92,7 +92,8 @@ public class AbstractNodeWriter extends AbstractWriter {
     protected List<String> extractScreenshots(TalendFile file) throws IOException {
         // Extract images
         if (new File(file.getScreenshotFilename()).exists()) {
-            String screenshot = IOUtils.toString(new FileReader(file.getScreenshotFilename()));
+//            String screenshot = IOUtils.toString(new FileReader(file.getScreenshotFilename()));
+            String screenshot = new String(Files.readAllBytes(Paths.get(file.getScreenshotFilename())), "UTF-8");
             int p1 = screenshot.indexOf("key=\"process\"");
             if (p1 > 0) {
                 int p2 = screenshot.indexOf("value=\"", p1);
@@ -101,8 +102,7 @@ public class AbstractNodeWriter extends AbstractWriter {
                     String base64Png = screenshot.substring(p2 + 7, p3);
                     try {
                         byte[] decoded = Base64.decodeBase64(base64Png);
-                        FileOutputStream fos = null;
-                        fos = new FileOutputStream(getContext().getProductionPath() + File.separatorChar +"data"+ File.separatorChar + file.getName() + ".png");
+                        FileOutputStream fos = new FileOutputStream(getContext().getProductionPath() + File.separatorChar +"data"+ File.separatorChar + file.getName() + ".png");
                         fos.write(decoded);
                         fos.close();
                         return Arrays.asList(file.getName() + ".png");

@@ -92,7 +92,7 @@ public class PropertiesReader extends DefaultHandler {
     }
 
     public static void main(String[] args) throws IOException, SAXException, ParserConfigurationException {
-//        ProcessType process = reader(new FileInputStream("C:\\projets\\talend-mitard\\mitard\\src\\main\\test\\resources\\ESBTUTORIALPROJECT\\process\\RESTService_0.3.item"));
+//        ProcessType process = read(new FileInputStream("C:\\projets\\talend-mitard\\mitard\\src\\main\\test\\resources\\ESBTUTORIALPROJECT\\process\\RESTService_0.3.item"));
         PropertiesType properties = reader(new FileInputStream("/home/xsicdt/isoft/Talend-5.6.1/studio/workspaceDE/a/RCENT/process/F_Publication/C_Annonces/DiffusionAnnonceSubjob_0.1.properties"));
         System.out.println(properties.getDescription());
     }

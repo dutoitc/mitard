@@ -18,7 +18,7 @@ public class ProcessReaderTest {
 
     @Test
     public void test1() throws IOException, SAXException, ParserConfigurationException {
-        ProcessType process = ProcessReader.reader(getClass().getResourceAsStream("/ESBTUTORIALPROJECT/process/AirportConsumer_0.2.item"));
+        ProcessType process = ProcessReader.read(getClass().getResourceAsStream("/ESBTUTORIALPROJECT/process/AirportConsumer_0.2.item"));
 
         List<String> connections = process.getConnections("tXMLMap_1");
         Assert.assertEquals(1, connections.size());

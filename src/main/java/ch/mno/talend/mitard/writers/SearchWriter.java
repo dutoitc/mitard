@@ -1,42 +1,31 @@
 package ch.mno.talend.mitard.writers;
 
-import java.io.File;
-import java.io.FileInputStream;
-import java.io.IOException;
-import java.util.ArrayList;
-import java.util.List;
-import java.util.Map;
-
-import javax.xml.parsers.ParserConfigurationException;
-
-import org.apache.commons.lang3.StringUtils;
-import org.xml.sax.SAXException;
-
 import ch.mno.talend.mitard.data.AbstractNodeType;
 import ch.mno.talend.mitard.data.Context;
 import ch.mno.talend.mitard.data.ProcessType;
-import ch.mno.talend.mitard.data.PropertiesType;
 import ch.mno.talend.mitard.data.TDieType;
 import ch.mno.talend.mitard.data.TFixedFlowInputType;
 import ch.mno.talend.mitard.data.TJavaFlexType;
-import ch.mno.talend.mitard.data.TJavaRowType;
 import ch.mno.talend.mitard.data.TJavaType;
-import ch.mno.talend.mitard.data.TMDMCommitType;
-import ch.mno.talend.mitard.data.TNodeType;
-import ch.mno.talend.mitard.data.TOracleCommitType;
-import ch.mno.talend.mitard.data.TRestRequestType;
-import ch.mno.talend.mitard.data.TRunJobType;
 import ch.mno.talend.mitard.data.TalendFile;
 import ch.mno.talend.mitard.data.TalendFiles;
-import ch.mno.talend.mitard.out.JsonFileViolations;
-import ch.mno.talend.mitard.out.JsonViolationEnum;
 import ch.mno.talend.mitard.readers.ProcessReader;
-import ch.mno.talend.mitard.readers.PropertiesReader;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+import org.xml.sax.SAXException;
+
+import javax.xml.parsers.ParserConfigurationException;
+import java.io.File;
+import java.io.IOException;
+import java.util.ArrayList;
+import java.util.List;
 
 /**
- * Created by dutoitc on 13.05.2015.
+ * Read all processes and write textFiles.json, including Fulltext data.
  */
 public class SearchWriter extends AbstractNodeWriter {
+
+    public static Logger LOG = LoggerFactory.getLogger(SearchWriter.class);
 
 
     public SearchWriter(Context context) {
@@ -46,49 +35,45 @@ public class SearchWriter extends AbstractNodeWriter {
     public void write(TalendFiles talendFiles) throws IOException, ParserConfigurationException, SAXException {
         JSonTextFiles textFiles = new JSonTextFiles();
 
-
         for (TalendFile file : talendFiles.getProcesses()) {
             if (isBlacklisted(file.getName()) || isBlacklisted(file.getPath())) continue;
-            System.out.println("Reading " + new File(file.getItemFilename()).getName());
+
+            LOG.info("Reading " + new File(file.getItemFilename()).getName());
 
             JSonTextFile textFile = new JSonTextFile(file.getName());
             textFiles.addJSonTextFile(textFile);
 
-            FileInputStream fis = new FileInputStream(file.getItemFilename());
-            ProcessType process = ProcessReader.reader(fis);
-            int nbInactive = 0;
-            for (AbstractNodeType node : process.getNodeList()) {
-                if (!node.isActive()) {
-                    nbInactive++;
-                    continue;
-                }
-
-                if (node instanceof TJavaFlexType) {
-                    TJavaFlexType node1 = (TJavaFlexType) node;
-                    String text = node1.getCodeStart() + node1.getCodeMain() + node1.getCodeEnd();
-                    textFile.addText(node.getUniqueName(), text);
-                } else if (node instanceof TJavaType) {
-                    TJavaType node1 = (TJavaType) node;
-                    String text = node1.getCode();
-                    textFile.addText(node.getUniqueName(), text);
-                } else if (node instanceof TDieType) {
-                    TDieType node1 = (TDieType) node;
-                    String text = node1.getMessage();
-                    textFile.addText(node.getUniqueName(), text);
-                } else if (node instanceof TFixedFlowInputType) {
-                    TFixedFlowInputType node1 = (TFixedFlowInputType) node;
-                    String text = node1.getText();
-                    textFile.addText(node.getUniqueName(), text);
-                }
-            }
-
-
+            // Extract texts from all nodes of file
+            ProcessType process = ProcessReader.read(file.getItemFilename());
+            process.getNodeList().stream()
+                    .filter(node->node.isActive())
+                    .forEach(node->textFile.addText(node.getUniqueName(), extractText(node)));
         }
 
         writeJson("textFiles.json", textFiles);
     }
 
 
+    /** Extract text from node */
+    private String extractText(AbstractNodeType abstractNode) {
+        if (abstractNode instanceof TJavaFlexType) {
+            TJavaFlexType node = (TJavaFlexType) abstractNode;
+            return node.getCodeStart() + node.getCodeMain() + node.getCodeEnd();
+        } else if (abstractNode instanceof TJavaType) {
+            TJavaType node = (TJavaType) abstractNode;
+            return node.getCode();
+        } else if (abstractNode instanceof TDieType) {
+            TDieType node = (TDieType) abstractNode;
+            return node.getMessage();
+        } else if (abstractNode instanceof TFixedFlowInputType) {
+            TFixedFlowInputType node = (TFixedFlowInputType) abstractNode;
+            return node.getText();
+        }
+        return "";
+    }
+
+
+    /** Object with many JSonTextFile */
     class JSonTextFiles {
         private List<JSonTextFile> textFiles = new ArrayList<>();
 
@@ -102,6 +87,7 @@ public class SearchWriter extends AbstractNodeWriter {
 
     }
 
+    /** Object with filename and many JsonText */
     class JSonTextFile {
         private String filename;
         private List<JsonText> textList = new ArrayList<>();
@@ -124,6 +110,7 @@ public class SearchWriter extends AbstractNodeWriter {
 
     }
 
+    /** Object with node name and text */
     class JsonText {
 
         private String nodeName;
@@ -141,7 +128,6 @@ public class SearchWriter extends AbstractNodeWriter {
         public String getText() {
             return text;
         }
-
     }
 
 }

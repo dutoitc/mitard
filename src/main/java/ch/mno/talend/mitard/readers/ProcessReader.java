@@ -1,7 +1,20 @@
 package ch.mno.talend.mitard.readers;
 
-import ch.mno.talend.mitard.data.*;
-
+import ch.mno.talend.mitard.data.AbstractNodeType;
+import ch.mno.talend.mitard.data.CTalendJobType;
+import ch.mno.talend.mitard.data.ProcessType;
+import ch.mno.talend.mitard.data.TBonitaInstanciateProcessType;
+import ch.mno.talend.mitard.data.TDieType;
+import ch.mno.talend.mitard.data.TESBConsumerType;
+import ch.mno.talend.mitard.data.TFixedFlowInputType;
+import ch.mno.talend.mitard.data.TJavaFlexType;
+import ch.mno.talend.mitard.data.TJavaRowType;
+import ch.mno.talend.mitard.data.TJavaType;
+import ch.mno.talend.mitard.data.TMDMCommitType;
+import ch.mno.talend.mitard.data.TNodeType;
+import ch.mno.talend.mitard.data.TOracleCommitType;
+import ch.mno.talend.mitard.data.TRestRequestType;
+import ch.mno.talend.mitard.data.TRunJobType;
 import org.apache.commons.lang3.StringUtils;
 import org.xml.sax.Attributes;
 import org.xml.sax.InputSource;
@@ -155,7 +168,7 @@ public class ProcessReader extends DefaultHandler {
                     reader = new TNodeReader(componentName);
                     break;
                 default:
-                    System.out.println("Missing reader for " + componentName);
+                    System.out.println("Missing read for " + componentName);
             }
         } else if (localName.equals("connection")) {
             process.addConnection(getAttribute(attributes, "source"), getAttribute(attributes, "target"));
@@ -195,6 +208,7 @@ public class ProcessReader extends DefaultHandler {
         }
         return null;
     }
+
 
     // ========================================================================================
 
@@ -563,7 +577,11 @@ public class ProcessReader extends DefaultHandler {
     // ========================================================================================
 
 
-    public static ProcessType reader(InputStream xml) throws ParserConfigurationException, SAXException, IOException {
+    public static ProcessType read(String file) throws IOException, SAXException, ParserConfigurationException {
+        return read(new FileInputStream(file));
+    }
+
+    public static ProcessType read(InputStream xml) throws ParserConfigurationException, SAXException, IOException {
         if (xml==null) {
             throw new IOException("InputStream cannot be null");
         }
@@ -583,8 +601,8 @@ public class ProcessReader extends DefaultHandler {
     }
 
     public static void main(String[] args) throws IOException, SAXException, ParserConfigurationException {
-//        ProcessType process = reader(new FileInputStream("C:\\projets\\talend-mitard\\mitard\\src\\main\\test\\resources\\ESBTUTORIALPROJECT\\process\\RESTService_0.3.item"));
-        ProcessType process = reader(new FileInputStream("C:\\projets\\talend-mitard\\mitard\\src\\main\\test\\resources\\ESBTUTORIALPROJECT\\process\\GreetingServiceConsumer_0.1.item"));
+//        ProcessType process = read(new FileInputStream("C:\\projets\\talend-mitard\\mitard\\src\\main\\test\\resources\\ESBTUTORIALPROJECT\\process\\RESTService_0.3.item"));
+        ProcessType process = read(new FileInputStream("C:\\projets\\talend-mitard\\mitard\\src\\main\\test\\resources\\ESBTUTORIALPROJECT\\process\\GreetingServiceConsumer_0.1.item"));
         for (AbstractNodeType node : process.getNodeList()) {
             System.out.println(node.toString());
         }

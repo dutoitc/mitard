@@ -138,7 +138,7 @@ public class DependenciesWriter extends AbstractWriter {
             FileInputStream fis = new FileInputStream(f.getItemFilename());
             // TODO: pour chaque noed, lire SELECTED_JOB_NAME et SELECTED_JOB_NAME:PROCESS_TYPE_VERSION, faire le lien
 
-            ProcessType process = ProcessReader.reader(fis);
+            ProcessType process = ProcessReader.read(fis);
             for (AbstractNodeType node : process.getNodeList()) {
                 if (node instanceof CTalendJobType) {
                     String processName1 = ((CTalendJobType) node).getProcessName();
@@ -194,7 +194,7 @@ public class DependenciesWriter extends AbstractWriter {
             if (isBlacklisted(file.getName())|| isBlacklisted(file.getPath())) continue;
             System.out.println("Reading " + new File(file.getItemFilename()).getName());
             FileInputStream fis = new FileInputStream(file.getItemFilename());
-            ProcessType process = ProcessReader.reader(fis);
+            ProcessType process = ProcessReader.read(fis);
             for (AbstractNodeType node : process.getNodeList()) {
                 if (node instanceof TESBConsumerType) {
                     String name = "P_" + normalize(file.getName(), file.getVersion());

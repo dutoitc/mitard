@@ -1,22 +1,17 @@
 package ch.mno.talend.mitard.writers;
 
-import jdk.nashorn.internal.scripts.JS;
-
 import ch.mno.talend.mitard.data.*;
-import ch.mno.talend.mitard.helpers.TalendFileHelper;
 import ch.mno.talend.mitard.out.JsonFileViolations;
 import ch.mno.talend.mitard.out.JsonViolationEnum;
 import ch.mno.talend.mitard.readers.ProcessReader;
 import ch.mno.talend.mitard.readers.PropertiesReader;
 
-import org.apache.commons.io.IOUtils;
 import org.apache.commons.lang3.StringUtils;
 import org.xml.sax.SAXException;
 
 import javax.xml.parsers.ParserConfigurationException;
 import java.io.File;
 import java.io.FileInputStream;
-import java.io.FileReader;
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
@@ -52,7 +47,7 @@ public class ViolationsWriter extends AbstractNodeWriter {
 
 
             FileInputStream fis = new FileInputStream(file.getItemFilename());
-            ProcessType process = ProcessReader.reader(fis);
+            ProcessType process = ProcessReader.read(fis);
             int nbInactive = 0;
             for (AbstractNodeType node : process.getNodeList()) {
                 if (!node.isActive()) {
