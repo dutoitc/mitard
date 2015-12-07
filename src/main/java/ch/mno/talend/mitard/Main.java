@@ -2,7 +2,6 @@ package ch.mno.talend.mitard;
 
 
 import ch.mno.talend.mitard.data.Context;
-import ch.mno.talend.mitard.data.TalendFile;
 import ch.mno.talend.mitard.data.TalendFiles;
 import ch.mno.talend.mitard.data.TalendProjectType;
 import ch.mno.talend.mitard.helpers.TalendFileHelper;
@@ -14,8 +13,9 @@ import ch.mno.talend.mitard.writers.SearchWriter;
 import ch.mno.talend.mitard.writers.ServicesWriter;
 import ch.mno.talend.mitard.writers.StatisticsWriter;
 import ch.mno.talend.mitard.writers.ViolationsWriter;
-import org.apache.commons.io.FileUtils;
 import org.apache.commons.io.IOUtils;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.xml.sax.SAXException;
 
 import javax.xml.bind.JAXBException;
@@ -29,18 +29,23 @@ import java.nio.file.StandardCopyOption;
 
 public class Main {
 
+
+    public static Logger LOG = LoggerFactory.getLogger(Main.class);
+
     public static void main(String[] args) throws IOException, JAXBException, ParserConfigurationException, SAXException {
+        long t0 = System.currentTimeMillis();
+
+        // Pre-requisites
+        LOG.info("_____./ MITARD  \\._______________________________________________________");
         if (args.length==0) {
-            throw new RuntimeException("Missing context.properties as first program argument");
+            System.err.println("Missing context.properties as first program argument");
+            System.exit(1);
         }
 
+        // Context, files read
         Context context = new Context(new FileInputStream(args[0]));
-
         TalendFiles talendFiles = TalendFileHelper.findLatestVersions(context.getWorkspacePath());
-        for (TalendFile f: talendFiles.getProcesses()) {
-            System.out.println(f.getName() + " " + f.getVersion());
-        }
-        TalendProjectType project = TalendProjectReader.read(new FileInputStream(context.getWorkspacePath() + "/talend.project"));
+        LOG.info("Found " + talendFiles.toString());
 
         // Init production path
         File productionDir = new File(context.getProductionPath());
@@ -54,13 +59,14 @@ public class Main {
         new DependenciesWriter(context).write(talendFiles);
 
         // JSON
-        new ProcessesWriter(context).write(talendFiles, project);
-        new RoutesWriter(context).write(talendFiles, project);
-        new ServicesWriter(context).write(talendFiles, project);
+        new ProcessesWriter(context).write(talendFiles);
+        new RoutesWriter(context).write(talendFiles);
+        new ServicesWriter(context).write(talendFiles);
         new StatisticsWriter(context).write(talendFiles);
         new ViolationsWriter(context).write(talendFiles);
-        System.out.println("Wrote Mitard site to " + context.getProductionPath());
         new SearchWriter(context).write(talendFiles);
+        LOG.info("Wrote Mitard site to " + context.getProductionPath());
+        LOG.info("Mitard run finished after " + (System.currentTimeMillis()-t0)/1000.0 + "s");
     }
 
     private static void initTemplate(Context context) throws IOException {
@@ -74,45 +80,17 @@ public class Main {
                     line = line.replaceAll("/", "\\\\");
                 }
                 // File
-//                InputStream is =Main.class.getResourceAsStream("/template/" + line);
-                System.out.println(context.getProductionPath() + File.separatorChar + line);
+                LOG.debug(context.getProductionPath() + File.separatorChar + line);
                 Files.copy(Main.class.getResourceAsStream("/template/"+line),
                         Paths.get(context.getProductionPath() + File.separatorChar + line), StandardCopyOption.REPLACE_EXISTING);
 
-//                try (FileOutputStream fis = new FileOutputStream(target)) {
-//                    IOUtils.copy(is, fis);
-//                }
             } else {
                 // Folder
                 String pathname = context.getProductionPath() + File.separatorChar + line;
-                System.out.println("Creating path " + pathname);
+                LOG.debug("Creating path " + pathname);
                 new File(pathname).mkdirs();
             }
-            //./app
-            //./app/app.js
         }
-    }
-
-    private static void initTemplateOld(Context context) throws IOException {
-        copyResources("/template/app", context.getProductionPath());
-        copyResources("/template/css", context.getProductionPath());
-        copyResources("/template/fonts", context.getProductionPath());
-        copyResources("/template/js", context.getProductionPath());
-        copyResourcesFile("/template/index.html", context.getProductionPath() + "/index.html");
-        copyResourcesFile("/template/mitard.png", context.getProductionPath()+"/mitard.png");
-    }
-
-    private static void copyResources(String sourcePath, String targetPath) throws IOException {
-        File source = new File(Main.class.getResource(sourcePath).getFile()); // FIXME: find a way to make it work if packaged
-        File target = new File(targetPath);
-        FileUtils.copyDirectoryToDirectory(source, target);
-    }
-
-
-    private static void copyResourcesFile(String sourcePath, String targetPath) throws IOException {
-        File source = new File(Main.class.getResource(sourcePath).getFile()); // FIXME: find a way to make it work if packaged
-        File target = new File(targetPath);
-        FileUtils.copyFile(source, target);
     }
 
 }

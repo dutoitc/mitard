@@ -15,6 +15,7 @@ public class TalendFiles {
     private List<TalendFile> routes;
     private List<TalendFile> services;
     private List<TalendFile> mdmWorkflowProc;
+    private TalendProjectType project;
 
     public List<TalendFile> getProcesses() {
         return processes;
@@ -60,5 +61,17 @@ public class TalendFiles {
         files.addAll(routes.stream().filter(filesMissing).collect(Collectors.toList()));
         files.addAll(services.stream().filter(filesMissing).collect(Collectors.toList()));
         return files;
+    }
+
+    public String toString() {
+        return "TalendFiles["+processes.size()+" processes, " +routes.size()+" routes, " + services.size()+" services, " + mdmWorkflowProc.size() + " MDM Workflows]";
+    }
+
+    public void setProject(TalendProjectType project) {
+        this.project = project;
+    }
+
+    public TalendProjectType getProject() {
+        return project;
     }
 }

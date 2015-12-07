@@ -3,6 +3,8 @@ package ch.mno.talend.mitard.writers;
 import ch.mno.talend.mitard.data.*;
 import ch.mno.talend.mitard.out.JSonStatistics;
 import ch.mno.talend.mitard.readers.ProcessReader;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.xml.sax.SAXException;
 
 import javax.xml.parsers.ParserConfigurationException;
@@ -17,6 +19,9 @@ import java.util.Map;
  */
 public class StatisticsWriter extends AbstractWriter {
 
+
+    public static Logger LOG = LoggerFactory.getLogger(StatisticsWriter.class);
+
     public StatisticsWriter(Context context) {
         super(context);
     }
@@ -27,7 +32,7 @@ public class StatisticsWriter extends AbstractWriter {
         //
         for (TalendFile file : talendFiles.getProcesses()) {
             if (isBlacklisted(file.getName())|| isBlacklisted(file.getPath())) continue;
-            System.out.println("Reading " + new File(file.getItemFilename()).getName());
+            LOG.debug("Reading " + new File(file.getItemFilename()).getName());
             FileInputStream fis = new FileInputStream(file.getItemFilename());
             ProcessType process = ProcessReader.read(fis);
             for (AbstractNodeType node : process.getNodeList()) {

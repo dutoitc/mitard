@@ -7,6 +7,8 @@ import ch.mno.talend.mitard.readers.ProcessReader;
 import ch.mno.talend.mitard.readers.PropertiesReader;
 
 import org.apache.commons.lang3.StringUtils;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.xml.sax.SAXException;
 
 import javax.xml.parsers.ParserConfigurationException;
@@ -22,6 +24,7 @@ import java.util.Map;
  */
 public class ViolationsWriter extends AbstractNodeWriter {
 
+    public static Logger LOG = LoggerFactory.getLogger(ViolationsWriter.class);
 
     public ViolationsWriter(Context context) {
         super(context);
@@ -39,7 +42,7 @@ public class ViolationsWriter extends AbstractNodeWriter {
 
         for (TalendFile file : talendFiles.getProcesses()) {
             if (isBlacklisted(file.getName()) || isBlacklisted(file.getPath())) continue;
-            System.out.println("Reading " + new File(file.getItemFilename()).getName());
+            LOG.debug("Reading " + new File(file.getItemFilename()).getName());
 
 //            String properties = IOUtils.toString(new FileReader(file.getPropertiesFilename()));
 //            String item = IOUtils.toString(new FileReader(file.getItemFilename()));

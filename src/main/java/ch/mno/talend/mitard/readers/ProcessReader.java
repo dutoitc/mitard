@@ -16,6 +16,8 @@ import ch.mno.talend.mitard.data.TOracleCommitType;
 import ch.mno.talend.mitard.data.TRestRequestType;
 import ch.mno.talend.mitard.data.TRunJobType;
 import org.apache.commons.lang3.StringUtils;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.xml.sax.Attributes;
 import org.xml.sax.InputSource;
 import org.xml.sax.SAXException;
@@ -34,6 +36,9 @@ import java.io.InputStreamReader;
  * Note: seems to be impossible to work with XSD for Talend file (namespace not correct ?), so a parse is necessary.
  */
 public class ProcessReader extends DefaultHandler {
+
+
+    public static Logger LOG = LoggerFactory.getLogger(ProcessReader.class);
 
     private ProcessType process;
     private String path = "";
@@ -165,10 +170,22 @@ public class ProcessReader extends DefaultHandler {
                 case "tMDMDelete":
                 case "tFileOutputDelimited":
                 case "tSortRow":
+                case "tFileInputDelimited":
+                case "tFileList":
+                case "tXSDValidator":
+                case "cJMS":
+                case "cMessageRouter":
+                case "cMessagingEndpoint":
+                case "cLog":
+                case "cConfig":
+                case "cOnException":
+                case "cMQConnectionFactory":
+                case "cJavaDSLProcessor":
+                case "cProcessor":
                     reader = new TNodeReader(componentName);
                     break;
                 default:
-                    System.out.println("Missing read for " + componentName);
+                    LOG.warn("Missing read for " + componentName);
             }
         } else if (localName.equals("connection")) {
             process.addConnection(getAttribute(attributes, "source"), getAttribute(attributes, "target"));

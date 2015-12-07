@@ -1,31 +1,20 @@
 package ch.mno.talend.mitard.data;
 
-import java.util.ArrayList;
-import java.util.List;
+import java.util.HashMap;
+import java.util.Map;
 
 /**
- * Created by xsicdt on 29/06/15.
+ * Talend project informations.
  */
 public class TalendProjectType {
 
-	private List<TalendUserType> users = new ArrayList<>();
+	private Map<String, TalendUserType> users = new HashMap<>();
 
 	public TalendUserType getUserById(String id) {
-		for (TalendUserType user: users) {
-			if (user.getId().equals(id)) return user;
-		}
-		return null;
-	}
-
-	public List<TalendUserType> getUsers() {
-		return users;
-	}
-
-	public void setUsers(List<TalendUserType> users) {
-		this.users = users;
+		return users.get(id);
 	}
 
 	public void addUser(String id, String login, String firstName, String lastName) {
-		users.add(new TalendUserType(id, login, firstName, lastName));
+		users.put(id, new TalendUserType(id, login, firstName, lastName));
 	}
 }

@@ -2,10 +2,12 @@ package ch.mno.talend.mitard.helpers;
 
 import ch.mno.talend.mitard.data.TalendFile;
 import ch.mno.talend.mitard.data.TalendFiles;
+import ch.mno.talend.mitard.readers.TalendProjectReader;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import java.io.File;
+import java.io.FileInputStream;
 import java.io.IOException;
 import java.nio.file.Files;
 import java.util.ArrayList;
@@ -22,12 +24,13 @@ public class TalendFileHelper {
     }
 
     /** Find latest process, routes, services versions in workspace path subfolders */
-    public static TalendFiles findLatestVersions(String talendWorkspacePath)  {
+    public static TalendFiles findLatestVersions(String talendWorkspacePath) throws IOException {
         TalendFiles talendFiles = new TalendFiles();
         talendFiles.setProcesses(findLatestVersionsInternal(new File(talendWorkspacePath + File.separatorChar+"process")));
         talendFiles.setRoutes(findLatestVersionsInternal(new File(talendWorkspacePath +  File.separatorChar+"routes")));
         talendFiles.setServices(findLatestVersionsInternal(new File(talendWorkspacePath +  File.separatorChar+"services")));
         talendFiles.setMDMWorkflowProc(findLatestVersionsInternal(new File(talendWorkspacePath + File.separatorChar + "MDM" + File.separatorChar + "workflow")));
+        talendFiles.setProject(TalendProjectReader.read(new FileInputStream(talendWorkspacePath + "/talend.project")));
         return talendFiles;
     }
 

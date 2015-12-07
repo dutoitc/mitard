@@ -1,5 +1,7 @@
 package ch.mno.talend.mitard.data;
 
+import org.apache.commons.io.IOUtils;
+
 import java.io.File;
 import java.io.FileInputStream;
 import java.io.FileNotFoundException;
@@ -8,8 +10,6 @@ import java.io.InputStream;
 import java.util.Arrays;
 import java.util.List;
 import java.util.Properties;
-
-import org.apache.commons.io.IOUtils;
 
 /**
  * Created by dutoitc on 13.05.2015.
@@ -22,7 +22,7 @@ public class Context {
     public Context(InputStream is) {
         properties = new Properties();
         if (is==null) {
-            throw new RuntimeException("Canot load null properties file.");
+            throw new RuntimeException("Canot load null properties file. Check that the specified file exists.");
         }
         try {
             properties.load(is);

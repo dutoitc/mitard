@@ -38,7 +38,7 @@ public class SearchWriter extends AbstractNodeWriter {
         for (TalendFile file : talendFiles.getProcesses()) {
             if (isBlacklisted(file.getName()) || isBlacklisted(file.getPath())) continue;
 
-            LOG.info("Reading " + new File(file.getItemFilename()).getName());
+            LOG.debug("Reading " + new File(file.getItemFilename()).getName());
 
             JSonTextFile textFile = new JSonTextFile(file.getName());
             textFiles.addJSonTextFile(textFile);

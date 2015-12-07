@@ -5,6 +5,8 @@ import ch.mno.talend.mitard.readers.ProcessReader;
 import ch.mno.talend.mitard.readers.WorkflowReader;
 import ch.mno.talend.mitard.tools.DotWrapper;
 import org.apache.commons.io.IOUtils;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.xml.sax.SAXException;
 
 import javax.xml.bind.JAXBException;
@@ -18,6 +20,10 @@ import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
 public class DependenciesWriter extends AbstractWriter {
+
+
+    public static Logger LOG = LoggerFactory.getLogger(DependenciesWriter.class);
+
     public DependenciesWriter(Context context) {
         super(context);
     }
@@ -48,7 +54,7 @@ public class DependenciesWriter extends AbstractWriter {
         try {
             DotWrapper.generatePNG(getContext().getDotPath(), getContext().getProductionPath() + File.separatorChar + "data" + File.separatorChar + "dependencies.png", tempFile);
         } catch (RuntimeException e) {
-            System.err.println("Ignoring Dot generation due to an error: " + e.getMessage());
+            LOG.error("Ignoring Dot generation due to an error: " + e.getMessage());
         }
 
         // JSON
@@ -175,7 +181,7 @@ public class DependenciesWriter extends AbstractWriter {
         for (TalendFile f: talendFiles.getMDMWorkflowProc()) {
             if (isBlacklisted(f.getName()) || isBlacklisted(f.getPath())) continue;
             String filename = f.getProcFilename();
-            System.out.println("Reading " + filename);
+            LOG.debug("Reading " + filename);
             FileInputStream fis = new FileInputStream(filename);
             WorkflowType workflow = WorkflowReader.read(fis);
             String source = "B_" +  normalize(f.getName(), f.getVersion());
@@ -192,7 +198,7 @@ public class DependenciesWriter extends AbstractWriter {
         for (TalendFile file : talendFiles.getProcesses()) {
 //            if (file.getItemFilename().contains("process")) {
             if (isBlacklisted(file.getName())|| isBlacklisted(file.getPath())) continue;
-            System.out.println("Reading " + new File(file.getItemFilename()).getName());
+            LOG.debug("Reading " + new File(file.getItemFilename()).getName());
             FileInputStream fis = new FileInputStream(file.getItemFilename());
             ProcessType process = ProcessReader.read(fis);
             for (AbstractNodeType node : process.getNodeList()) {

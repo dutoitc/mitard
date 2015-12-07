@@ -3,7 +3,6 @@ package ch.mno.talend.mitard.writers;
 import ch.mno.talend.mitard.data.Context;
 import ch.mno.talend.mitard.data.TalendFile;
 import ch.mno.talend.mitard.data.TalendFiles;
-import ch.mno.talend.mitard.data.TalendProjectType;
 import ch.mno.talend.mitard.data.TalendUserType;
 import ch.mno.talend.mitard.out.JsonServices;
 import org.slf4j.Logger;
@@ -30,11 +29,11 @@ public class ServicesWriter extends AbstractNodeWriter {
         super(context);
     }
 
-    public void write(TalendFiles talendFiles, TalendProjectType project) throws IOException {
+    public void write(TalendFiles talendFiles) throws IOException {
         JsonServices jsonServices = new JsonServices();
         for (TalendFile file : talendFiles.getServices()) {
             if (isBlacklisted(file.getName())|| isBlacklisted(file.getPath())) continue;
-            LOG.info("Reading " + new File(file.getItemFilename()).getName());
+            LOG.debug("Reading " + new File(file.getItemFilename()).getName());
 
             List<String> screenshots = extractScreenshots(file);
 
@@ -46,7 +45,7 @@ public class ServicesWriter extends AbstractNodeWriter {
             Matcher matcherItem = PAT_AUTHOR.matcher(data);
             if (matcherItem.find() ) {
                 String authorId = matcherItem.group(1);
-                TalendUserType author = project.getUserById(authorId);
+                TalendUserType author = talendFiles.getProject().getUserById(authorId);
                 jsonServices.addService(file.getPath(), file.getName(), file.getVersion(), readPurpose(data), readDescription(data), readCreationDate(data), readModificationDate(data), screenshots, author);
             }
         }
