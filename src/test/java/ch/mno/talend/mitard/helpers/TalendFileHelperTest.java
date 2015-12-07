@@ -6,6 +6,7 @@ import org.junit.Assert;
 import org.junit.Test;
 
 import java.io.File;
+import java.io.IOException;
 
 /**
  * Created by dutoitc on 05.05.2015.
@@ -13,7 +14,7 @@ import java.io.File;
 public class TalendFileHelperTest {
 
     @Test
-    public void testX() {
+    public void testX() throws IOException {
         TalendFiles versions = new TalendFileHelper().findLatestVersions(new File(getClass().getResource("/ESBTUTORIALPROJECT").getFile()).getAbsolutePath());
         Assert.assertEquals(6, versions.getProcesses().size());
 
