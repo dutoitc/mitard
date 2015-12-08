@@ -39,7 +39,6 @@ public class ViolationsWriter extends AbstractNodeWriter {
             allViolations.add(fileViolations);
         }
 
-
         for (TalendFile file : talendFiles.getProcesses()) {
             if (isBlacklisted(file.getName()) || isBlacklisted(file.getPath())) continue;
             LOG.debug("Reading " + new File(file.getItemFilename()).getName());
@@ -87,11 +86,12 @@ public class ViolationsWriter extends AbstractNodeWriter {
             PropertiesType properties = PropertiesReader.reader(fis);
 
 
+            // MISSING_DOCUMENTATION_PURPOSE
             if (StringUtils.isEmpty(properties.getPurpose())) {
                 fileViolations.addGeneralViolation(JsonViolationEnum.MISSING_DOCUMENTATION_PURPOSE);
             }
 
-
+            // MISSING_DOCUMENTATION_DESCRIPTION
             if (StringUtils.isEmpty(properties.getDescription())) {
                 fileViolations.addGeneralViolation(JsonViolationEnum.MISSING_DOCUMENTATION_DESCRIPTION);
             }
@@ -150,7 +150,6 @@ public class ViolationsWriter extends AbstractNodeWriter {
 
     private void checkFIRECREATEEVENT_MUST_BE_SET(JsonFileViolations fileViolations, AbstractNodeType node, ProcessType process) {
         if (node.getComponentName().equals("tMDMOutput")) {
-            String source = node.getUniqueName();
             TNodeType nodeType = (TNodeType) node;
             if ("false".equals(nodeType.getValue("WITHREPORT"))) {
                 fileViolations.addComponentViolation(node.getUniqueName(), JsonViolationEnum.FIRECREATEEVENT_MUST_BE_SET);

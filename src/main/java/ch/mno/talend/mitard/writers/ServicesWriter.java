@@ -18,7 +18,6 @@ import java.util.regex.Pattern;
 
 /**
  *  Read all processes and write services.json
- * Created by dutoitc on 13.05.2015.
  */
 public class ServicesWriter extends AbstractNodeWriter {
 

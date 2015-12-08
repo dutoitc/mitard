@@ -24,20 +24,22 @@ import java.util.regex.Pattern;
  */
 public class AbstractNodeWriter extends AbstractWriter {
 
-
     private static Pattern patPurpose = Pattern.compile("purpose=\"(.*?)\"");
     private static Pattern patDescription = Pattern.compile("description=\"(.*?)\"");
     private static Pattern patCreationDate = Pattern.compile("creationDate=\"(.*?)\"");
     private static Pattern patModificationDate = Pattern.compile("modificationDate=\"(.*?)\"");
-    SimpleDateFormat SDF = new SimpleDateFormat("yyyy-MM-dd'T'HH:mm:ss.SSSZ");
+    private static SimpleDateFormat SDF = new SimpleDateFormat("yyyy-MM-dd'T'HH:mm:ss.SSSZ");
+    private static Pattern patJira;
 
     public AbstractNodeWriter(Context context) {
         super(context);
+        patJira = Pattern.compile("("+getContext().getJiraPrefix()+"-?\\d+)");
     }
 
     // TODO: find author talend.project
 
 
+    /** Parse purpose */
     public String readPurpose(String content) {
         Matcher matcher = patPurpose.matcher(content);
         if (matcher.find()) {
@@ -47,9 +49,9 @@ public class AbstractNodeWriter extends AbstractWriter {
         }
         return "";
     }
-    public String readDescription(String content) {
-        Pattern patJira = Pattern.compile("("+getContext().getJiraPrefix()+"-?\\d+)");
 
+    /** Parse description, and add Jira URL if existing */
+    public String readDescription(String content) {
         Matcher matcher = patDescription.matcher(content);
         if (matcher.find()) {
             String description = matcher.group(1);
@@ -65,6 +67,8 @@ public class AbstractNodeWriter extends AbstractWriter {
         }
         return "";
     }
+
+    /** Parse creationDate */
     public Date readCreationDate(String content) {
         Matcher matcher = patCreationDate.matcher(content);
         if (matcher.find()) {
@@ -76,6 +80,8 @@ public class AbstractNodeWriter extends AbstractWriter {
         }
         return null;
     }
+
+    /** Parse modificationDate */
     public Date readModificationDate(String content) {
         Matcher matcher = patModificationDate.matcher(content);
         if (matcher.find()) {
@@ -88,7 +94,7 @@ public class AbstractNodeWriter extends AbstractWriter {
         return null;
     }
 
-
+    /** Extract all screenshots from the file (process), produce data/xxx.png, return png filenames */
     protected List<String> extractScreenshots(TalendFile file) throws IOException {
         // Extract images
         if (new File(file.getScreenshotFilename()).exists()) {

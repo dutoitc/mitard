@@ -2,6 +2,7 @@ package ch.mno.talend.mitard.data;
 
 import java.io.File;
 
+/** A Talend file (in fact, a component, with .item, .properties, .screenshot, .proc?) */
 public class TalendFile {
     private String path;
     private String name;

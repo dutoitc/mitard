@@ -23,7 +23,8 @@ public class AbstractWriter {
     }
 
     protected void writeJson(String filename, Object obj) throws IOException {
-        (new JSonWriter()).writeJSon(new File(context.getProductionPath()+File.separatorChar+"data"+File.separatorChar+filename), obj);
+        String pathname = context.getProductionPath() + File.separatorChar + "data" + File.separatorChar + filename;
+        (new JSonWriter()).writeJSon(new File(pathname), obj);
     }
 
     protected boolean isBlacklisted(String name) {
