@@ -17,7 +17,7 @@ angular.module('mitardApp.search', ['ngRoute'])
 
     $scope.search = function() {
         var res=[];
-        var term = $scope.searchText;
+        var term = $scope.searchText.toLowerCase();
         for (var i=0; i<$scope.searchData.textFiles.length; i++) {
             var textFile = $scope.searchData.textFiles[i];
             for (var j=0; j<textFile.textList.length; j++) {

@@ -3,32 +3,29 @@ package ch.mno.talend.mitard;
 
 import ch.mno.talend.mitard.data.Context;
 import ch.mno.talend.mitard.data.TalendFiles;
-import ch.mno.talend.mitard.data.TalendProjectType;
 import ch.mno.talend.mitard.helpers.TalendFileHelper;
-import ch.mno.talend.mitard.readers.TalendProjectReader;
+import ch.mno.talend.mitard.writers.AbstractWriter;
 import ch.mno.talend.mitard.writers.DependenciesWriter;
+import ch.mno.talend.mitard.writers.OutputWriter;
 import ch.mno.talend.mitard.writers.ProcessesWriter;
 import ch.mno.talend.mitard.writers.RoutesWriter;
 import ch.mno.talend.mitard.writers.SearchWriter;
 import ch.mno.talend.mitard.writers.ServicesWriter;
 import ch.mno.talend.mitard.writers.StatisticsWriter;
 import ch.mno.talend.mitard.writers.ViolationsWriter;
-import org.apache.commons.io.IOUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.xml.sax.SAXException;
 
 import javax.xml.bind.JAXBException;
 import javax.xml.parsers.ParserConfigurationException;
-import java.io.File;
 import java.io.FileInputStream;
 import java.io.IOException;
-import java.nio.file.Files;
-import java.nio.file.Paths;
-import java.nio.file.StandardCopyOption;
+import java.util.concurrent.ExecutorService;
+import java.util.concurrent.Executors;
+import java.util.concurrent.TimeUnit;
 
 public class Main {
-
 
     public static Logger LOG = LoggerFactory.getLogger(Main.class);
 
@@ -37,7 +34,7 @@ public class Main {
 
         // Pre-requisites
         LOG.info("_____./ MITARD  \\._______________________________________________________");
-        if (args.length==0) {
+        if (args.length == 0) {
             System.err.println("Missing context.properties as first program argument");
             System.exit(1);
         }
@@ -47,48 +44,49 @@ public class Main {
         TalendFiles talendFiles = TalendFileHelper.findLatestVersions(context.getWorkspacePath());
         LOG.info("Found " + talendFiles.toString());
 
+        // Dependencies (start first, dot takes long time to run)
+        WritersExecutor writersExecutor = new WritersExecutor();
+        writersExecutor.submit(new DependenciesWriter(context), talendFiles);
+
         // Init production path
-        File productionDir = new File(context.getProductionPath());
-        productionDir.delete();
-        productionDir.mkdir();
-        new File(context.getProductionPath()+File.separatorChar+"data").mkdir();
-        initTemplate(context);
+        new OutputWriter().write(context.getProductionPath());
 
-
-        // Dependencies
-        new DependenciesWriter(context).write(talendFiles);
 
         // JSON
-        new ProcessesWriter(context).write(talendFiles);
-        new RoutesWriter(context).write(talendFiles);
-        new ServicesWriter(context).write(talendFiles);
-        new StatisticsWriter(context).write(talendFiles);
-        new ViolationsWriter(context).write(talendFiles);
-        new SearchWriter(context).write(talendFiles);
+        writersExecutor.submit(new ProcessesWriter(context), talendFiles);
+        writersExecutor.submit(new RoutesWriter(context), talendFiles);
+        writersExecutor.submit(new ServicesWriter(context), talendFiles);
+        writersExecutor.submit(new StatisticsWriter(context), talendFiles);
+        writersExecutor.submit(new ViolationsWriter(context), talendFiles);
+        writersExecutor.submit(new SearchWriter(context), talendFiles);
+
+        // Finish
+        writersExecutor.stop();
         LOG.info("Wrote Mitard site to " + context.getProductionPath());
-        LOG.info("Mitard run finished after " + (System.currentTimeMillis()-t0)/1000.0 + "s");
+        LOG.info("Mitard run took " + (System.currentTimeMillis() - t0) / 1000.0 + "s");
     }
 
-    private static void initTemplate(Context context) throws IOException {
-        String s = IOUtils.toString(Main.class.getResourceAsStream("/template/index.txt"));
-        for (String line: s.split("\n")) {
-            if (line.length()<2) continue;
-            line = line.substring(2); // Remove "./" at start
-            if (line.endsWith("\r")) line = line.substring(0, line.length()-1);
-            if (line.contains(".")) {
-                if (File.separatorChar=='\\') {
-                    line = line.replaceAll("/", "\\\\");
-                }
-                // File
-                LOG.debug(context.getProductionPath() + File.separatorChar + line);
-                Files.copy(Main.class.getResourceAsStream("/template/"+line),
-                        Paths.get(context.getProductionPath() + File.separatorChar + line), StandardCopyOption.REPLACE_EXISTING);
+    private static class WritersExecutor {
+        ExecutorService executor = Executors.newFixedThreadPool(5);
 
-            } else {
-                // Folder
-                String pathname = context.getProductionPath() + File.separatorChar + line;
-                LOG.debug("Creating path " + pathname);
-                new File(pathname).mkdirs();
+        public void submit(AbstractWriter writer, TalendFiles talendFiles) {
+            executor.submit(() ->
+                    {
+                        try {
+                            writer.write(talendFiles);
+                        } catch (Exception e) {
+                            e.printStackTrace();
+                        }
+                    }
+            );
+        }
+
+        public void stop() {
+            executor.shutdown();
+            try {
+                executor.awaitTermination(15, TimeUnit.MINUTES);
+            } catch (InterruptedException e) {
+                e.printStackTrace();
             }
         }
     }

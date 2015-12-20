@@ -32,6 +32,7 @@ public class Context {
 
         // Load project properties
         for (String path:  properties.getProperty("properties").split(",")) {
+            if (path.isEmpty()) continue;
             String location = properties.getProperty("talendWorkspacePath") + File.separatorChar + path;
             try (FileInputStream fis = new FileInputStream(location)) {
                 assert fis != null;

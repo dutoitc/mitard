@@ -42,34 +42,42 @@ public class DependenciesWriter extends AbstractWriter {
      * @throws SAXException
      * @throws ParserConfigurationException
      */
-    public void write(TalendFiles talendFiles) throws JAXBException, IOException, SAXException, ParserConfigurationException {
-        computeDependencies(talendFiles);
-
-        // DOT
-        String dot = buildDot();
-        File tempFile = new File(getContext().getProductionPath() + File.separatorChar + "data" + File.separatorChar + "dependencies.dot");
-        FileWriter writer = new FileWriter(tempFile);
-        IOUtils.write(dot, writer);
-        writer.flush();
+    public void write(TalendFiles talendFiles) {
         try {
-            DotWrapper.generatePNG(getContext().getDotPath(), getContext().getProductionPath() + File.separatorChar + "data" + File.separatorChar + "dependencies.png", tempFile);
-        } catch (RuntimeException e) {
-            LOG.error("Ignoring Dot generation due to an error: " + e.getMessage());
+            computeDependencies(talendFiles);
+
+            // DOT
+            String dot = buildDot();
+            File tempFile = new File(getContext().getProductionPath() + File.separatorChar + "data" + File.separatorChar + "dependencies.dot");
+            FileWriter writer = new FileWriter(tempFile);
+            IOUtils.write(dot, writer);
+            writer.flush();
+            try {
+                DotWrapper.generatePNG(getContext().getDotPath(), getContext().getProductionPath() + File.separatorChar + "data" + File.separatorChar + "dependencies.png", tempFile);
+            } catch (RuntimeException e) {
+                LOG.error("Ignoring Dot generation due to an error: " + e.getMessage());
+            }
+
+            // JSON
+            writeJson("dependencies.json", new DependenciesJSON(processDependencies, routeDependencies, serviceDependencies));
+
+            //System.out.println(sb.toString());
+
+        } catch (Exception e) {
+            throw new RuntimeException(e);
         }
-
-        // JSON
-        writeJson("dependencies.json", new DependenciesJSON(processDependencies, routeDependencies, serviceDependencies));
-
-        //System.out.println(sb.toString());
     }
 
 
+    /** Normalize name, version to [name]_[version] with replacements. '-' and '.' to' _'.*/
     private String normalize(String name, String version) {
-        if (version==null) return "";
+        if (version == null) return "";
+
+        // Convert context.xxx to the value given by xxx in context/properties file
         if (version.startsWith("context")) {
             version = getContext().getProjectProperties(version.substring(8));
         }
-        String s=name+"_"+version;
+        String s = name + "_" + version;
         return s.replace("-", "_").replace(".", "_");
     }
 
@@ -121,7 +129,7 @@ public class DependenciesWriter extends AbstractWriter {
             if (isBlacklisted(f.getName()) || isBlacklisted(f.getPath())) continue;
             String name = "P_" + normalize(f.getName(), f.getVersion());
             processDependencies.put(name, new ArrayList<String>());
-            latestsVersions.put("P_"+f.getName(), f.getVersion());
+            latestsVersions.put("P_" + f.getName(), f.getVersion());
 
             // Read id for services which are linked to processes
             try {
@@ -135,10 +143,10 @@ public class DependenciesWriter extends AbstractWriter {
             }
         }
         for (TalendFile f : talendFiles.getRoutes()) {
-            if (isBlacklisted(f.getName())|| isBlacklisted(f.getPath())) continue;
+            if (isBlacklisted(f.getName()) || isBlacklisted(f.getPath())) continue;
             String name = "R_" + normalize(f.getName(), f.getVersion());
             routeDependencies.put(name, new ArrayList<String>());
-            latestsVersions.put("R_"+f.getName(), f.getVersion());
+            latestsVersions.put("R_" + f.getName(), f.getVersion());
 
 
             FileInputStream fis = new FileInputStream(f.getItemFilename());
@@ -149,18 +157,20 @@ public class DependenciesWriter extends AbstractWriter {
                 if (node instanceof CTalendJobType) {
                     String processName1 = ((CTalendJobType) node).getProcessName();
                     String version = ((CTalendJobType) node).getProcessVersion();
-                    if (version.startsWith("context")) version = getContext().getProjectProperties(version.substring(8));
-                    if (version.toLowerCase().equals("latest")) version = getLatestVersion(latestsVersions, "P_" + processName1);
+                    if (version.startsWith("context"))
+                        version = getContext().getProjectProperties(version.substring(8));
+                    if (version.toLowerCase().equals("latest"))
+                        version = getLatestVersion(latestsVersions, "P_" + processName1);
                     String processName = "P_" + normalize(processName1, version);
                     addProcessDependency(name, processName);
                 }
             }
         }
         for (TalendFile f : talendFiles.getServices()) {
-            if (isBlacklisted(f.getName())|| isBlacklisted(f.getPath())) continue;
+            if (isBlacklisted(f.getName()) || isBlacklisted(f.getPath())) continue;
             String name = "S_" + normalize(f.getName(), f.getVersion());
             serviceDependencies.put(name, new ArrayList<String>());
-            latestsVersions.put("S_"+f.getName(), f.getVersion());
+            latestsVersions.put("S_" + f.getName(), f.getVersion());
 
             // Services -> P_xxx (implementing process)
             String properties = IOUtils.toString(new FileInputStream(f.getItemFilename()));
@@ -178,26 +188,24 @@ public class DependenciesWriter extends AbstractWriter {
             }
         }
 
-        for (TalendFile f: talendFiles.getMDMWorkflowProc()) {
+        for (TalendFile f : talendFiles.getMDMWorkflowProc()) {
             if (isBlacklisted(f.getName()) || isBlacklisted(f.getPath())) continue;
             String filename = f.getProcFilename();
             LOG.debug("Reading " + filename);
             FileInputStream fis = new FileInputStream(filename);
             WorkflowType workflow = WorkflowReader.read(fis);
-            String source = "B_" +  normalize(f.getName(), f.getVersion());
+            String source = "B_" + normalize(f.getName(), f.getVersion());
 
-            for (String service: workflow.getServices()) {
+            for (String service : workflow.getServices()) {
                 String dest = findLatestService(service);
                 addWorkflowDependency(source, dest);
             }
         }
 
 
-
-
         for (TalendFile file : talendFiles.getProcesses()) {
 //            if (file.getItemFilename().contains("process")) {
-            if (isBlacklisted(file.getName())|| isBlacklisted(file.getPath())) continue;
+            if (isBlacklisted(file.getName()) || isBlacklisted(file.getPath())) continue;
             LOG.debug("Reading " + new File(file.getItemFilename()).getName());
             FileInputStream fis = new FileInputStream(file.getItemFilename());
             ProcessType process = ProcessReader.read(fis);
@@ -205,7 +213,7 @@ public class DependenciesWriter extends AbstractWriter {
                 if (node instanceof TESBConsumerType) {
                     String name = "P_" + normalize(file.getName(), file.getVersion());
                     String serviceName1 = ((TESBConsumerType) node).getServiceName();
-                    String version = getLatestVersion(latestsVersions, "S_"+serviceName1);
+                    String version = getLatestVersion(latestsVersions, "S_" + serviceName1);
                     String serviceName = "S_" + normalize(serviceName1, version);
                     addProcessDependency(name, serviceName);
 
@@ -217,15 +225,17 @@ public class DependenciesWriter extends AbstractWriter {
 //                    String serviceName = "S_" + normalize(serviceName1, version);
 //                    addProcessDependency(name, serviceName);
 
-                } else if (node instanceof  TBonitaInstanciateProcessType) {
+                } else if (node instanceof TBonitaInstanciateProcessType) {
                     String name = "P_" + normalize(file.getName(), file.getVersion());
-                    String processName=((TBonitaInstanciateProcessType) node).getProcessName();
+                    String processName = ((TBonitaInstanciateProcessType) node).getProcessName();
                     if (processName.startsWith("context.")) {
                         processName = getContext().getProjectProperties(processName.substring(8));
                     }
                     String version = ((TBonitaInstanciateProcessType) node).getProcessVersion();
-                    if (version!=null && version.startsWith("context")) version = getContext().getProjectProperties(version.substring(8));
-                    if (version!=null && version.toLowerCase().equals("latest")) version = getLatestVersion(latestsVersions, "S_"+processName);
+                    if (version != null && version.startsWith("context"))
+                        version = getContext().getProjectProperties(version.substring(8));
+                    if (version != null && version.toLowerCase().equals("latest"))
+                        version = getLatestVersion(latestsVersions, "S_" + processName);
                     String serviceName = "B_" + normalize(processName, version);
                     addProcessDependency(name, serviceName);
 
@@ -233,8 +243,10 @@ public class DependenciesWriter extends AbstractWriter {
                     String name = "P_" + normalize(file.getName(), file.getVersion());
                     String processName1 = ((TRunJobType) node).getProcessName();
                     String version = ((TRunJobType) node).getProcessVersion();
-                    if (version.startsWith("context")) version = getContext().getProjectProperties(version.substring(8));
-                    if (version.toLowerCase().equals("latest")) version = getLatestVersion(latestsVersions, "P_" + processName1);
+                    if (version.startsWith("context"))
+                        version = getContext().getProjectProperties(version.substring(8));
+                    if (version.toLowerCase().equals("latest"))
+                        version = getLatestVersion(latestsVersions, "P_" + processName1);
                     String processName = "P_" + normalize(processName1, version);
                     addProcessDependency(name, processName);
 //                    } else  if (node instanceof TBonitaInstantiateProcessType) {
@@ -254,17 +266,17 @@ public class DependenciesWriter extends AbstractWriter {
 
     private boolean isBetter(String id1, String reference, String candidate) {
         if (candidate.equals("latest")) return true;
-        int p = id1.length()+1;
+        int p = id1.length() + 1;
         String v1 = reference.substring(p);
         String v2 = candidate.substring(p);
         v1 = v1.replace("_", ".");
         v2 = v2.replace("_", ".");
-        if (v2.charAt(0)<='0' || v2.charAt(0)>='9') return false;
-        if (v1.charAt(0)<='0' || v2.charAt(0)>='9') return false;
+        if (v2.charAt(0) <= '0' || v2.charAt(0) >= '9') return false;
+        if (v1.charAt(0) <= '0' || v2.charAt(0) >= '9') return false;
         try {
             float v1f = Float.parseFloat(v1);
             float v2f = Float.parseFloat(v2);
-            return v2f>v1f;
+            return v2f > v1f;
         } catch (Exception e) {
             return false;
         }
@@ -273,8 +285,8 @@ public class DependenciesWriter extends AbstractWriter {
     private String findLatestService(String service) {
         String needle = "S_" + service;
         String best = "";
-        for (String key: serviceDependencies.keySet()) {
-            if (key.startsWith(needle) && (best=="" || isBetter(needle, best, key))) {
+        for (String key : serviceDependencies.keySet()) {
+            if (key.startsWith(needle) && (best == "" || isBetter(needle, best, key))) {
                 best = key;
             }
         }
@@ -283,7 +295,7 @@ public class DependenciesWriter extends AbstractWriter {
 
     private String getLatestVersion(Map<String, String> latestsVersions, String id) {
         String value = latestsVersions.get(id);
-        if (value==null) {
+        if (value == null) {
             return "latest";
         } else {
             return value;

@@ -5,19 +5,16 @@ import ch.mno.talend.mitard.data.TalendFile;
 import ch.mno.talend.mitard.data.TalendFiles;
 import ch.mno.talend.mitard.data.TalendUserType;
 import ch.mno.talend.mitard.out.JsonRoutes;
-import org.apache.commons.io.IOUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import java.io.File;
-import java.io.FileInputStream;
-import java.io.IOException;
-import java.io.InputStreamReader;
+import java.nio.file.Files;
+import java.nio.file.Paths;
 import java.util.List;
-import java.util.regex.Matcher;
-import java.util.regex.Pattern;
 
 /**
+ * Write routes.json (route is name, version, path, purpose, description, date, screenshots...)
  * Created by dutoitc on 13.05.2015.
  */
 public class RoutesWriter extends AbstractNodeWriter {
@@ -28,27 +25,28 @@ public class RoutesWriter extends AbstractNodeWriter {
         super(context);
     }
 
-    public void write(TalendFiles talendFiles) throws IOException {
-        // Routes
-        JsonRoutes jsonRoutes = new JsonRoutes();
-        for (TalendFile file: talendFiles.getRoutes()) {
-            if (isBlacklisted(file.getName())|| isBlacklisted(file.getPath())) continue;
-            LOG.debug("Reading " + new File(file.getItemFilename()).getName());
+    public void write(TalendFiles talendFiles) {
+        try {
+            // Routes
+            JsonRoutes jsonRoutes = new JsonRoutes();
+            for (TalendFile file : talendFiles.getRoutes()) {
+                if (isBlacklisted(file.getName()) || isBlacklisted(file.getPath())) continue;
+                LOG.debug("Reading " + new File(file.getItemFilename()).getName());
 
-            List<String> screenshots = extractScreenshots(file);
+                List<String> screenshots = extractScreenshots(file);
 
-            String data = IOUtils.toString(new InputStreamReader(new FileInputStream(file.getPropertiesFilename()), "UTF-8"));
+                String data = new String(Files.readAllBytes(Paths.get(file.getPropertiesFilename())), "UTF-8");
 
-            // Read author
-            Matcher matcherItem = Pattern.compile("author .*?talend.project.(.*?)\"").matcher(data);
-            matcherItem.find();
-            String authorId = matcherItem.group(1);
-            TalendUserType author = talendFiles.getProject().getUserById(authorId);
+                // Read author
+                TalendUserType author = extractAuthor(talendFiles, data);
 
+                jsonRoutes.addRoute(file.getPath(), file.getName(), file.getVersion(), readPurpose(data), readDescription(data), readCreationDate(data), readModificationDate(data), screenshots, author);
+            }
+            writeJson("routes.json", jsonRoutes);
 
-            jsonRoutes.addRoute(file.getPath(), file.getName(), file.getVersion(), readPurpose(data), readDescription(data), readCreationDate(data), readModificationDate(data), screenshots, author);
+        } catch (Exception e) {
+            throw new RuntimeException(e);
         }
-        writeJson("routes.json", jsonRoutes);
     }
 
 

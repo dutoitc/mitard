@@ -12,11 +12,8 @@ import ch.mno.talend.mitard.data.TalendFiles;
 import ch.mno.talend.mitard.readers.ProcessReader;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import org.xml.sax.SAXException;
 
-import javax.xml.parsers.ParserConfigurationException;
 import java.io.File;
-import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -32,29 +29,37 @@ public class SearchWriter extends AbstractNodeWriter {
         super(context);
     }
 
-    public void write(TalendFiles talendFiles) throws IOException, ParserConfigurationException, SAXException {
-        JSonTextFiles textFiles = new JSonTextFiles();
+    public void write(TalendFiles talendFiles) {
+        try {
+            JSonTextFiles textFiles = new JSonTextFiles();
 
-        for (TalendFile file : talendFiles.getProcesses()) {
-            if (isBlacklisted(file.getName()) || isBlacklisted(file.getPath())) continue;
+            for (TalendFile file : talendFiles.getProcesses()) {
+                if (isBlacklisted(file.getName()) || isBlacklisted(file.getPath())) continue;
 
-            LOG.debug("Reading " + new File(file.getItemFilename()).getName());
+                LOG.debug("Reading " + new File(file.getItemFilename()).getName());
 
-            JSonTextFile textFile = new JSonTextFile(file.getName());
-            textFiles.addJSonTextFile(textFile);
+                JSonTextFile textFile = new JSonTextFile(file.getName());
+                textFiles.addJSonTextFile(textFile);
 
-            // Extract texts from all nodes of file
-            ProcessType process = ProcessReader.read(file.getItemFilename());
-            process.getNodeList().stream()
-                    .filter(node->node.isActive())
-                    .forEach(node->textFile.addText(node.getUniqueName(), extractText(node)));
+                // Extract texts from all nodes of file
+                ProcessType process = ProcessReader.read(file.getItemFilename());
+                process.getNodeList().stream()
+                        .filter(node -> node.isActive())
+                        .forEach(node -> textFile.addText(node.getUniqueName(), extractText(node).toLowerCase()));
+            }
+
+            writeJson("textFiles.json", textFiles);
+
+        } catch (Exception e) {
+            throw new RuntimeException(e);
         }
 
-        writeJson("textFiles.json", textFiles);
     }
 
 
-    /** Extract text from node */
+    /**
+     * Extract text from node
+     */
     private String extractText(AbstractNodeType abstractNode) {
         if (abstractNode instanceof TJavaFlexType) {
             TJavaFlexType node = (TJavaFlexType) abstractNode;
@@ -73,7 +78,9 @@ public class SearchWriter extends AbstractNodeWriter {
     }
 
 
-    /** Object with many JSonTextFile */
+    /**
+     * Object with many JSonTextFile
+     */
     class JSonTextFiles {
         private List<JSonTextFile> textFiles = new ArrayList<>();
 
@@ -87,7 +94,9 @@ public class SearchWriter extends AbstractNodeWriter {
 
     }
 
-    /** Object with filename and many JsonText */
+    /**
+     * Object with filename and many JsonText
+     */
     class JSonTextFile {
         private String filename;
         private List<JsonText> textList = new ArrayList<>();
@@ -110,7 +119,9 @@ public class SearchWriter extends AbstractNodeWriter {
 
     }
 
-    /** Object with node name and text */
+    /**
+     * Object with node name and text
+     */
     class JsonText {
 
         private String nodeName;

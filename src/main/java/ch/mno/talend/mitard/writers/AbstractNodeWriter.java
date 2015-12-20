@@ -2,6 +2,8 @@ package ch.mno.talend.mitard.writers;
 
 import ch.mno.talend.mitard.data.Context;
 import ch.mno.talend.mitard.data.TalendFile;
+import ch.mno.talend.mitard.data.TalendFiles;
+import ch.mno.talend.mitard.data.TalendUserType;
 import org.apache.commons.codec.binary.Base64;
 import org.apache.commons.lang3.StringEscapeUtils;
 
@@ -22,14 +24,14 @@ import java.util.regex.Pattern;
 /**
  * Created by dutoitc on 14.05.2015.
  */
-public class AbstractNodeWriter extends AbstractWriter {
+public abstract class AbstractNodeWriter extends AbstractWriter {
 
-    private static Pattern patPurpose = Pattern.compile("purpose=\"(.*?)\"");
-    private static Pattern patDescription = Pattern.compile("description=\"(.*?)\"");
-    private static Pattern patCreationDate = Pattern.compile("creationDate=\"(.*?)\"");
-    private static Pattern patModificationDate = Pattern.compile("modificationDate=\"(.*?)\"");
-    private static SimpleDateFormat SDF = new SimpleDateFormat("yyyy-MM-dd'T'HH:mm:ss.SSSZ");
-    private static Pattern patJira;
+    private Pattern patPurpose = Pattern.compile("purpose=\"(.*?)\"");
+    private Pattern patDescription = Pattern.compile("description=\"(.*?)\"");
+    private Pattern patCreationDate = Pattern.compile("creationDate=\"(.*?)\"");
+    private Pattern patModificationDate = Pattern.compile("modificationDate=\"(.*?)\"");
+    private SimpleDateFormat SDF = new SimpleDateFormat("yyyy-MM-dd'T'HH:mm:ss.SSSZ");
+    private Pattern patJira;
 
     public AbstractNodeWriter(Context context) {
         super(context);
@@ -38,6 +40,16 @@ public class AbstractNodeWriter extends AbstractWriter {
 
     // TODO: find author talend.project
 
+
+    protected TalendUserType extractAuthor(TalendFiles talendFiles, String dataProperties) {
+        TalendUserType author=null;
+        Matcher matcherItem = Pattern.compile("author.*?talend.project.(.*?)\"").matcher(dataProperties);
+        if (matcherItem.find()) {
+            String authorId = matcherItem.group(1);
+            author = talendFiles.getProject().getUserById(authorId);
+        }
+        return author;
+    }
 
     /** Parse purpose */
     public String readPurpose(String content) {

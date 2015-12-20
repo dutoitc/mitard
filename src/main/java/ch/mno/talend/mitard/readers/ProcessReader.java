@@ -182,6 +182,26 @@ public class ProcessReader extends DefaultHandler {
                 case "cMQConnectionFactory":
                 case "cJavaDSLProcessor":
                 case "cProcessor":
+                case "tChronometerStart":
+                case "tChronometerStop":
+                case "tFileOutputExcel":
+                case "tFileInputExcel":
+                case "tJoin":
+                case "tWriteJSONField":
+                case "tSynonymSearch":
+                case "tMultiPatternCheck":
+                case "tSampleRow":
+                case "tMDMBulkLoad":
+                case "tSplitRow":
+                case "tAdvancedFileOutputXML":
+                case "tDenormalize":
+                case "tMomCommit":
+                case "cCXFRS":
+                case "cSetBody":
+                case "cHttp":
+                case "tFileOutputRaw":
+                case "tSynonymOutput":
+                case "tSchemaComplianceCheck":
                     reader = new TNodeReader(componentName);
                     break;
                 default:
