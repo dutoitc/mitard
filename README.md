@@ -18,6 +18,7 @@ Mitard needs Java 8 and has been tested with Linux and Windows. Checked Talend v
 # Usage
 ## context.properties
 Create a new context.properties file:
+
     talendWorkspacePath=MYPROJECT
     productionPath=out
     blacklist=.*TEMPLATE.*,.*test_.*,.*Copy_of.*,.*MOCK.*,.*Old
