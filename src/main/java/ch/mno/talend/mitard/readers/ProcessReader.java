@@ -13,6 +13,8 @@ import ch.mno.talend.mitard.data.TJavaType;
 import ch.mno.talend.mitard.data.TMDMCommitType;
 import ch.mno.talend.mitard.data.TNodeType;
 import ch.mno.talend.mitard.data.TOracleCommitType;
+import ch.mno.talend.mitard.data.TOracleInputType;
+import ch.mno.talend.mitard.data.TOracleOutputType;
 import ch.mno.talend.mitard.data.TRestRequestType;
 import ch.mno.talend.mitard.data.TRunJobType;
 import org.apache.commons.lang3.StringUtils;
@@ -101,6 +103,12 @@ public class ProcessReader extends DefaultHandler {
                 case "tFixedFlowInput":
                     reader = new TFixedFlowInputReader(componentName);
                     break;
+                case "tOracleInput":
+                    reader = new TOracleInputReader(componentName);
+                    break;
+                case "tOracleOutput":
+                    reader = new TOracleInputReader(componentName);
+                    break;
                 case "tLogRow":
                 case "tXMLMap":
                 case "tFlowToIterate":
@@ -127,13 +135,11 @@ public class ProcessReader extends DefaultHandler {
                 case "tHashOutput":
                 case "tExtractXMLField":
                 case "tSetGlobalVar":
-                case "tOracleOutput":
                 case "tConvertType":
                 case "tLibraryLoad":
                 case "tAssertCatcher":
                 case "tOracleClose":
                 case "tOracleConnection":
-                case "tOracleInput":
                 case "tLogCatcher":
                 case "tFileOutputMSXML":
                 case "tNormalize":
@@ -559,6 +565,54 @@ public class ProcessReader extends DefaultHandler {
             switch (name) {
             case "MESSAGE":
                 obj.setMessage(value);
+                break;
+            }
+        }
+    }
+
+    // ========================================================================================
+
+    private class TOracleInputReader extends AbstractTReader {
+
+        TOracleInputType obj;
+
+        public TOracleInputReader(String componentName) {
+            super(new TOracleInputType(), componentName);
+            obj = (TOracleInputType) super.getNode();
+        }
+
+        @Override
+        protected void handleElement(String name, String value) {
+            switch (name) {
+            case "DBTABLE":
+                obj.setDbTable(value);
+                break;
+            case "QUERY":
+                obj.setQuery(value);
+                break;
+            }
+        }
+    }
+
+    // ========================================================================================
+
+    private class TOracleOutputReader extends AbstractTReader {
+
+        TOracleOutputType obj;
+
+        public TOracleOutputReader(String componentName) {
+            super(new TOracleOutputType(), componentName);
+            obj = (TOracleOutputType) super.getNode();
+        }
+
+        @Override
+        protected void handleElement(String name, String value) {
+            switch (name) {
+            case "DBTABLE":
+                obj.setDbTable(value);
+                break;
+            case "SCHEMA_COLUMN":
+                obj.addSchemaColumn(value);
                 break;
             }
         }

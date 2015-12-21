@@ -27,8 +27,8 @@ public class TalendFileHelper {
     public static TalendFiles findLatestVersions(String talendWorkspacePath) throws IOException {
         TalendFiles talendFiles = new TalendFiles();
         talendFiles.setProcesses(findLatestVersionsInternal(new File(talendWorkspacePath + File.separatorChar+"process")));
-        talendFiles.setRoutes(findLatestVersionsInternal(new File(talendWorkspacePath +  File.separatorChar+"routes")));
-        talendFiles.setServices(findLatestVersionsInternal(new File(talendWorkspacePath +  File.separatorChar+"services")));
+        talendFiles.setRoutes(findLatestVersionsInternal(new File(talendWorkspacePath + File.separatorChar + "routes")));
+        talendFiles.setServices(findLatestVersionsInternal(new File(talendWorkspacePath + File.separatorChar + "services")));
         talendFiles.setMDMWorkflowProc(findLatestVersionsInternal(new File(talendWorkspacePath + File.separatorChar + "MDM" + File.separatorChar + "workflow")));
         talendFiles.setProject(TalendProjectReader.read(new FileInputStream(talendWorkspacePath + "/talend.project")));
         return talendFiles;
@@ -44,6 +44,8 @@ public class TalendFileHelper {
             Files.list(folder.toPath())
                     .filter(pathname -> pathname.toFile().isDirectory() && !pathname.toFile().getName().startsWith("/") && !pathname.toFile().getName().startsWith("."))
                     .forEach(file -> {
+                        TalendFile ddd = ((TalendFile)data.get(file.toFile().getName()));
+                        System.out.println("Version read: " + (ddd == null ? null : ddd.getVersion()) + " for " + file.toFile().getAbsolutePath());
                         // Keep subfiles recursively if first or greater version
                         findLatestVersionsInternal(file.toFile())
                                 .stream()
@@ -62,7 +64,9 @@ public class TalendFileHelper {
                             String processName = matcher.group(1);
                             String version = matcher.group(2);
                             TalendFile talendFile = new TalendFile(folder.getAbsolutePath(), processName, version);
-                            data.put(talendFile.getName(), talendFile);
+                            if (!data.containsKey(talendFile.getName()) ||  ((TalendFile) data.get(talendFile.getName())).isVersionLowerThan(talendFile)) {
+                                data.put(talendFile.getName(), talendFile);
+                            }
                         } else {
                             LOG.warn("Cannot find processName or version in [" + filename + "]; Skipping.");
                         }

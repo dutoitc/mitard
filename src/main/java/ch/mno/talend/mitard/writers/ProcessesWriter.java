@@ -32,6 +32,10 @@ public class ProcessesWriter extends AbstractNodeWriter {
             for (TalendFile file : talendFiles.getProcesses()) {
                 if (isBlacklisted(file.getName()) || isBlacklisted(file.getPath())) continue;
                 LOG.debug("Reading " + new File(file.getItemFilename()).getName());
+                if (!new File(file.getPropertiesFilename()).exists()) {
+                    LOG.warn("Skipping inexistent properties file: " + file.getPropertiesFilename() + "; this could be a project stability error (did the studio crashed with the job opened ?)");
+                    continue;
+                }
 
                 // Read screenshots and properties
                 List<String> screenshots = extractScreenshots(file);

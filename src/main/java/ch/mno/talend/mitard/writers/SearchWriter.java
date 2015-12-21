@@ -7,6 +7,8 @@ import ch.mno.talend.mitard.data.TDieType;
 import ch.mno.talend.mitard.data.TFixedFlowInputType;
 import ch.mno.talend.mitard.data.TJavaFlexType;
 import ch.mno.talend.mitard.data.TJavaType;
+import ch.mno.talend.mitard.data.TOracleInputType;
+import ch.mno.talend.mitard.data.TOracleOutputType;
 import ch.mno.talend.mitard.data.TalendFile;
 import ch.mno.talend.mitard.data.TalendFiles;
 import ch.mno.talend.mitard.readers.ProcessReader;
@@ -72,6 +74,12 @@ public class SearchWriter extends AbstractNodeWriter {
             return node.getMessage();
         } else if (abstractNode instanceof TFixedFlowInputType) {
             TFixedFlowInputType node = (TFixedFlowInputType) abstractNode;
+            return node.getText();
+        } else if (abstractNode instanceof TOracleInputType) {
+            TOracleInputType node = (TOracleInputType) abstractNode;
+            return node.getText();
+        } else if (abstractNode instanceof TOracleOutputType) {
+            TOracleOutputType node = (TOracleOutputType) abstractNode;
             return node.getText();
         }
         return "";
