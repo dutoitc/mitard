@@ -8,11 +8,13 @@
 ./app/views/services.html
 ./app/views/versions.html
 ./app/views/dependencies.html
+./app/views/dependencies2.html
 ./app/views/help.html
 ./app/views/processes.html
 ./app/views/violations.html
 ./app/controllers
 ./app/controllers/dependencies.js
+./app/controllers/dependencies2.js
 ./app/controllers/violations.js
 ./app/controllers/components.js
 ./app/controllers/applicationController.js
@@ -24,6 +26,8 @@
 ./mitard.png
 ./index.txt
 ./js
+./js/cytoscape.min.js
+./js/ngCytoscape.min.js
 ./js/jqxtreemap.js
 ./js/ie10-viewport-bug-workaround.js
 ./js/jqxbuttons.js

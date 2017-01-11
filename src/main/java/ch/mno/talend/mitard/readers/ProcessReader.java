@@ -1,22 +1,6 @@
 package ch.mno.talend.mitard.readers;
 
-import ch.mno.talend.mitard.data.AbstractNodeType;
-import ch.mno.talend.mitard.data.CTalendJobType;
-import ch.mno.talend.mitard.data.ProcessType;
-import ch.mno.talend.mitard.data.TBonitaInstanciateProcessType;
-import ch.mno.talend.mitard.data.TDieType;
-import ch.mno.talend.mitard.data.TESBConsumerType;
-import ch.mno.talend.mitard.data.TFixedFlowInputType;
-import ch.mno.talend.mitard.data.TJavaFlexType;
-import ch.mno.talend.mitard.data.TJavaRowType;
-import ch.mno.talend.mitard.data.TJavaType;
-import ch.mno.talend.mitard.data.TMDMCommitType;
-import ch.mno.talend.mitard.data.TNodeType;
-import ch.mno.talend.mitard.data.TOracleCommitType;
-import ch.mno.talend.mitard.data.TOracleInputType;
-import ch.mno.talend.mitard.data.TOracleOutputType;
-import ch.mno.talend.mitard.data.TRestRequestType;
-import ch.mno.talend.mitard.data.TRunJobType;
+import ch.mno.talend.mitard.data.*;
 import org.apache.commons.lang3.StringUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -107,7 +91,10 @@ public class ProcessReader extends DefaultHandler {
                     reader = new TOracleInputReader(componentName);
                     break;
                 case "tOracleOutput":
-                    reader = new TOracleInputReader(componentName);
+                    reader = new TOracleOutputReader(componentName);
+                    break;
+                case "tMDMConnection":
+                    reader = new TMDMConnectionReader(componentName);
                     break;
                 case "tLogRow":
                 case "tXMLMap":
@@ -120,7 +107,6 @@ public class ProcessReader extends DefaultHandler {
                 case "tMDMInput":
                 case "tPrejob":
                 case "tPostjob":
-                case "tMDMConnection":
                 case "tMDMClose":
                 case "tMDMOutput":
                 case "tMDMInputNullOptional":
@@ -278,6 +264,11 @@ public class ProcessReader extends DefaultHandler {
                 } else {
                     handleElement(name, value);
                 }
+            }
+            if (localName.equals("elementValue")) {
+                String name = getAttribute(attributes, "elementRef");
+                String value = getAttribute(attributes, "value");
+                handleElement(name, value);
             }
         }
 
@@ -458,6 +449,27 @@ public class ProcessReader extends DefaultHandler {
             }
         }
     }
+
+    // ========================================================================================
+
+    private class TMDMConnectionReader extends AbstractTReader {
+
+        TMDMConnectionType obj;
+
+        public TMDMConnectionReader(String componentName) {
+            super(new TMDMConnectionType(), componentName);
+            obj = (TMDMConnectionType) super.getNode();
+        }
+
+        @Override
+        protected void handleElement(String name, String value) {
+            switch (name) {
+                case "AUTO_COMMIT":
+                    obj.setAutoCommit("true".equals(value));
+                    break;
+            }
+        }
+    }
     // ========================================================================================
 
     private class TJavaReader extends AbstractTReader {
@@ -633,6 +645,7 @@ public class ProcessReader extends DefaultHandler {
         protected void handleElement(String name, String value) {
             switch (name) {
             case "VALUE":
+            case "SCHEMA_COLUMN":
                 obj.addText(value);
                 break;
             }

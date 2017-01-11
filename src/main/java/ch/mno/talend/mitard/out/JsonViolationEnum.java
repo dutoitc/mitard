@@ -18,7 +18,10 @@ public enum JsonViolationEnum {
     TOO_MUCH_COMPONENTS("Too much components (>50)", "Talend recommands 15 job maximum per process"),
     FAR_TOO_MUCH_COMPONENTS("Too much components (>100)", "Talend recommands 15 job maximum per process"),
     TRUNJOB_MUST_PROPAGATE_CHILD_RESULT("a tRunJob should propagate child result", "Child result propagation COULD happen if the schema is the same, but not always. It is a best-practise to propagate child result."),
-    UNSTABLE_FILES("missing files for a component, 3 needed", "a component (process) must have 3 files. Some are missing. This could lead in unpredictable behaviour");
+    UNSTABLE_FILES("missing files for a component, 3 needed", "a component (process) must have 3 files. Some are missing. This could lead in unpredictable behaviour"),
+    BPM_SHOULD_NOT_BE_ASYNCHRONOUS("BPM components must be synchronous", "A bug in 5.6.1 is that any async component could lead in sub-bpm run twice. Avoid BPM async as a workaround."),
+    MDM_MUST_HAVE_COMMIT("Jobs with tMDMConnection using no autocommit should have explicit tMDMCommit", "A MDM connection with no autocommit and no explicit commit can cause connection problem"),
+    MDM_MUST_HAVE_ROLLBACK("Jobs with tMDMConnection using no autocommit should have explicit tMDMRollback", "A MDM connection with no autocommit and no explicit rollback can cause connection leak in DB");
 
     private String description;
     private String explanations;

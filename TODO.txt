@@ -1,5 +1,6 @@
 [*] github
 [*] composants non utilisés
+[ ] ajouter un warning sur les globalMap.get("tRow5_..." pour les lignes qui n'existent pas/plus
 [ ] métriques
 [ ] liens composants
 [ ] vues composants

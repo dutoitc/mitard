@@ -1,23 +1,12 @@
 package ch.mno.talend.mitard.writers;
 
-import ch.mno.talend.mitard.data.AbstractNodeType;
-import ch.mno.talend.mitard.data.Context;
-import ch.mno.talend.mitard.data.ProcessType;
-import ch.mno.talend.mitard.data.PropertiesType;
-import ch.mno.talend.mitard.data.TJavaFlexType;
-import ch.mno.talend.mitard.data.TJavaRowType;
-import ch.mno.talend.mitard.data.TJavaType;
-import ch.mno.talend.mitard.data.TMDMCommitType;
-import ch.mno.talend.mitard.data.TNodeType;
-import ch.mno.talend.mitard.data.TOracleCommitType;
-import ch.mno.talend.mitard.data.TRestRequestType;
-import ch.mno.talend.mitard.data.TRunJobType;
-import ch.mno.talend.mitard.data.TalendFile;
-import ch.mno.talend.mitard.data.TalendFiles;
+import ch.mno.talend.mitard.data.*;
 import ch.mno.talend.mitard.out.JsonFileViolations;
 import ch.mno.talend.mitard.out.JsonViolationEnum;
 import ch.mno.talend.mitard.readers.ProcessReader;
 import ch.mno.talend.mitard.readers.PropertiesReader;
+
+import org.apache.commons.io.IOUtils;
 import org.apache.commons.lang3.StringUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -75,6 +64,7 @@ public class ViolationsWriter extends AbstractNodeWriter {
                     checkTRUNJOB_MUST_PROPAGATE_CHILD_RESULT(fileViolations, node);
                 }
                 checkSERVICE_MUST_NOT_SET_DB_CONNECTION_IN_PREJOB(fileViolations, process);
+                checkMDM_MUST_AUTOCOMMIT_OR_MANAGE_CONNECTION(fileViolations, process);
 
                 // RATIO_INACTIVE_MUST_BE_MAX_30_PERCENT
                 if (nbInactive > process.getNodeList().size() / 3) {
@@ -119,6 +109,21 @@ public class ViolationsWriter extends AbstractNodeWriter {
             // TODO: services
 
 
+            // Workflow
+            for (TalendFile file : talendFiles.getMDMWorkflowProc()) {
+                JsonFileViolations fileViolations = new JsonFileViolations(file.getPath(), file.getName(), file.getVersion());
+
+                String data = IOUtils.toString(new FileInputStream(file.getProcFilename()));
+                if (data.contains("synchronous=\"false\"")) {
+                    fileViolations.addGeneralViolation(JsonViolationEnum.BPM_SHOULD_NOT_BE_ASYNCHRONOUS);
+                }
+
+                if (fileViolations.hasViolations()) {
+                    allViolations.add(fileViolations);
+                }
+            }
+
+
             // Count
             int nbGeneralViolations = 0;
             int nbComponentViolations = 0;
@@ -141,6 +146,7 @@ public class ViolationsWriter extends AbstractNodeWriter {
     private void checkSERVICE_MUST_NOT_SET_DB_CONNECTION_IN_PREJOB(JsonFileViolations fileViolations, ProcessType process) {
         boolean foundListener = false;
         for (AbstractNodeType node : process.getNodeList()) {
+            if (!node.isActive()) continue;
             if ((node.getComponentName().equals("tESBProviderRequest") || node.getComponentName().equals("tRESTRequest")) && node.isActive()) {
                 foundListener = true;
                 break;
@@ -235,6 +241,58 @@ public class ViolationsWriter extends AbstractNodeWriter {
             }
         }
     }
+
+
+    private void checkMDM_MUST_AUTOCOMMIT_OR_MANAGE_CONNECTION(JsonFileViolations fileViolations, ProcessType process) {
+        boolean found = false;
+
+        for (AbstractNodeType node : process.getNodeList()) {
+            if (!node.isActive()) continue;
+            if ((node.getComponentName().equals("tMDMConnection"))) {
+                if (((TMDMConnectionType) node).isAutoCommit()) {
+                    return; // OK
+                } else {
+                    found = true;
+                }
+                break;
+            }
+        }
+
+        boolean foundMDMOutput=false;
+        for (AbstractNodeType node : process.getNodeList()) {
+            if (!node.isActive()) continue;
+            if ((node.getComponentName().equals("tMDMOutput"))) {
+                foundMDMOutput=true;
+                break;
+            }
+        }
+
+        // No warning if no output
+        if (!foundMDMOutput) {
+           return;
+        }
+
+        if (found) {
+            // Should at least one commit and rollback component if no autocommit is set on connection
+            boolean foundCommit = false;
+            boolean foundRollback = false;
+            for (AbstractNodeType node : process.getNodeList()) {
+                if (!node.isActive()) continue;
+                foundCommit = foundCommit || node.getComponentName().equals("tMDMCommit");
+                foundRollback = foundRollback || node.getComponentName().equals("tMDMRollback");
+            }
+
+            if (!foundCommit) {
+                fileViolations.addGeneralViolation(JsonViolationEnum.MDM_MUST_HAVE_COMMIT);
+            }
+            if (!foundRollback) {
+                fileViolations.addGeneralViolation(JsonViolationEnum.MDM_MUST_HAVE_ROLLBACK);
+            }
+        }
+    }
+
+
+
 
     private void checkAVOID_SYSTEM_OUT(JsonFileViolations fileViolations, AbstractNodeType node) {
         if (node.getComponentName().equals("tJava")) {

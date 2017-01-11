@@ -31,23 +31,23 @@ public class Context {
         }
 
         // Load project properties
-        for (String path:  properties.getProperty("properties").split(",")) {
-            if (path.isEmpty()) continue;
-            String location = properties.getProperty("talendWorkspacePath") + File.separatorChar + path;
-            try (FileInputStream fis = new FileInputStream(location)) {
-                assert fis != null;
-                for (String line: IOUtils.toString(fis).split("\n")) {
-                    String[] spl = line.split(";");
-                    if (spl.length==2) {
-                        projectProperties.put(spl[0], spl[1]);
+        if (properties.getProperty("properties")!=null) {
+            for (String path : properties.getProperty("properties").split(",")) {
+                if (path.isEmpty()) continue;
+                String location = properties.getProperty("talendWorkspacePath") + File.separatorChar + path;
+                try (FileInputStream fis = new FileInputStream(location)) {
+                    assert fis != null;
+                    for (String line : IOUtils.toString(fis).split("\n")) {
+                        String[] spl = line.split(";");
+                        if (spl.length == 2) {
+                            projectProperties.put(spl[0], spl[1]);
+                        }
                     }
+                } catch (FileNotFoundException e) {
+                    e.printStackTrace();
+                } catch (IOException e) {
+                    e.printStackTrace();
                 }
-            }
-            catch (FileNotFoundException e) {
-                e.printStackTrace();
-            }
-            catch (IOException e) {
-                e.printStackTrace();
             }
         }
 

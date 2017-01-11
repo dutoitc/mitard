@@ -6,10 +6,12 @@ var mitardApp = angular.module('mitardApp', [
   'mitardApp.overview',
   'mitardApp.components',
   'mitardApp.dependencies',
+  'mitardApp.dependencies2',
   'mitardApp.violations',
   'mitardApp.versions',
   'mitardApp.search',
-  'ui.bootstrap'
+  'ui.bootstrap',
+  'ngCytoscape'
 ])
 .config(['$routeProvider', '$httpProvider', function($routeProvider, $httpProvider) {
     $routeProvider
