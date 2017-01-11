@@ -39,6 +39,7 @@ public class ServicesWriter extends AbstractNodeWriter {
                 // Read author
                 TalendUserType author = extractAuthor(talendFiles, data);
 
+                jsonServices.addService(file.getPath(), file.getName(), file.getVersion(), readPurpose(data), readDescription(data), readCreationDate(data), readModificationDate(data), screenshots, author);
             }
             writeJson("services.json", jsonServices);
 

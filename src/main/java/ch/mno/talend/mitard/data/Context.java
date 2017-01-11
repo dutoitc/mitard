@@ -34,7 +34,8 @@ public class Context {
         if (properties.getProperty("properties")!=null) {
             for (String path : properties.getProperty("properties").split(",")) {
                 if (path.isEmpty()) continue;
-                String location = properties.getProperty("talendWorkspacePath") + File.separatorChar + path;
+                String location = path;
+                if (!path.startsWith("/")) location = properties.getProperty("talendWorkspacePath") + File.separatorChar + path;
                 try (FileInputStream fis = new FileInputStream(location)) {
                     assert fis != null;
                     for (String line : IOUtils.toString(fis).split("\n")) {

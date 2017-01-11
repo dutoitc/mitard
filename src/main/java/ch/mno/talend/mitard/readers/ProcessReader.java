@@ -96,6 +96,20 @@ public class ProcessReader extends DefaultHandler {
                 case "tMDMConnection":
                     reader = new TMDMConnectionReader(componentName);
                     break;
+                case "tREST":
+                    reader = new TRest(componentName);
+                    break;
+                case "tRESTClient":
+                    reader = new TRestClient(componentName);
+                    break;
+                case "tHttpRequest":
+                    reader = new THTTPRequest(componentName);
+                    break;
+                case "tSOAP":
+                    reader = new TSoap(componentName);
+                    break;
+                case "tFileOutputJSON":
+                case "tFileInputPositional":
                 case "tLogRow":
                 case "tXMLMap":
                 case "tFlowToIterate":
@@ -116,7 +130,6 @@ public class ProcessReader extends DefaultHandler {
                 case "tMomOutput":
                 case "tFileOutputXML":
                 case "tESBProviderFault":
-                case "tRESTClient":
                 case "tMap":
                 case "tHashOutput":
                 case "tExtractXMLField":
@@ -143,10 +156,16 @@ public class ProcessReader extends DefaultHandler {
                 case "tWarn":
                 case "tStatCatcher":
                 case "tOracleRollback":
+                case "tAssert":
+                case "tMomRollback":
                 case "tReplicate":
                 case "tWriteXMLField":
                 case "tCreateTable":
+                case "tExtractJSONFields":
+                case "tSendMail":
                 case "tFilterColumns":
+                case "tFlowMeterCatcher":
+                case "tFileCopy":
                 case "tMDMRollback":
                 case "tSleep":
                 case "tMomConnection":
@@ -170,6 +189,10 @@ public class ProcessReader extends DefaultHandler {
                 case "cMessagingEndpoint":
                 case "cLog":
                 case "cConfig":
+                case "cSetHeader":
+                case "cFile":
+                case "cBeanRegister":
+                case "cConvertBodyTo":
                 case "cOnException":
                 case "cMQConnectionFactory":
                 case "cJavaDSLProcessor":
@@ -192,12 +215,20 @@ public class ProcessReader extends DefaultHandler {
                 case "cSetBody":
                 case "cHttp":
                 case "tFileOutputRaw":
+                case "tFileInputFullRow":
+                case "tFileExist":
                 case "tSynonymOutput":
+                case "tASsert":
                 case "tSchemaComplianceCheck":
                     reader = new TNodeReader(componentName);
                     break;
                 default:
-                    LOG.warn("Missing read for " + componentName);
+                    if (componentName.startsWith("c") || componentName.startsWith("t")) {
+                        LOG.warn("Missing read for " + componentName);
+                    } else {
+                        // Application components
+                        LOG.trace("Missing read for " + componentName);
+                    }
             }
         } else if (localName.equals("connection")) {
             process.addConnection(getAttribute(attributes, "source"), getAttribute(attributes, "target"));
@@ -466,6 +497,93 @@ public class ProcessReader extends DefaultHandler {
             switch (name) {
                 case "AUTO_COMMIT":
                     obj.setAutoCommit("true".equals(value));
+                    break;
+            }
+        }
+    }
+
+    // ========================================================================================
+
+    private class TRest extends AbstractTReader {
+
+        TRestType obj;
+
+        public TRest(String componentName) {
+            super(new TRestType(), componentName);
+            obj = (TRestType) super.getNode();
+        }
+
+        @Override
+        protected void handleElement(String name, String value) {
+            switch (name) {
+                case "URL":
+                    obj.setUrl(value);
+                    break;
+            }
+        }
+    }
+    // ========================================================================================
+
+    private class TRestClient extends AbstractTReader {
+
+        TRestClientType obj;
+
+        public TRestClient(String componentName) {
+            super(new TRestClientType(), componentName);
+            obj = (TRestClientType) super.getNode();
+        }
+
+        @Override
+        protected void handleElement(String name, String value) {
+            switch (name) {
+                case "URL":
+                    obj.setUrl(value);
+                    break;
+                case "PATH":
+                    obj.setPath(value);
+                    break;
+            }
+        }
+    }
+    // ========================================================================================
+
+    private class THTTPRequest extends AbstractTReader {
+
+        THttpRequestType obj;
+
+        public THTTPRequest(String componentName) {
+            super(new THttpRequestType(), componentName);
+            obj = (THttpRequestType) super.getNode();
+        }
+
+        @Override
+        protected void handleElement(String name, String value) {
+            switch (name) {
+                case "URI":
+                    obj.setUri(value);
+                    break;
+            }
+        }
+    }
+    // ========================================================================================
+
+    private class TSoap extends AbstractTReader {
+
+        TSoapType obj;
+
+        public TSoap(String componentName) {
+            super(new TSoapType(), componentName);
+            obj = (TSoapType) super.getNode();
+        }
+
+        @Override
+        protected void handleElement(String name, String value) {
+            switch (name) {
+                case "ENDPOINT":
+                    obj.setEndpoint(value);
+                    break;
+                case "ACTION":
+                    obj.setAction(value);
                     break;
             }
         }

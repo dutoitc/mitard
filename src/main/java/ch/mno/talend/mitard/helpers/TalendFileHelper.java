@@ -44,8 +44,6 @@ public class TalendFileHelper {
             Files.list(folder.toPath())
                     .filter(pathname -> pathname.toFile().isDirectory() && !pathname.toFile().getName().startsWith("/") && !pathname.toFile().getName().startsWith("."))
                     .forEach(file -> {
-                        TalendFile ddd = ((TalendFile)data.get(file.toFile().getName()));
-                        System.out.println("Version read: " + (ddd == null ? null : ddd.getVersion()) + " for " + file.toFile().getAbsolutePath());
                         // Keep subfiles recursively if first or greater version
                         findLatestVersionsInternal(file.toFile())
                                 .stream()

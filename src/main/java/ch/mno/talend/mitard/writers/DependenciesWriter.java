@@ -5,6 +5,7 @@ import ch.mno.talend.mitard.readers.ProcessReader;
 import ch.mno.talend.mitard.readers.WorkflowReader;
 import ch.mno.talend.mitard.tools.DotWrapper;
 import org.apache.commons.io.IOUtils;
+import org.apache.commons.lang3.StringUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.xml.sax.SAXException;
@@ -12,10 +13,7 @@ import org.xml.sax.SAXException;
 import javax.xml.bind.JAXBException;
 import javax.xml.parsers.ParserConfigurationException;
 import java.io.*;
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
+import java.util.*;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
@@ -82,42 +80,28 @@ public class DependenciesWriter extends AbstractWriter {
     }
 
     private void addProcessDependency(String process, String dep) {
-        if (processDependencies.containsKey(process)) {
-            processDependencies.get(process).add(dep);
-        } else {
-            List<String> list = new ArrayList<>();
-            list.add(dep);
-            processDependencies.put(process, list);
-        }
+        addDependency(processDependencies, process, dep);
     }
 
     private void addRoutesDependency(String process, String dep) {
-        if (routeDependencies.containsKey(process)) {
-            routeDependencies.get(process).add(dep);
-        } else {
-            List<String> list = new ArrayList<>();
-            list.add(dep);
-            routeDependencies.put(process, list);
-        }
+        addDependency(routeDependencies, process, dep);
     }
 
     private void addServiceDependency(String process, String dep) {
-        if (serviceDependencies.containsKey(process)) {
-            serviceDependencies.get(process).add(dep);
-        } else {
-            List<String> list = new ArrayList<>();
-            list.add(dep);
-            serviceDependencies.put(process, list);
-        }
+        addDependency(serviceDependencies, process, dep);
     }
 
     private void addWorkflowDependency(String process, String dep) {
-        if (workflowDependencies.containsKey(process)) {
-            workflowDependencies.get(process).add(dep);
+        addDependency(workflowDependencies, process, dep);
+    }
+
+    private void addDependency(Map<String, List<String>> dependencies, String process, String dep) {
+        if (dependencies.containsKey(process)) {
+            dependencies.get(process).add(dep);
         } else {
             List<String> list = new ArrayList<>();
             list.add(dep);
-            workflowDependencies.put(process, list);
+            dependencies.put(process, list);
         }
     }
 
@@ -215,7 +199,11 @@ public class DependenciesWriter extends AbstractWriter {
                     String serviceName1 = ((TESBConsumerType) node).getServiceName();
                     String version = getLatestVersion(latestsVersions, "S_" + serviceName1);
                     String serviceName = "S_" + normalize(serviceName1, version);
-                    addProcessDependency(name, serviceName);
+                    if (file.getName().equals(serviceName1) || file.getName().equals(serviceName1+"Operation")) {
+                        LOG.debug("Skipping P->S with same name and version:"+name);
+                    } else {
+                        addProcessDependency(name, serviceName);
+                    }
 
                     // Deactivated: the link service -> implementing process is more interesting
 //                } else if (node instanceof TESBProviderRequestType) {
@@ -305,39 +293,116 @@ public class DependenciesWriter extends AbstractWriter {
     private String buildDot() {
         StringBuffer sb = new StringBuffer();
         sb.append("digraph G{\r\n");
-        for (String name : processDependencies.keySet()) {
+//        sb.append("graph [rankdir=LR, fontsize=10, margin=0.001];\r\n");
+
+        // Count number of relations
+        Map<String, Integer> count = new HashMap<>();
+        List<Map<String, List<String>>> sources = new ArrayList<>();
+        sources.add(processDependencies);
+        sources.add(routeDependencies);
+        sources.add(serviceDependencies);
+        sources.add(workflowDependencies);
+        for (Map<String, List<String>> source: sources) {
+            for (Map.Entry<String, List<String>> entry : source.entrySet()) {
+                if (count.containsKey(entry.getKey())) {
+                    count.put(entry.getKey(), count.get(entry.getKey())+1);
+                } else {
+                    count.put(entry.getKey(), 1);
+                }
+
+                for (String target : entry.getValue()) {
+                    if (count.containsKey(target)) {
+                        count.put(target, count.get(target)+1);
+                        count.put(entry.getKey(), count.get(entry.getKey())+1);
+                    } else {
+                        count.put(target, 2); // Count link to avoid orphan
+                        count.put(entry.getKey(), count.get(entry.getKey())+1);
+                    }
+                }
+            }
+        }
+
+        // Boxes
+        for (Map<String, List<String>> source: sources) {
+            String shape="box";
+            boolean rankSame=false;
+            if (source==processDependencies) {
+                shape="box";
+            }
+            if (source==routeDependencies) {
+                shape="trapezium";
+                rankSame=true;
+            }
+            if (source==serviceDependencies) {
+                shape="ellipse";
+            }
+            if (source==workflowDependencies) {
+                shape="house";
+                rankSame=true;
+            }
+
+            if (rankSame) sb.append("{ rank=same; \n");
+            for (String name : source.keySet()) {
+                if (count.get(name)>1)
+                    sb.append("   " + name + " [shape=").append(shape).append(", style=filled, fillcolor=green, color=green, label=\"" + name + "\"];\r\n");
+            }
+            if (rankSame) sb.append("}\n");
+        }
+
+        // Boxes
+        /*for (String name : processDependencies.keySet()) {
+            if (count.get(name)>1)
             sb.append("   " + name + " [shape=box, style=filled, fillcolor=green, color=green, label=\"" + name + "\"];\r\n");
         }
+        sb.append("{ rank=same; \n");
         for (String name : routeDependencies.keySet()) {
+            if (count.get(name)>1)
             sb.append("   " + name + " [shape=trapezium, style=filled, fillcolor=green, color=green, label=\"" + name + "\"];\r\n");
         }
+        sb.append("}\n");
         for (String name : serviceDependencies.keySet()) {
+            if (count.get(name)>1)
             sb.append("   " + name + " [shape=ellipse, style=filled, fillcolor=green, color=green, label=\"" + name + "\"];\r\n");
         }
         for (String name : workflowDependencies.keySet()) {
+            if (count.get(name)>1)
             sb.append("   " + name + " [shape=house, style=filled, fillcolor=green, color=green, label=\"" + name + "\"];\r\n");
+        }*/
+
+        // Isolated boxes / orpheans
+        sb.append("subgraph cluster_orphans {\r\n");
+        sb.append("rankdir=LR\r\n");
+        for (String name : processDependencies.keySet()) {
+            if (count.get(name)==1)
+                sb.append("   " + name + " [shape=box, style=filled, fillcolor=green, color=green, label=\"" + name + "\"];\r\n");
+        }
+        for (String name : routeDependencies.keySet()) {
+            if (count.get(name)==1)
+                sb.append("   " + name + " [shape=trapezium, style=filled, fillcolor=green, color=green, label=\"" + name + "\"];\r\n");
+        }
+        for (String name : serviceDependencies.keySet()) {
+            if (count.get(name)==1)
+                sb.append("   " + name + " [shape=ellipse, style=filled, fillcolor=green, color=green, label=\"" + name + "\"];\r\n");
+        }
+        for (String name : workflowDependencies.keySet()) {
+            if (count.get(name)==1)
+                sb.append("   " + name + " [shape=house, style=filled, fillcolor=green, color=green, label=\"" + name + "\"];\r\n");
+        }
+        sb.append("}\r\n");
+
+
+
+
+        for (Map<String, List<String>> source: sources) {
+            for (Map.Entry<String, List<String>> entry : source.entrySet()) {
+                for (String target : entry.getValue()) {
+                    if (!StringUtils.isEmpty(target)) {
+                        sb.append("   " + entry.getKey() + "->" + target + "\r\n");
+                    }
+                }
+            }
         }
 
-        for (Map.Entry<String, List<String>> entry : processDependencies.entrySet()) {
-            for (String target : entry.getValue()) {
-                sb.append("   " + entry.getKey() + "->" + target + "\r\n");
-            }
-        }
-        for (Map.Entry<String, List<String>> entry : routeDependencies.entrySet()) {
-            for (String target : entry.getValue()) {
-                sb.append("   " + entry.getKey() + "->" + target + "\r\n");
-            }
-        }
-        for (Map.Entry<String, List<String>> entry : serviceDependencies.entrySet()) {
-            for (String target : entry.getValue()) {
-                sb.append("   " + entry.getKey() + "->" + target + "\r\n");
-            }
-        }
-        for (Map.Entry<String, List<String>> entry : workflowDependencies.entrySet()) {
-            for (String target : entry.getValue()) {
-                sb.append("   " + entry.getKey() + "->" + target + "\r\n");
-            }
-        }
         sb.append("}\n");
         return sb.toString();
     }

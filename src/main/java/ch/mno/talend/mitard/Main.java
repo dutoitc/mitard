@@ -33,7 +33,7 @@ public class Main {
         long t0 = System.currentTimeMillis();
 
         // Pre-requisites
-        LOG.info("_____./ MITARD  \\._______________________________________________________");
+        LOG.info("\n_____./ MITARD  \\._______________________________________________________");
         if (args.length == 0) {
             System.err.println("Missing context.properties as first program argument");
             System.exit(1);
