@@ -5,7 +5,6 @@ import ch.mno.talend.mitard.out.JsonFileViolations;
 import ch.mno.talend.mitard.out.JsonViolationEnum;
 import ch.mno.talend.mitard.readers.ProcessReader;
 import ch.mno.talend.mitard.readers.PropertiesReader;
-
 import org.apache.commons.io.IOUtils;
 import org.apache.commons.lang3.StringUtils;
 import org.slf4j.Logger;
@@ -33,75 +32,83 @@ public class ViolationsWriter extends AbstractNodeWriter {
             JsonViolations allViolations = new JsonViolations();
 
             for (TalendFile file : talendFiles.getUnstableFiles()) {
-                JsonFileViolations fileViolations = new JsonFileViolations(file.getPath(), file.getName(), file.getVersion());
-                fileViolations.addGeneralViolation(JsonViolationEnum.UNSTABLE_FILES);
-                allViolations.add(fileViolations);
+                try {
+                    JsonFileViolations fileViolations = new JsonFileViolations(file.getPath(), file.getName(), file.getVersion());
+                    fileViolations.addGeneralViolation(JsonViolationEnum.UNSTABLE_FILES);
+                    allViolations.add(fileViolations);
+                } catch (Exception e) {
+                    LOG.error("Error writing violations for " + file.getName() + " (ignoring file): " + e.getMessage());
+                }
             }
 
             for (TalendFile file : talendFiles.getProcesses()) {
-                if (isBlacklisted(file.getName()) || isBlacklisted(file.getPath())) continue;
-                LOG.debug("Reading " + new File(file.getItemFilename()).getName());
+                try {
+                    if (isBlacklisted(file.getName()) || isBlacklisted(file.getPath())) continue;
+                    LOG.debug("Reading " + new File(file.getItemFilename()).getName());
 
 //            String properties = IOUtils.toString(new FileReader(file.getPropertiesFilename()));
 //            String item = IOUtils.toString(new FileReader(file.getItemFilename()));
-                JsonFileViolations fileViolations = new JsonFileViolations(file.getPath(), file.getName(), file.getVersion());
+                    JsonFileViolations fileViolations = new JsonFileViolations(file.getPath(), file.getName(), file.getVersion());
 
 
-                FileInputStream fis = new FileInputStream(file.getItemFilename());
-                ProcessType process = ProcessReader.read(fis);
-                int nbInactive = 0;
-                for (AbstractNodeType node : process.getNodeList()) {
-                    if (!node.isActive()) {
-                        nbInactive++;
-                        continue;
+                    FileInputStream fis = new FileInputStream(file.getItemFilename());
+                    ProcessType process = ProcessReader.read(fis);
+                    int nbInactive = 0;
+                    for (AbstractNodeType node : process.getNodeList()) {
+                        if (!node.isActive()) {
+                            nbInactive++;
+                            continue;
+                        }
+                        checkSERVICE_PORT_MUST_BE_8040(fileViolations, node);
+                        checkCOMPONENT_MUST_USE_EXISTING_CONNECTION(fileViolations, node);
+                        checkCOMPONENT_MUST_NOT_CLOSE_CONNECTION(fileViolations, node);
+                        checkAVOID_SYSTEM_OUT(fileViolations, node);
+                        checkTLOGCATCHER_MUST_NOT_CHAIN_TDIE(fileViolations, node, process);
+                        checkFIRECREATEEVENT_MUST_BE_SET(fileViolations, node, process);
+                        checkTRUNJOB_MUST_PROPAGATE_CHILD_RESULT(fileViolations, node);
                     }
-                    checkSERVICE_PORT_MUST_BE_8040(fileViolations, node);
-                    checkCOMPONENT_MUST_USE_EXISTING_CONNECTION(fileViolations, node);
-                    checkCOMPONENT_MUST_NOT_CLOSE_CONNECTION(fileViolations, node);
-                    checkAVOID_SYSTEM_OUT(fileViolations, node);
-                    checkTLOGCATCHER_MUST_NOT_CHAIN_TDIE(fileViolations, node, process);
-                    checkFIRECREATEEVENT_MUST_BE_SET(fileViolations, node, process);
-                    checkTRUNJOB_MUST_PROPAGATE_CHILD_RESULT(fileViolations, node);
+                    checkSERVICE_MUST_NOT_SET_DB_CONNECTION_IN_PREJOB(fileViolations, process);
+                    checkMDM_MUST_AUTOCOMMIT_OR_MANAGE_CONNECTION(fileViolations, process);
+
+                    // RATIO_INACTIVE_MUST_BE_MAX_30_PERCENT
+                    if (nbInactive > process.getNodeList().size() / 3) {
+                        fileViolations.addGeneralViolation(JsonViolationEnum.RATIO_INACTIVE_MUST_BE_MAX_30_PERCENT);
+                    }
+
+                    // TOO_MUCH_COMPONENTS
+                    // FAR_TOO_MUCH_COMPONENTS
+                    if (process.getNodeList().size() > 100) {
+                        fileViolations.addGeneralViolation(JsonViolationEnum.FAR_TOO_MUCH_COMPONENTS);
+                    } else if (process.getNodeList().size() > 50) {
+                        fileViolations.addGeneralViolation(JsonViolationEnum.TOO_MUCH_COMPONENTS);
+                    }
+
+
+                    // Properties
+                    fis = new FileInputStream(file.getPropertiesFilename());
+                    PropertiesType properties = PropertiesReader.reader(fis);
+
+
+                    // MISSING_DOCUMENTATION_PURPOSE
+                    if (StringUtils.isEmpty(properties.getPurpose())) {
+                        fileViolations.addGeneralViolation(JsonViolationEnum.MISSING_DOCUMENTATION_PURPOSE);
+                    }
+
+                    // MISSING_DOCUMENTATION_DESCRIPTION
+                    if (StringUtils.isEmpty(properties.getDescription())) {
+                        fileViolations.addGeneralViolation(JsonViolationEnum.MISSING_DOCUMENTATION_DESCRIPTION);
+                    }
+
+
+                    // Missing test
+
+                    if (fileViolations.hasViolations()) {
+                        allViolations.add(fileViolations);
+                    }
+
+                } catch (Exception e) {
+                    LOG.error("Error writing violations(2) for " + file.getName() + " (ignoring file): " + e.getMessage());
                 }
-                checkSERVICE_MUST_NOT_SET_DB_CONNECTION_IN_PREJOB(fileViolations, process);
-                checkMDM_MUST_AUTOCOMMIT_OR_MANAGE_CONNECTION(fileViolations, process);
-
-                // RATIO_INACTIVE_MUST_BE_MAX_30_PERCENT
-                if (nbInactive > process.getNodeList().size() / 3) {
-                    fileViolations.addGeneralViolation(JsonViolationEnum.RATIO_INACTIVE_MUST_BE_MAX_30_PERCENT);
-                }
-
-                // TOO_MUCH_COMPONENTS
-                // FAR_TOO_MUCH_COMPONENTS
-                if (process.getNodeList().size() > 100) {
-                    fileViolations.addGeneralViolation(JsonViolationEnum.FAR_TOO_MUCH_COMPONENTS);
-                } else if (process.getNodeList().size() > 50) {
-                    fileViolations.addGeneralViolation(JsonViolationEnum.TOO_MUCH_COMPONENTS);
-                }
-
-
-                // Properties
-                fis = new FileInputStream(file.getPropertiesFilename());
-                PropertiesType properties = PropertiesReader.reader(fis);
-
-
-                // MISSING_DOCUMENTATION_PURPOSE
-                if (StringUtils.isEmpty(properties.getPurpose())) {
-                    fileViolations.addGeneralViolation(JsonViolationEnum.MISSING_DOCUMENTATION_PURPOSE);
-                }
-
-                // MISSING_DOCUMENTATION_DESCRIPTION
-                if (StringUtils.isEmpty(properties.getDescription())) {
-                    fileViolations.addGeneralViolation(JsonViolationEnum.MISSING_DOCUMENTATION_DESCRIPTION);
-                }
-
-
-                // Missing test
-
-                if (fileViolations.hasViolations()) {
-                    allViolations.add(fileViolations);
-                }
-
             }
 
             // TODO: routes
@@ -111,15 +118,19 @@ public class ViolationsWriter extends AbstractNodeWriter {
 
             // Workflow
             for (TalendFile file : talendFiles.getMDMWorkflowProc()) {
-                JsonFileViolations fileViolations = new JsonFileViolations(file.getPath(), file.getName(), file.getVersion());
+                try {
+                    JsonFileViolations fileViolations = new JsonFileViolations(file.getPath(), file.getName(), file.getVersion());
 
-                String data = IOUtils.toString(new FileInputStream(file.getProcFilename()));
-                if (data.contains("synchronous=\"false\"")) {
-                    fileViolations.addGeneralViolation(JsonViolationEnum.BPM_SHOULD_NOT_BE_ASYNCHRONOUS);
-                }
+                    String data = IOUtils.toString(new FileInputStream(file.getProcFilename()));
+                    if (data.contains("synchronous=\"false\"")) {
+                        fileViolations.addGeneralViolation(JsonViolationEnum.BPM_SHOULD_NOT_BE_ASYNCHRONOUS);
+                    }
 
-                if (fileViolations.hasViolations()) {
-                    allViolations.add(fileViolations);
+                    if (fileViolations.hasViolations()) {
+                        allViolations.add(fileViolations);
+                    }
+                } catch (Exception e) {
+                    LOG.error("Error writing violations for proc " + file.getName() + " (ignoring file): " + e.getMessage());
                 }
             }
 
@@ -128,9 +139,13 @@ public class ViolationsWriter extends AbstractNodeWriter {
             int nbGeneralViolations = 0;
             int nbComponentViolations = 0;
             for (JsonFileViolations fileViolations : allViolations.getFileViolationses()) {
-                nbGeneralViolations += fileViolations.getGeneralViolations().size();
-                for (List<JsonViolationEnum> componentViolations : fileViolations.getComponentViolations().values()) {
-                    nbComponentViolations += componentViolations.size();
+                try {
+                    nbGeneralViolations += fileViolations.getGeneralViolations().size();
+                    for (List<JsonViolationEnum> componentViolations : fileViolations.getComponentViolations().values()) {
+                        nbComponentViolations += componentViolations.size();
+                    }
+                } catch (Exception e) {
+                    LOG.error("Error writing violations(4) for " + fileViolations.getName() + " (ignoring file): " + e.getMessage());
                 }
             }
             allViolations.setNbGeneralViolations(nbGeneralViolations);
@@ -258,18 +273,18 @@ public class ViolationsWriter extends AbstractNodeWriter {
             }
         }
 
-        boolean foundMDMOutput=false;
+        boolean foundMDMOutput = false;
         for (AbstractNodeType node : process.getNodeList()) {
             if (!node.isActive()) continue;
             if ((node.getComponentName().equals("tMDMOutput"))) {
-                foundMDMOutput=true;
+                foundMDMOutput = true;
                 break;
             }
         }
 
         // No warning if no output
         if (!foundMDMOutput) {
-           return;
+            return;
         }
 
         if (found) {
@@ -290,8 +305,6 @@ public class ViolationsWriter extends AbstractNodeWriter {
             }
         }
     }
-
-
 
 
     private void checkAVOID_SYSTEM_OUT(JsonFileViolations fileViolations, AbstractNodeType node) {
