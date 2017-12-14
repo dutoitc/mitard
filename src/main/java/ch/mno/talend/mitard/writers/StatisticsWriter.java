@@ -33,17 +33,21 @@ public class StatisticsWriter extends AbstractWriter {
             Map<String, Integer> componentTypes = new HashMap<>();
             //
             for (TalendFile file : talendFiles.getProcesses()) {
-                if (isBlacklisted(file.getName()) || isBlacklisted(file.getPath())) continue;
-                LOG.debug("Reading " + new File(file.getItemFilename()).getName());
-                FileInputStream fis = new FileInputStream(file.getItemFilename());
-                ProcessType process = ProcessReader.read(fis);
-                for (AbstractNodeType node : process.getNodeList()) {
+                try {
+                    if (isBlacklisted(file.getName()) || isBlacklisted(file.getPath())) continue;
+                    LOG.debug("Reading " + new File(file.getItemFilename()).getName());
+                    FileInputStream fis = new FileInputStream(file.getItemFilename());
+                    ProcessType process = ProcessReader.read(fis);
+                    for (AbstractNodeType node : process.getNodeList()) {
 //                    if (node.isActive()) {
-                    if (componentTypes.containsKey(node.getComponentName())) {
-                        componentTypes.put(node.getComponentName(), componentTypes.get(node.getComponentName()) + 1);
-                    } else {
-                        componentTypes.put(node.getComponentName(), 1);
+                        if (componentTypes.containsKey(node.getComponentName())) {
+                            componentTypes.put(node.getComponentName(), componentTypes.get(node.getComponentName()) + 1);
+                        } else {
+                            componentTypes.put(node.getComponentName(), 1);
+                        }
                     }
+                } catch (Exception e) {
+                    LOG.error("Error writing process stats for " + file.getName() + " (ignoring file): " + e.getMessage());
                 }
             }
 

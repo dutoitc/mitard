@@ -36,6 +36,7 @@ public class SearchWriter extends AbstractNodeWriter {
             JSonTextFiles textFiles = new JSonTextFiles();
 
             for (TalendFile file : talendFiles.getProcesses()) {
+                try {
                 if (isBlacklisted(file.getName()) || isBlacklisted(file.getPath())) continue;
 
                 LOG.debug("Reading " + new File(file.getItemFilename()).getName());
@@ -48,6 +49,10 @@ public class SearchWriter extends AbstractNodeWriter {
                 process.getNodeList().stream()
                         .filter(node -> node.isActive())
                         .forEach(node -> textFile.addText(node.getUniqueName(), extractText(node).toLowerCase()));
+
+                } catch (Exception e) {
+                    LOG.error("Error writing search infosfor " + file.getName() + " (ignoring file): " + e.getMessage());
+                }
             }
 
             writeJson("textFiles.json", textFiles);

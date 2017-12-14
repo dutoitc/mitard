@@ -110,44 +110,53 @@ public class DependenciesWriter extends AbstractWriter {
         Map<String, String> latestsVersions = new HashMap<>();
         Map<String, String> processesById = new HashMap<>();
         for (TalendFile f : talendFiles.getProcesses()) {
-            if (isBlacklisted(f.getName()) || isBlacklisted(f.getPath())) continue;
-            String name = "P_" + normalize(f.getName(), f.getVersion());
-            processDependencies.put(name, new ArrayList<String>());
-            latestsVersions.put("P_" + f.getName(), f.getVersion());
-
-            // Read id for services which are linked to processes
             try {
-                String properties = IOUtils.toString(new FileInputStream(f.getPropertiesFilename()));
-                Matcher matcherItem = Pattern.compile("TalendProperties:Property.*?\\ id=\"(.*?)\"").matcher(properties);
-                matcherItem.find();
-                String fileId = matcherItem.group(1);
-                processesById.put(fileId, name);
+                if (isBlacklisted(f.getName()) || isBlacklisted(f.getPath())) continue;
+                String name = "P_" + normalize(f.getName(), f.getVersion());
+                processDependencies.put(name, new ArrayList<String>());
+                latestsVersions.put("P_" + f.getName(), f.getVersion());
+
+                // Read id for services which are linked to processes
+                try {
+                    String properties = IOUtils.toString(new FileInputStream(f.getPropertiesFilename()));
+                    Matcher matcherItem = Pattern.compile("TalendProperties:Property.*?\\ id=\"(.*?)\"").matcher(properties);
+                    matcherItem.find();
+                    String fileId = matcherItem.group(1);
+                    processesById.put(fileId, name);
+                } catch (Exception e) {
+                    e.printStackTrace();
+                }
             } catch (Exception e) {
-                e.printStackTrace();
+                LOG.error("Error writing process dependencies for process " + f.getName() + " (ignoring file): " + e.getMessage());
             }
         }
         for (TalendFile f : talendFiles.getRoutes()) {
-            if (isBlacklisted(f.getName()) || isBlacklisted(f.getPath())) continue;
-            String name = "R_" + normalize(f.getName(), f.getVersion());
-            routeDependencies.put(name, new ArrayList<String>());
-            latestsVersions.put("R_" + f.getName(), f.getVersion());
+            try {
+                if (isBlacklisted(f.getName()) || isBlacklisted(f.getPath())) continue;
+                String name = "R_" + normalize(f.getName(), f.getVersion());
+                routeDependencies.put(name, new ArrayList<String>());
+                latestsVersions.put("R_" + f.getName(), f.getVersion());
 
 
-            FileInputStream fis = new FileInputStream(f.getItemFilename());
-            // TODO: pour chaque noed, lire SELECTED_JOB_NAME et SELECTED_JOB_NAME:PROCESS_TYPE_VERSION, faire le lien
+                FileInputStream fis = new FileInputStream(f.getItemFilename());
+                // TODO: pour chaque noed, lire SELECTED_JOB_NAME et SELECTED_JOB_NAME:PROCESS_TYPE_VERSION, faire le lien
 
-            ProcessType process = ProcessReader.read(fis);
-            for (AbstractNodeType node : process.getNodeList()) {
-                if (node instanceof CTalendJobType) {
-                    String processName1 = ((CTalendJobType) node).getProcessName();
-                    String version = ((CTalendJobType) node).getProcessVersion();
-                    if (version.startsWith("context"))
-                        version = getContext().getProjectProperties(version.substring(8));
-                    if (version.toLowerCase().equals("latest"))
-                        version = getLatestVersion(latestsVersions, "P_" + processName1);
-                    String processName = "P_" + normalize(processName1, version);
-                    addProcessDependency(name, processName);
+                ProcessType process = ProcessReader.read(fis);
+                for (AbstractNodeType node : process.getNodeList()) {
+                    if (node instanceof CTalendJobType) {
+                        String processName1 = ((CTalendJobType) node).getProcessName();
+                        String version = ((CTalendJobType) node).getProcessVersion();
+                        if (version.startsWith("context"))
+                            version = getContext().getProjectProperties(version.substring(8));
+                        if (version.toLowerCase().equals("latest"))
+                            version = getLatestVersion(latestsVersions, "P_" + processName1);
+                        String processName = "P_" + normalize(processName1, version);
+                        addProcessDependency(name, processName);
+                    }
                 }
+
+            } catch (Exception e) {
+                LOG.error("Error writing process stats for route " + f.getName() + " (ignoring file): " + e.getMessage());
             }
         }
         for (TalendFile f : talendFiles.getServices()) {
@@ -173,21 +182,26 @@ public class DependenciesWriter extends AbstractWriter {
         }
 
         for (TalendFile f : talendFiles.getMDMWorkflowProc()) {
-            if (isBlacklisted(f.getName()) || isBlacklisted(f.getPath())) continue;
-            String filename = f.getProcFilename();
-            LOG.debug("Reading " + filename);
-            FileInputStream fis = new FileInputStream(filename);
-            WorkflowType workflow = WorkflowReader.read(fis);
-            String source = "B_" + normalize(f.getName(), f.getVersion());
+            try {
+                if (isBlacklisted(f.getName()) || isBlacklisted(f.getPath())) continue;
+                String filename = f.getProcFilename();
+                LOG.debug("Reading " + filename);
+                FileInputStream fis = new FileInputStream(filename);
+                WorkflowType workflow = WorkflowReader.read(fis);
+                String source = "B_" + normalize(f.getName(), f.getVersion());
 
-            for (String service : workflow.getServices()) {
-                String dest = findLatestService(service);
-                addWorkflowDependency(source, dest);
+                for (String service : workflow.getServices()) {
+                    String dest = findLatestService(service);
+                    addWorkflowDependency(source, dest);
+                }
+            } catch (Exception e) {
+                LOG.error("Error writing process stats for proc " + f.getName() + " (ignoring file): " + e.getMessage());
             }
         }
 
 
         for (TalendFile file : talendFiles.getProcesses()) {
+            try {
 //            if (file.getItemFilename().contains("process")) {
             if (isBlacklisted(file.getName()) || isBlacklisted(file.getPath())) continue;
             LOG.debug("Reading " + new File(file.getItemFilename()).getName());
@@ -248,6 +262,10 @@ public class DependenciesWriter extends AbstractWriter {
 //                        String serviceName = ((TRestRequestType)node).getServiceName();
 //                        System.out.println("   P_" + name + "->S_" + serviceName);
                 }
+            }
+
+            } catch (Exception e) {
+                LOG.error("Error writing process stats for process(2) " + file.getName() + " (ignoring file): " + e.getMessage());
             }
         }
     }
