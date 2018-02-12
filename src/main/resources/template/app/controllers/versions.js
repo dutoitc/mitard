@@ -19,7 +19,10 @@ angular.module('mitardApp.versions', ['ngRoute'])
 
 .controller('VersionsCtrl', ['$http', '$scope', '$sce', function($http, $scope, $sce) {
 
-        $scope.errors="";
+    $scope.errors="";
+    $scope.minorsProcesses="";
+    $scope.minorsServices="";
+    $scope.minorsRoutes="";
 
     $http.get('data/dependencies.json')
         .success(function(data) {
@@ -40,10 +43,56 @@ angular.module('mitardApp.versions', ['ngRoute'])
                         localErrors += parent + "-&gt;" + child + "<br/>";
                     }
                 }
-
             }
             $scope.errors=$sce.trustAsHtml(localErrors);
         });
+
+    $http.get('data/processes.json')
+        .success(function(data) {
+            var out = [];
+            for (var i=0; i<data.processes.length; i++) {
+                if (data.processes[i].version.endsWith("0")) continue;
+                out.push(data.processes[i].path + "." + data.processes[i].name +  " " + data.processes[i].version + "<br/>");
+            }
+            out.sort();
+            var s="";
+            for (var i=0; i<out.length; i++) {
+                s+=out[i];
+            }
+            $scope.minorsProcesses = $sce.trustAsHtml(s);
+        });
+
+    $http.get('data/routes.json')
+        .success(function(data) {
+            var out = [];
+            for (var i=0; i<data.routes.length; i++) {
+                if (data.routes[i].version.endsWith("0")) continue;
+                out.push(data.routes[i].path +  "." + data.routes[i].name +  " " + data.routes[i].version + "<br/>");
+            }
+            out.sort();
+            var s="";
+            for (var i=0; i<out.length; i++) {
+                s+=out[i];
+            }
+            $scope.minorsRoutes = $sce.trustAsHtml(s);
+        });
+
+
+    $http.get('data/services.json')
+        .success(function(data) {
+            var out = [];
+            for (var i=0; i<data.services.length; i++) {
+                if (data.services[i].version.endsWith("0")) continue;
+                out.push(data.services[i].path +  "." + data.services[i].name +  " " + data.services[i].version + "<br/>");
+            }
+            out.sort();
+            var s="";
+            for (var i=0; i<out.length; i++) {
+                s+=out[i];
+            }
+            $scope.minorsServices = $sce.trustAsHtml(s);
+        });
+
 
 
 }]);

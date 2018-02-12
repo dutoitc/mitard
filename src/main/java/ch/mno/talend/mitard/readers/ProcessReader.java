@@ -219,6 +219,7 @@ public class ProcessReader extends DefaultHandler {
                 case "tFileExist":
                 case "tSynonymOutput":
                 case "tASsert":
+                case "tMDMReceive":
                 case "tSchemaComplianceCheck":
                     reader = new TNodeReader(componentName);
                     break;
