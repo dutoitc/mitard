@@ -221,6 +221,7 @@ public class ProcessReader extends DefaultHandler {
                 case "tASsert":
                 case "tMDMReceive":
                 case "tSchemaComplianceCheck":
+                case "cREST": // Note: URL could be read and correlated with service
                     reader = new TNodeReader(componentName);
                     break;
                 default:

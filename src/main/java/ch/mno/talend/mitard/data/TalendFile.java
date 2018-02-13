@@ -30,6 +30,11 @@ public class TalendFile {
         return this.path + File.separatorChar + this.name + "_" + this.version + ".proc";
     }
 
+    /** Talend 6.4 replaces _proc by -proc (bug?) */
+    public String getProcFilenameTalend6() {
+        return this.path + File.separatorChar + this.name + "-" + this.version + ".proc";
+    }
+
     public String getName() {
         return this.name;
     }

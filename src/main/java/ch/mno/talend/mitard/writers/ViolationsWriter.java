@@ -121,7 +121,12 @@ public class ViolationsWriter extends AbstractNodeWriter {
                 try {
                     JsonFileViolations fileViolations = new JsonFileViolations(file.getPath(), file.getName(), file.getVersion());
 
-                    String data = IOUtils.toString(new FileInputStream(file.getProcFilename()));
+                    String procFilename = file.getProcFilename();
+                    if (!new File(procFilename).exists()) {
+                        procFilename = file.getProcFilenameTalend6();
+                    }
+
+                    String data = IOUtils.toString(new FileInputStream(procFilename));
                     if (data.contains("synchronous=\"false\"")) {
                         fileViolations.addGeneralViolation(JsonViolationEnum.BPM_SHOULD_NOT_BE_ASYNCHRONOUS);
                     }

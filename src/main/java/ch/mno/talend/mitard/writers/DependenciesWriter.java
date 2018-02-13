@@ -185,6 +185,10 @@ public class DependenciesWriter extends AbstractWriter {
             try {
                 if (isBlacklisted(f.getName()) || isBlacklisted(f.getPath())) continue;
                 String filename = f.getProcFilename();
+                if (!new File(filename).exists()) {
+                    filename = f.getProcFilenameTalend6();
+                }
+
                 LOG.debug("Reading " + filename);
                 FileInputStream fis = new FileInputStream(filename);
                 WorkflowType workflow = WorkflowReader.read(fis);
