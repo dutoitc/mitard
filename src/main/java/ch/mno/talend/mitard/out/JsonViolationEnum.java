@@ -21,7 +21,14 @@ public enum JsonViolationEnum {
     UNSTABLE_FILES("missing files for a component, 3 needed", "a component (process) must have 3 files. Some are missing. This could lead in unpredictable behaviour"),
     BPM_SHOULD_NOT_BE_ASYNCHRONOUS("BPM components must be synchronous", "A bug in 5.6.1 is that any async component could lead in sub-bpm run twice. Avoid BPM async as a workaround."),
     MDM_MUST_HAVE_COMMIT("Jobs with tMDMConnection using no autocommit should have explicit tMDMCommit", "A MDM connection with no autocommit and no explicit commit can cause connection problem"),
-    MDM_MUST_HAVE_ROLLBACK("Jobs with tMDMConnection using no autocommit should have explicit tMDMRollback", "A MDM connection with no autocommit and no explicit rollback can cause connection leak in DB");
+    MDM_MUST_HAVE_ROLLBACK("Jobs with tMDMConnection using no autocommit should have explicit tMDMRollback", "A MDM connection with no autocommit and no explicit rollback can cause connection leak in DB"),
+    ROLLBACK_MUST_NOT_BE_DEFINED_ON_AUTOCOMMIT_CONNECTION("tOracleRollback must not be linked to a tOracleConnection with autocommit.", "Rollback could not be executed on connections with autocommit"),
+    NON_AUTOCOMMIT_CONNECTION_MUST_HAVE_COMMIT_OR_ROLLBACK("tOracleConnection without autocommit must have a commit or rollback", "If a tOracleConnection has no commit/rollback, the connection will never be closed, leading to a connection leak"),
+    AVOID_MDMCONNECTION_IN_SERVICE_PREJOB("Services should not open a MDM connection", "Opening a MDM connection in a prejob of a service will cause a connection sticked to the process. In Karaf, one service could be deployed multiple times, so multiple threads will be kept on the DB."),
+    AVOID_DBCONNECTION_IN_SERVICE_PREJOB("Services should not open a DB connection", ""),
+    MDMCONNECTION_MUST_BE_CLOSED("A connection opened by a tMDMConnection must be followed by a (commit+close) or (rollback+close)", ""),
+    DBCONNECTION_MUST_BE_CLOSED("A connection opened by a tOracleConnection must be followed by a (commit+close) or (rollback+close)", "");
+
 
     private String description;
     private String explanations;

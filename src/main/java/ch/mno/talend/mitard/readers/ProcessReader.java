@@ -108,6 +108,24 @@ public class ProcessReader extends DefaultHandler {
                 case "tSOAP":
                     reader = new TSoap(componentName);
                     break;
+                case "tOracleConnection":
+                    reader = new TOracleConnection(componentName);
+                    break;
+                case "tOracleRollback":
+                    reader = new TOracleRollback(componentName);
+                    break;
+                case "tPrejob":
+                    reader = new TPrejob(componentName);
+                    break;
+                case "tOracleClose":
+                    reader = new TOracleClose(componentName);
+                    break;
+                case "tMDMClose":
+                    reader = new TMDMClose(componentName);
+                    break;
+                case "tMDMRollback":
+                    reader = new TMDMRollback(componentName);
+                    break;
                 case "tFileOutputJSON":
                 case "tFileInputPositional":
                 case "tLogRow":
@@ -119,9 +137,7 @@ public class ProcessReader extends DefaultHandler {
                 case "tESBProviderResponse":
                 case "tRESTResponse":
                 case "tMDMInput":
-                case "tPrejob":
                 case "tPostjob":
-                case "tMDMClose":
                 case "tMDMOutput":
                 case "tMDMInputNullOptional":
                 case "tFileInputRaw":
@@ -137,8 +153,6 @@ public class ProcessReader extends DefaultHandler {
                 case "tConvertType":
                 case "tLibraryLoad":
                 case "tAssertCatcher":
-                case "tOracleClose":
-                case "tOracleConnection":
                 case "tLogCatcher":
                 case "tFileOutputMSXML":
                 case "tNormalize":
@@ -155,7 +169,6 @@ public class ProcessReader extends DefaultHandler {
                 case "tRouteInput":
                 case "tWarn":
                 case "tStatCatcher":
-                case "tOracleRollback":
                 case "tAssert":
                 case "tMomRollback":
                 case "tReplicate":
@@ -166,7 +179,6 @@ public class ProcessReader extends DefaultHandler {
                 case "tFilterColumns":
                 case "tFlowMeterCatcher":
                 case "tFileCopy":
-                case "tMDMRollback":
                 case "tSleep":
                 case "tMomConnection":
                 case "tFileDelete":
@@ -221,6 +233,7 @@ public class ProcessReader extends DefaultHandler {
                 case "tASsert":
                 case "tMDMReceive":
                 case "tSchemaComplianceCheck":
+                case "tInfiniteLoop":
                 case "cREST": // Note: URL could be read and correlated with service
                     reader = new TNodeReader(componentName);
                     break;
@@ -459,6 +472,9 @@ public class ProcessReader extends DefaultHandler {
                 case "CLOSE":
                     obj.setClose("true".equals(value));
                     break;
+                case "CONNECTION":
+                    obj.setConnection(value);
+                    break;
             }
         }
     }
@@ -478,6 +494,9 @@ public class ProcessReader extends DefaultHandler {
             switch (name) {
                 case "CLOSE":
                     obj.setClose("true".equals(value));
+                    break;
+                case "CONNECTION":
+                    obj.setConnection(value);
                     break;
             }
         }
@@ -563,6 +582,127 @@ public class ProcessReader extends DefaultHandler {
             switch (name) {
                 case "URI":
                     obj.setUri(value);
+                    break;
+            }
+        }
+    }
+    // ========================================================================================
+
+    private class TOracleConnection extends AbstractTReader {
+
+        TOracleConnectionType obj;
+
+        public TOracleConnection(String componentName) {
+            super(new TOracleConnectionType(), componentName);
+            obj = (TOracleConnectionType) super.getNode();
+        }
+
+        @Override
+        protected void handleElement(String name, String value) {
+            switch (name) {
+                case "AUTO_COMMIT":
+                    obj.setAutoCommit("TRUE".equalsIgnoreCase(value));
+                    break;
+            }
+        }
+    }
+    // ========================================================================================
+
+    private class TOracleRollback extends AbstractTReader {
+
+        TOracleRollbackType obj;
+
+        public TOracleRollback(String componentName) {
+            super(new TOracleRollbackType(), componentName);
+            obj = (TOracleRollbackType) super.getNode();
+        }
+
+        @Override
+        protected void handleElement(String name, String value) {
+            switch (name) {
+                case "CLOSE":
+                    obj.setClose("true".equalsIgnoreCase(value));
+                    break;
+                case "CONNECTION":
+                    obj.setConnection(value);
+                    break;
+            }
+        }
+    }
+    // ========================================================================================
+
+    private class TMDMRollback extends AbstractTReader {
+
+        TMDMRollbackType obj;
+
+        public TMDMRollback(String componentName) {
+            super(new TMDMRollbackType(), componentName);
+            obj = (TMDMRollbackType) super.getNode();
+        }
+
+        @Override
+        protected void handleElement(String name, String value) {
+            switch (name) {
+                case "CLOSE":
+                    obj.setClose("true".equalsIgnoreCase(value));
+                    break;
+                case "CONNECTION":
+                    obj.setConnection(value);
+                    break;
+            }
+        }
+    }
+    // ========================================================================================
+
+    private class TPrejob extends AbstractTReader {
+
+        TPrejobType obj;
+
+        public TPrejob(String componentName) {
+            super(new TPrejobType(), componentName);
+            obj = (TPrejobType) super.getNode();
+        }
+
+        @Override
+        protected void handleElement(String name, String value) {
+        }
+    }
+    // ========================================================================================
+
+    private class TOracleClose extends AbstractTReader {
+
+        TOracleCloseType obj;
+
+        public TOracleClose(String componentName) {
+            super(new TOracleCloseType(), componentName);
+            obj = (TOracleCloseType) super.getNode();
+        }
+
+        @Override
+        protected void handleElement(String name, String value) {
+            switch (name) {
+                case "CONNECTION":
+                    obj.setConnection(value);
+                    break;
+            }
+        }
+    }
+    // ========================================================================================
+
+    private class TMDMClose extends AbstractTReader {
+
+        TMDMCloseType obj;
+
+        public TMDMClose(String componentName) {
+            super(new TMDMCloseType(), componentName);
+            obj = (TMDMCloseType) super.getNode();
+        }
+
+        @Override
+        protected void handleElement(String name, String value) {
+            switch (name) {
+                case "CONNECTION":
+                    obj.setConnection(value);
                     break;
             }
         }

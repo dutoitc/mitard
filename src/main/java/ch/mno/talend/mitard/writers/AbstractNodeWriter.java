@@ -35,7 +35,9 @@ public abstract class AbstractNodeWriter extends AbstractWriter {
 
     public AbstractNodeWriter(Context context) {
         super(context);
-        patJira = Pattern.compile("("+getContext().getJiraPrefix()+"-?\\d+)");
+        if (context!=null) {
+            patJira = Pattern.compile("(" + getContext().getJiraPrefix() + "-?\\d+)");
+        }
     }
 
     // TODO: find author talend.project

@@ -9,12 +9,16 @@ import org.apache.commons.io.IOUtils;
 import org.apache.commons.lang3.StringUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.xml.sax.SAXException;
 
+import javax.xml.parsers.ParserConfigurationException;
 import java.io.File;
 import java.io.FileInputStream;
+import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
+import java.util.stream.Collectors;
 
 /**
  * Created by dutoitc on 13.05.2015.
@@ -31,83 +35,15 @@ public class ViolationsWriter extends AbstractNodeWriter {
         try {
             JsonViolations allViolations = new JsonViolations();
 
-            for (TalendFile file : talendFiles.getUnstableFiles()) {
-                try {
-                    JsonFileViolations fileViolations = new JsonFileViolations(file.getPath(), file.getName(), file.getVersion());
-                    fileViolations.addGeneralViolation(JsonViolationEnum.UNSTABLE_FILES);
-                    allViolations.add(fileViolations);
-                } catch (Exception e) {
-                    LOG.error("Error writing violations for " + file.getName() + " (ignoring file): " + e.getMessage());
-                }
-            }
+            writeUnstableFiled(talendFiles, allViolations);
 
             for (TalendFile file : talendFiles.getProcesses()) {
                 try {
                     if (isBlacklisted(file.getName()) || isBlacklisted(file.getPath())) continue;
-                    LOG.debug("Reading " + new File(file.getItemFilename()).getName());
-
-//            String properties = IOUtils.toString(new FileReader(file.getPropertiesFilename()));
-//            String item = IOUtils.toString(new FileReader(file.getItemFilename()));
-                    JsonFileViolations fileViolations = new JsonFileViolations(file.getPath(), file.getName(), file.getVersion());
-
-
-                    FileInputStream fis = new FileInputStream(file.getItemFilename());
-                    ProcessType process = ProcessReader.read(fis);
-                    int nbInactive = 0;
-                    for (AbstractNodeType node : process.getNodeList()) {
-                        if (!node.isActive()) {
-                            nbInactive++;
-                            continue;
-                        }
-                        checkSERVICE_PORT_MUST_BE_8040(fileViolations, node);
-                        checkCOMPONENT_MUST_USE_EXISTING_CONNECTION(fileViolations, node);
-                        checkCOMPONENT_MUST_NOT_CLOSE_CONNECTION(fileViolations, node);
-                        checkAVOID_SYSTEM_OUT(fileViolations, node);
-                        checkTLOGCATCHER_MUST_NOT_CHAIN_TDIE(fileViolations, node, process);
-                        checkFIRECREATEEVENT_MUST_BE_SET(fileViolations, node, process);
-                        checkTRUNJOB_MUST_PROPAGATE_CHILD_RESULT(fileViolations, node);
-                    }
-                    checkSERVICE_MUST_NOT_SET_DB_CONNECTION_IN_PREJOB(fileViolations, process);
-                    checkMDM_MUST_AUTOCOMMIT_OR_MANAGE_CONNECTION(fileViolations, process);
-
-                    // RATIO_INACTIVE_MUST_BE_MAX_30_PERCENT
-                    if (nbInactive > process.getNodeList().size() / 3) {
-                        fileViolations.addGeneralViolation(JsonViolationEnum.RATIO_INACTIVE_MUST_BE_MAX_30_PERCENT);
-                    }
-
-                    // TOO_MUCH_COMPONENTS
-                    // FAR_TOO_MUCH_COMPONENTS
-                    if (process.getNodeList().size() > 100) {
-                        fileViolations.addGeneralViolation(JsonViolationEnum.FAR_TOO_MUCH_COMPONENTS);
-                    } else if (process.getNodeList().size() > 50) {
-                        fileViolations.addGeneralViolation(JsonViolationEnum.TOO_MUCH_COMPONENTS);
-                    }
-
-
-                    // Properties
-                    fis = new FileInputStream(file.getPropertiesFilename());
-                    PropertiesType properties = PropertiesReader.reader(fis);
-
-
-                    // MISSING_DOCUMENTATION_PURPOSE
-                    if (StringUtils.isEmpty(properties.getPurpose())) {
-                        fileViolations.addGeneralViolation(JsonViolationEnum.MISSING_DOCUMENTATION_PURPOSE);
-                    }
-
-                    // MISSING_DOCUMENTATION_DESCRIPTION
-                    if (StringUtils.isEmpty(properties.getDescription())) {
-                        fileViolations.addGeneralViolation(JsonViolationEnum.MISSING_DOCUMENTATION_DESCRIPTION);
-                    }
-
-
-                    // Missing test
-
-                    if (fileViolations.hasViolations()) {
-                        allViolations.add(fileViolations);
-                    }
-
+                    addProcessViolations(allViolations, file);
                 } catch (Exception e) {
                     LOG.error("Error writing violations(2) for " + file.getName() + " (ignoring file): " + e.getMessage());
+                    e.printStackTrace();
                 }
             }
 
@@ -119,21 +55,8 @@ public class ViolationsWriter extends AbstractNodeWriter {
             // Workflow
             for (TalendFile file : talendFiles.getMDMWorkflowProc()) {
                 try {
-                    JsonFileViolations fileViolations = new JsonFileViolations(file.getPath(), file.getName(), file.getVersion());
-
-                    String procFilename = file.getProcFilename();
-                    if (!new File(procFilename).exists()) {
-                        procFilename = file.getProcFilenameTalend6();
-                    }
-
-                    String data = IOUtils.toString(new FileInputStream(procFilename));
-                    if (data.contains("synchronous=\"false\"")) {
-                        fileViolations.addGeneralViolation(JsonViolationEnum.BPM_SHOULD_NOT_BE_ASYNCHRONOUS);
-                    }
-
-                    if (fileViolations.hasViolations()) {
-                        allViolations.add(fileViolations);
-                    }
+                    if (isBlacklisted(file.getName()) || isBlacklisted(file.getPath())) continue;
+                    addMDMViolations(allViolations, file);
                 } catch (Exception e) {
                     LOG.error("Error writing violations for proc " + file.getName() + " (ignoring file): " + e.getMessage());
                 }
@@ -141,25 +64,132 @@ public class ViolationsWriter extends AbstractNodeWriter {
 
 
             // Count
-            int nbGeneralViolations = 0;
-            int nbComponentViolations = 0;
-            for (JsonFileViolations fileViolations : allViolations.getFileViolationses()) {
-                try {
-                    nbGeneralViolations += fileViolations.getGeneralViolations().size();
-                    for (List<JsonViolationEnum> componentViolations : fileViolations.getComponentViolations().values()) {
-                        nbComponentViolations += componentViolations.size();
-                    }
-                } catch (Exception e) {
-                    LOG.error("Error writing violations(4) for " + fileViolations.getName() + " (ignoring file): " + e.getMessage());
-                }
-            }
-            allViolations.setNbGeneralViolations(nbGeneralViolations);
-            allViolations.setNbComponentViolations(nbComponentViolations);
+            countViolations(allViolations);
 
             writeJson("violations.json", allViolations);
 
         } catch (Exception e) {
             throw new RuntimeException(e);
+        }
+    }
+
+    /**
+     * Count fileViolations.generalViolations and fileViolations.componentViolations
+     * @param allViolations
+     */
+    private void countViolations(JsonViolations allViolations) {
+        int nbGeneralViolations = 0;
+        int nbComponentViolations = 0;
+        for (JsonFileViolations fileViolations : allViolations.getFileViolationses()) {
+            try {
+                nbGeneralViolations += fileViolations.getGeneralViolations().size();
+                for (List<JsonViolationEnum> componentViolations : fileViolations.getComponentViolations().values()) {
+                    nbComponentViolations += componentViolations.size();
+                }
+            } catch (Exception e) {
+                LOG.error("Error writing violations(4) for " + fileViolations.getName() + " (ignoring file): " + e.getMessage());
+            }
+        }
+        allViolations.setNbGeneralViolations(nbGeneralViolations);
+        allViolations.setNbComponentViolations(nbComponentViolations);
+    }
+
+    private void addMDMViolations(JsonViolations allViolations, TalendFile file) throws IOException {
+        JsonFileViolations fileViolations = new JsonFileViolations(file.getPath(), file.getName(), file.getVersion());
+
+        String procFilename = file.getProcFilename();
+        if (!new File(procFilename).exists()) {
+            procFilename = file.getProcFilenameTalend6();
+        }
+
+        String data = IOUtils.toString(new FileInputStream(procFilename));
+        if (data.contains("synchronous=\"false\"")) {
+            fileViolations.addGeneralViolation(JsonViolationEnum.BPM_SHOULD_NOT_BE_ASYNCHRONOUS);
+        }
+
+        if (fileViolations.hasViolations()) {
+            allViolations.add(fileViolations);
+        }
+    }
+
+    private void writeUnstableFiled(TalendFiles talendFiles, JsonViolations allViolations) {
+        for (TalendFile file : talendFiles.getUnstableFiles()) {
+            try {
+                JsonFileViolations fileViolations = new JsonFileViolations(file.getPath(), file.getName(), file.getVersion());
+                fileViolations.addGeneralViolation(JsonViolationEnum.UNSTABLE_FILES);
+                allViolations.add(fileViolations);
+            } catch (Exception e) {
+                LOG.error("Error writing violations for " + file.getName() + " (ignoring file): " + e.getMessage());
+            }
+        }
+    }
+
+    private void addProcessViolations(JsonViolations allViolations, TalendFile file) throws ParserConfigurationException, SAXException, IOException {
+        LOG.debug("AddProcessViolations " + new File(file.getItemFilename()).getName());
+        //            String properties = IOUtils.toString(new FileReader(file.getPropertiesFilename()));
+//            String item = IOUtils.toString(new FileReader(file.getItemFilename()));
+        JsonFileViolations fileViolations = new JsonFileViolations(file.getPath(), file.getName(), file.getVersion());
+
+
+        FileInputStream fis = new FileInputStream(file.getItemFilename());
+        ProcessType process = ProcessReader.read(fis);
+        int nbInactive = 0;
+        for (AbstractNodeType node : process.getNodeList()) {
+            if (!node.isActive()) {
+                nbInactive++;
+                continue;
+            }
+            checkSERVICE_PORT_MUST_BE_8040(fileViolations, node);
+            checkCOMPONENT_MUST_USE_EXISTING_CONNECTION(fileViolations, node);
+            checkCOMPONENT_MUST_NOT_CLOSE_CONNECTION(fileViolations, node);
+            checkAVOID_SYSTEM_OUT(fileViolations, node);
+            checkTLOGCATCHER_MUST_NOT_CHAIN_TDIE(fileViolations, node, process);
+            checkFIRECREATEEVENT_MUST_BE_SET(fileViolations, node, process);
+            checkTRUNJOB_MUST_PROPAGATE_CHILD_RESULT(fileViolations, node);
+        }
+        checkSERVICE_MUST_NOT_SET_DB_CONNECTION_IN_PREJOB(fileViolations, process);
+        checkMDM_MUST_AUTOCOMMIT_OR_MANAGE_CONNECTION(fileViolations, process);
+        checkProcessMustNotUseRollbackWithAutocommit(fileViolations, process);
+        checkNonAutocommitConnectionMustHaveCommitOrRollback(fileViolations, process);
+        checkAVOID_MDMCONNECTION_IN_SERVICE_PREJOB(file, fileViolations, process);
+        checkAVOID_DBCONNECTION_IN_SERVICE_PREJOB(file, fileViolations, process);
+        checkMDMCONNECTION_MUST_BE_CLOSED(fileViolations, process);
+        checkDBCONNECTION_MUST_BE_CLOSED(fileViolations, process);
+
+        // RATIO_INACTIVE_MUST_BE_MAX_30_PERCENT
+        if (nbInactive > process.getNodeList().size() / 3) {
+            fileViolations.addGeneralViolation(JsonViolationEnum.RATIO_INACTIVE_MUST_BE_MAX_30_PERCENT);
+        }
+
+        // TOO_MUCH_COMPONENTS
+        // FAR_TOO_MUCH_COMPONENTS
+        if (process.getNodeList().size() > 100) {
+            fileViolations.addGeneralViolation(JsonViolationEnum.FAR_TOO_MUCH_COMPONENTS);
+        } else if (process.getNodeList().size() > 50) {
+            fileViolations.addGeneralViolation(JsonViolationEnum.TOO_MUCH_COMPONENTS);
+        }
+
+
+        // Properties
+        fis = new FileInputStream(file.getPropertiesFilename());
+        PropertiesType properties = PropertiesReader.reader(fis);
+
+
+        // MISSING_DOCUMENTATION_PURPOSE
+        if (StringUtils.isEmpty(properties.getPurpose())) {
+            fileViolations.addGeneralViolation(JsonViolationEnum.MISSING_DOCUMENTATION_PURPOSE);
+        }
+
+        // MISSING_DOCUMENTATION_DESCRIPTION
+        if (StringUtils.isEmpty(properties.getDescription())) {
+            fileViolations.addGeneralViolation(JsonViolationEnum.MISSING_DOCUMENTATION_DESCRIPTION);
+        }
+
+
+        // Missing test
+
+        if (fileViolations.hasViolations()) {
+            allViolations.add(fileViolations);
         }
     }
 
@@ -262,6 +292,144 @@ public class ViolationsWriter extends AbstractNodeWriter {
         }
     }
 
+    private void checkProcessMustNotUseRollbackWithAutocommit(JsonFileViolations fileViolations, ProcessType process) {
+        process.getNodeList().stream()
+                .filter(n->n.isActive() && n instanceof TOracleRollbackType)
+                .map(n->(TOracleRollbackType)n)
+                .forEach(rollback-> {
+
+                    process.getNodeList().stream()
+                            .filter(n -> n.isActive() && n instanceof TOracleConnectionType)
+                            .map(n->(TOracleConnectionType)n)
+                            .filter(n->n.getUniqueName().equals(rollback.getConnection()) && n.isAutoCommit())
+                            .forEach(d->fileViolations.addComponentViolation(rollback.getUniqueName(), JsonViolationEnum.ROLLBACK_MUST_NOT_BE_DEFINED_ON_AUTOCOMMIT_CONNECTION));
+
+                });
+    }
+
+    private void checkNonAutocommitConnectionMustHaveCommitOrRollback(JsonFileViolations fileViolations, ProcessType process) {
+        process.getNodeList().stream()
+                .filter(n->n.isActive() && n instanceof TOracleConnectionType)
+                .map(n->(TOracleConnectionType)n)
+                .filter(n->!n.isAutoCommit())
+                .forEach(conn-> {
+
+                    List<TOracleCommitType> lstCommits = process.getNodeList().stream()
+                            .filter(n -> n.isActive() && n instanceof TOracleCommitType)
+                            .map(n -> (TOracleCommitType) n)
+                            .filter(n -> n.getConnection().equals(conn.getUniqueName()))
+                            .collect(Collectors.toList());
+
+                    List<TOracleRollbackType> lstRollbacks = process.getNodeList().stream()
+                            .filter(n -> n.isActive() && n instanceof TOracleRollbackType)
+                            .map(n -> (TOracleRollbackType) n)
+                            .filter(n -> n.getConnection().equals(conn.getUniqueName()))
+                            .collect(Collectors.toList());
+                    if (lstCommits.isEmpty() && lstRollbacks.isEmpty()) {
+                        fileViolations.addGeneralViolation(JsonViolationEnum.NON_AUTOCOMMIT_CONNECTION_MUST_HAVE_COMMIT_OR_ROLLBACK);
+                    }
+
+                });
+    }
+
+    private void checkAVOID_MDMCONNECTION_IN_SERVICE_PREJOB(TalendFile file, JsonFileViolations fileViolations, ProcessType process) {
+        if (!file.getName().contains("Operation")) return; // Only services
+        process.getNodeList().stream()
+                .filter(n->n.isActive() && n instanceof TMDMConnectionType)
+                .map(n->(TMDMConnectionType)n)
+                .filter(n->process.isConnectedToPrejob(n.getComponentName()))
+                .forEach(n-> fileViolations.addComponentViolation(n.getComponentName(), JsonViolationEnum.AVOID_MDMCONNECTION_IN_SERVICE_PREJOB));
+    }
+
+    private void checkAVOID_DBCONNECTION_IN_SERVICE_PREJOB(TalendFile file, JsonFileViolations fileViolations, ProcessType process) {
+        if (!file.getName().contains("Operation")) return; // Only services
+        process.getNodeList().stream()
+                .filter(n->n.isActive() && n instanceof TOracleConnectionType)
+                .map(n->(TOracleConnectionType)n)
+                .filter(n->process.isConnectedToPrejob(n.getComponentName()))
+                .forEach(n-> fileViolations.addComponentViolation(n.getComponentName(), JsonViolationEnum.AVOID_DBCONNECTION_IN_SERVICE_PREJOB));
+    }
+
+    private void checkMDMCONNECTION_MUST_BE_CLOSED(JsonFileViolations fileViolations, ProcessType process) {
+        process.getNodeList().stream()
+                .filter(n->n.isActive() && n instanceof TMDMConnectionType)
+                .map(n->(TMDMConnectionType)n)
+                .filter(n-> !process.isConnectedToPrejob(n.getUniqueName()))
+                .forEach(conn->
+                {
+                    // Pour toutes les connexions MDM, on va vérifier qu'il y ait un close (commit+close ou commit+tClose, rollback+close ou rollback+tclose)
+
+                    List<TMDMCommitType> lstCommitsNotClosed = process.getNodeList().stream()
+                            .filter(n -> n.isActive() && n instanceof TMDMCommitType)
+                            .map(n -> (TMDMCommitType) n)
+                            .filter(n -> n.getConnection().equals(conn.getUniqueName()))
+                            .filter(n->!n.isClose())
+                            .collect(Collectors.toList());
+
+                    List<TMDMRollbackType> lstRollbacksNotClosed = process.getNodeList().stream()
+                            .filter(n -> n.isActive() && n instanceof TMDMRollbackType)
+                            .map(n -> (TMDMRollbackType) n)
+                            .filter(n->!n.isClose())
+                            .filter(n -> n.getConnection().equals(conn.getUniqueName()))
+                            .collect(Collectors.toList());
+
+                    List<TMDMCloseType> lstClose = process.getNodeList().stream()
+                            .filter(n -> n.isActive() && n instanceof TMDMCloseType)
+                            .map(n -> (TMDMCloseType) n)
+                            .filter(n -> n.getConnection().equals(conn.getUniqueName()))
+                            .collect(Collectors.toList());
+
+                    // On écrit le premier des composant (peut mieux faire)
+                    if (lstClose.isEmpty() && !lstCommitsNotClosed.isEmpty()) {
+                        fileViolations.addComponentViolation(lstCommitsNotClosed.get(0).getComponentName(), JsonViolationEnum.MDMCONNECTION_MUST_BE_CLOSED);
+                    }
+                    if (lstClose.isEmpty() && !lstRollbacksNotClosed.isEmpty()) {
+                        fileViolations.addComponentViolation(lstRollbacksNotClosed.get(0).getComponentName(), JsonViolationEnum.MDMCONNECTION_MUST_BE_CLOSED);
+                    }
+                }
+                );
+    }
+
+
+    private void checkDBCONNECTION_MUST_BE_CLOSED(JsonFileViolations fileViolations, ProcessType process) {
+        process.getNodeList().stream()
+                .filter(n->n.isActive() && n instanceof TOracleConnectionType)
+                .map(n->(TOracleConnectionType)n)
+                .filter(n-> !process.isConnectedToPrejob(n.getUniqueName()))
+                .forEach(conn->
+                        {
+                            // Pour toutes les connexions MDM, on va vérifier qu'il y ait un close (commit+close ou commit+tClose, rollback+close ou rollback+tclose)
+
+                            List<TOracleCommitType> lstCommitsNotClosed = process.getNodeList().stream()
+                                    .filter(n -> n.isActive() && n instanceof TOracleCommitType)
+                                    .map(n -> (TOracleCommitType) n)
+                                    .filter(n -> n.getConnection().equals(conn.getUniqueName()))
+                                    .filter(n->!n.isClose())
+                                    .collect(Collectors.toList());
+
+                            List<TOracleRollbackType> lstRollbacksNotClosed = process.getNodeList().stream()
+                                    .filter(n -> n.isActive() && n instanceof TOracleRollbackType)
+                                    .map(n -> (TOracleRollbackType) n)
+                                    .filter(n->!n.isClose())
+                                    .filter(n -> n.getConnection().equals(conn.getUniqueName()))
+                                    .collect(Collectors.toList());
+
+                            List<TOracleCloseType> lstClose = process.getNodeList().stream()
+                                    .filter(n -> n.isActive() && n instanceof TOracleCloseType)
+                                    .map(n -> (TOracleCloseType) n)
+                                    .filter(n -> n.getConnection().equals(conn.getUniqueName()))
+                                    .collect(Collectors.toList());
+
+                            // On écrit le premier des composant (peut mieux faire)
+                            if (lstClose.isEmpty() && !lstCommitsNotClosed.isEmpty()) {
+                                fileViolations.addComponentViolation(lstCommitsNotClosed.get(0).getComponentName(), JsonViolationEnum.DBCONNECTION_MUST_BE_CLOSED);
+                            }
+                            if (lstClose.isEmpty() && !lstRollbacksNotClosed.isEmpty()) {
+                                fileViolations.addComponentViolation(lstRollbacksNotClosed.get(0).getComponentName(), JsonViolationEnum.DBCONNECTION_MUST_BE_CLOSED);
+                            }
+                        }
+                );
+    }
 
     private void checkMDM_MUST_AUTOCOMMIT_OR_MANAGE_CONNECTION(JsonFileViolations fileViolations, ProcessType process) {
         boolean found = false;
