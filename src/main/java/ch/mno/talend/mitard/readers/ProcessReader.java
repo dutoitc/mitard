@@ -126,6 +126,9 @@ public class ProcessReader extends DefaultHandler {
                 case "tMDMRollback":
                     reader = new TMDMRollback(componentName);
                     break;
+                case "tOracleRow":
+                    reader = new TORacleRow(componentName);
+                    break;
                 case "tFileOutputJSON":
                 case "tFileInputPositional":
                 case "tLogRow":
@@ -162,7 +165,6 @@ public class ProcessReader extends DefaultHandler {
                 case "tAggregateRow":
                 case "tBufferInput":
                 case "tFilterRow":
-                case "tOracleRow":
                 case "tBufferOutput":
                 case "tLogXML":
                 case "tXMLInsert":
@@ -603,6 +605,13 @@ public class ProcessReader extends DefaultHandler {
                 case "AUTO_COMMIT":
                     obj.setAutoCommit("TRUE".equalsIgnoreCase(value));
                     break;
+                case "SPECIFY_DATASOURCE_ALIAS":
+                    obj.setSpecifyDatasourceAlias("TRUE".equalsIgnoreCase(value));
+                    break;
+                case "DBNAME":
+                    obj.setDbName(value);
+                    break;
+                // TODO: read DBName (child)
             }
         }
     }
@@ -648,6 +657,26 @@ public class ProcessReader extends DefaultHandler {
                     break;
                 case "CONNECTION":
                     obj.setConnection(value);
+                    break;
+            }
+        }
+    }
+    // ========================================================================================
+
+    private class TORacleRow extends AbstractTReader {
+
+        TOracleRowType obj;
+
+        public TORacleRow(String componentName) {
+            super(new TOracleRowType(), componentName);
+            obj = (TOracleRowType) super.getNode();
+        }
+
+        @Override
+        protected void handleElement(String name, String value) {
+            switch (name) {
+                case "QUERY":
+                    obj.setQuery(value);
                     break;
             }
         }

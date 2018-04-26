@@ -27,7 +27,8 @@ public enum JsonViolationEnum {
     AVOID_MDMCONNECTION_IN_SERVICE_PREJOB("Services should not open a MDM connection", "Opening a MDM connection in a prejob of a service will cause a connection sticked to the process. In Karaf, one service could be deployed multiple times, so multiple threads will be kept on the DB."),
     AVOID_DBCONNECTION_IN_SERVICE_PREJOB("Services should not open a DB connection", ""),
     MDMCONNECTION_MUST_BE_CLOSED("A connection opened by a tMDMConnection must be followed by a (commit+close) or (rollback+close)", ""),
-    DBCONNECTION_MUST_BE_CLOSED("A connection opened by a tOracleConnection must be followed by a (commit+close) or (rollback+close)", "");
+    DBCONNECTION_MUST_BE_CLOSED("A connection opened by a tOracleConnection must be followed by a (commit+close) or (rollback+close)", ""),
+    ORACLE_CONNECTION_SHOULD_USE_DATASOURCE("A tOracleConnection SHOULD use a datasource", "Using a specific connection to a database means injecting user/password and multiplying connections for each jobs, which could lead to a connection number too big. Using a datasource will delegate/centralize authentification and connections handling");
 
 
     private String description;

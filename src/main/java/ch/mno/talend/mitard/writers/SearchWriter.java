@@ -1,16 +1,6 @@
 package ch.mno.talend.mitard.writers;
 
-import ch.mno.talend.mitard.data.AbstractNodeType;
-import ch.mno.talend.mitard.data.Context;
-import ch.mno.talend.mitard.data.ProcessType;
-import ch.mno.talend.mitard.data.TDieType;
-import ch.mno.talend.mitard.data.TFixedFlowInputType;
-import ch.mno.talend.mitard.data.TJavaFlexType;
-import ch.mno.talend.mitard.data.TJavaType;
-import ch.mno.talend.mitard.data.TOracleInputType;
-import ch.mno.talend.mitard.data.TOracleOutputType;
-import ch.mno.talend.mitard.data.TalendFile;
-import ch.mno.talend.mitard.data.TalendFiles;
+import ch.mno.talend.mitard.data.*;
 import ch.mno.talend.mitard.readers.ProcessReader;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -86,6 +76,12 @@ public class SearchWriter extends AbstractNodeWriter {
         } else if (abstractNode instanceof TOracleOutputType) {
             TOracleOutputType node = (TOracleOutputType) abstractNode;
             return node.getText();
+        } else if (abstractNode instanceof TOracleConnectionType) {
+            TOracleConnectionType node = (TOracleConnectionType)abstractNode;
+            return node.getDbName();
+        } else if (abstractNode instanceof TOracleRowType) {
+            TOracleRowType node = (TOracleRowType)abstractNode;
+            return node.getQuery();
         }
         return "";
     }

@@ -155,6 +155,7 @@ public class ViolationsWriter extends AbstractNodeWriter {
         checkAVOID_DBCONNECTION_IN_SERVICE_PREJOB(file, fileViolations, process);
         checkMDMCONNECTION_MUST_BE_CLOSED(fileViolations, process);
         checkDBCONNECTION_MUST_BE_CLOSED(fileViolations, process);
+        checkORACLE_CONNECTION_SHOULD_USE_DATASOURCE(fileViolations, process);
 
         // RATIO_INACTIVE_MUST_BE_MAX_30_PERCENT
         if (nbInactive > process.getNodeList().size() / 3) {
@@ -184,6 +185,9 @@ public class ViolationsWriter extends AbstractNodeWriter {
         if (StringUtils.isEmpty(properties.getDescription())) {
             fileViolations.addGeneralViolation(JsonViolationEnum.MISSING_DOCUMENTATION_DESCRIPTION);
         }
+
+        // TORACLE_CONNECTION_MUST_USE_DATASOURCE
+
 
 
         // Missing test
@@ -390,6 +394,20 @@ public class ViolationsWriter extends AbstractNodeWriter {
                 );
     }
 
+
+    private void checkORACLE_CONNECTION_SHOULD_USE_DATASOURCE(JsonFileViolations fileViolations, ProcessType process) {
+        process.getNodeList().stream()
+                .filter(n->n.isActive() && n instanceof TOracleConnectionType)
+                .map(n->(TOracleConnectionType)n)
+                .filter(n-> !process.isConnectedToPrejob(n.getUniqueName()))
+                .forEach(conn->
+                {
+                    // Les tOracleConnection devraient utiliser une datasource et non pas de paramètre en dur
+                    if (conn.isSpecifyDatasourceAlias()) {
+                        fileViolations.addComponentViolation(conn.getComponentName(), JsonViolationEnum.ORACLE_CONNECTION_SHOULD_USE_DATASOURCE);
+                    }
+                });
+    }
 
     private void checkDBCONNECTION_MUST_BE_CLOSED(JsonFileViolations fileViolations, ProcessType process) {
         process.getNodeList().stream()
