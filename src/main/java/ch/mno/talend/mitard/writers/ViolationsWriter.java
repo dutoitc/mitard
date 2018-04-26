@@ -157,6 +157,7 @@ public class ViolationsWriter extends AbstractNodeWriter {
         checkDBCONNECTION_MUST_BE_CLOSED(fileViolations, process);
         checkORACLE_CONNECTION_SHOULD_USE_DATASOURCE(fileViolations, process);
         checkORACLE_COMPONENT_MUST_USE_TORACLECONNECTION_OR_DATASOURCE(fileViolations, process);
+        checkCOMPONENT_SHOULD_NOT_USE_ONCOMPONENTOK_WITH_FLOW_TRANSITION(fileViolations, process);
 
         // RATIO_INACTIVE_MUST_BE_MAX_30_PERCENT
         if (nbInactive > process.getNodeList().size() / 3) {
@@ -207,15 +208,14 @@ public class ViolationsWriter extends AbstractNodeWriter {
                 break;
             }
         }
-        if (!foundListener) return;
-        for (Map.Entry<String, List<String>> entry : process.getConnections().entrySet()) {
-            if (entry.getKey().startsWith("tPrejob")) {
-                for (String target : entry.getValue()) {
-                    if (target.startsWith("tOracleConnection") || target.startsWith("tMDMConnection")) {
-                        fileViolations.addGeneralViolation(JsonViolationEnum.SERVICE_MUST_NOT_SET_DB_CONNECTION_IN_PREJOB);
-                        return;
-                    }
-                }
+        if (!foundListener) return; // Not a service
+
+        List<ConnectionType> connectionTypeList = process.getConnections("tPrejob_1");
+        while (!connectionTypeList.isEmpty()) {
+            ConnectionType ct = connectionTypeList.remove(0);
+            connectionTypeList.addAll(process.getConnections(ct.getTarget())); // Add children
+            if (ct.getSource().startsWith("tOracleConnection") || ct.getSource().startsWith("tMDMConnection")) {
+                fileViolations.addComponentViolation(ct.getSource(), JsonViolationEnum.SERVICE_MUST_NOT_SET_DB_CONNECTION_IN_PREJOB);
             }
         }
     }
@@ -252,10 +252,10 @@ public class ViolationsWriter extends AbstractNodeWriter {
     private boolean isConnectedToTDie(ProcessType process, String source) {
         if (source == null) return false;
         if (source.startsWith("tDie")) return true;
-        List<String> connections = process.getConnections(source);
+        List<ConnectionType> connections = process.getConnections(source);
         if (connections != null) {
-            for (String target : connections) {
-                if (isConnectedToTDie(process, target)) return true;
+            for (ConnectionType target : connections) {
+                if (isConnectedToTDie(process, target.getTarget())) return true;
             }
         }
         return false;
@@ -395,6 +395,22 @@ public class ViolationsWriter extends AbstractNodeWriter {
                 );
     }
 
+
+    private void checkCOMPONENT_SHOULD_NOT_USE_ONCOMPONENTOK_WITH_FLOW_TRANSITION(JsonFileViolations fileViolations, ProcessType process) {
+        process.getNodeList().forEach(component-> {
+            List<ConnectionType> connections = process.getConnections(component.getUniqueName());
+            boolean hasOk=false;
+            boolean hasFlow=false;
+            for (ConnectionType ct: connections) {
+                hasOk = hasOk || ct.getConnectorName()== ConnectionType.CONNECTOR_NAME.COMPONENT_OK;
+                hasFlow = hasFlow || ct.getConnectorName()== ConnectionType.CONNECTOR_NAME.FLOW;
+            }
+
+            if (hasOk && hasFlow) {
+                fileViolations.addComponentViolation(component.getComponentName(), JsonViolationEnum.COMPONENT_SHOULD_NOT_USE_ONCOMPONENTOK_WITH_FLOW_TRANSITION);
+            }
+        });
+    }
 
 
     private void checkORACLE_COMPONENT_MUST_USE_TORACLECONNECTION_OR_DATASOURCE(JsonFileViolations fileViolations, ProcessType process) {

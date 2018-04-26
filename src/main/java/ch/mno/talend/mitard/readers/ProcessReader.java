@@ -248,7 +248,7 @@ public class ProcessReader extends DefaultHandler {
                     }
             }
         } else if (localName.equals("connection")) {
-            process.addConnection(getAttribute(attributes, "source"), getAttribute(attributes, "target"));
+            process.addConnection(new ConnectionType(getAttribute(attributes, "source"), getAttribute(attributes, "target"), getAttribute(attributes, "connectorName")));
         }
 
         if (reader != null) {

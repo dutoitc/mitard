@@ -1,6 +1,7 @@
 package ch.mno.talend.mitard.readers;
 
 import ch.mno.talend.mitard.data.AbstractNodeType;
+import ch.mno.talend.mitard.data.ConnectionType;
 import ch.mno.talend.mitard.data.ProcessType;
 import ch.mno.talend.mitard.data.TESBConsumerType;
 import org.junit.Assert;
@@ -20,9 +21,9 @@ public class ProcessReaderTest {
     public void test1() throws IOException, SAXException, ParserConfigurationException {
         ProcessType process = ProcessReader.read(getClass().getResourceAsStream("/ESBTUTORIALPROJECT/process/AirportConsumer_0.2.item"));
 
-        List<String> connections = process.getConnections("tXMLMap_1");
+        List<ConnectionType> connections = process.getConnections("tXMLMap_1");
         Assert.assertEquals(1, connections.size());
-        Assert.assertEquals("tESBConsumer_1", connections.get(0));
+        Assert.assertEquals("tESBConsumer_1", connections.get(0).getTarget());
 
         Assert.assertEquals(3, process.getConnections().size());
 

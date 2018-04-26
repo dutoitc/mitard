@@ -11,8 +11,8 @@ import java.util.Map;
 public class ProcessType {
 
     private List<AbstractNodeType> nodeList = new ArrayList<>();
-    private Map<String, List<String>> connections = new HashMap<>();
-    private Map<String, List<String>> connectionsParent = new HashMap<>();
+    private Map<String, List<ConnectionType>> connections = new HashMap<>();
+    private Map<String, List<ConnectionType>> connectionsParent = new HashMap<>();
 
     public void addNode(AbstractNodeType node) {
         nodeList.add(node);
@@ -22,45 +22,49 @@ public class ProcessType {
         return nodeList;
     }
 
-    public void addConnection(String source, String target) {
-        if (connections.containsKey(source)) {
-            connections.get(source).add(target);
+
+    public void addConnection(ConnectionType ct) {
+        if (connections.containsKey(ct.getSource())) {
+            connections.get(ct.getSource()).add(ct);
         } else {
-            List<String> arr = new ArrayList<>();
-            arr.add(target);
-            connections.put(source, arr);
+            List<ConnectionType> arr = new ArrayList<>();
+            arr.add(ct);
+            connections.put(ct.getSource(), arr);
         }
-        if (connectionsParent.containsKey(target)) {
-            connectionsParent.get(target).add(source);
+        if (connectionsParent.containsKey(ct.getTarget())) {
+            connectionsParent.get(ct.getTarget()).add(ct);
         } else {
-            List<String> arr = new ArrayList<>();
-            arr.add(source);
-            connectionsParent.put(target, arr);
+            List<ConnectionType> arr = new ArrayList<>();
+            arr.add(ct);
+            connectionsParent.put(ct.getTarget(), arr);
         }
     }
 
-    public List<String> getConnections(String name) {
-        return connections.get(name);
+
+    public List<ConnectionType> getConnections(String name) {
+        List<ConnectionType> conn = connections.get(name);
+        if (conn==null) {
+            return new ArrayList<>();
+        }
+        return conn;
     }
 
-    public Map<String, List<String>> getConnections() {
+    public Map<String, List<ConnectionType>> getConnections() {
         return connections;
     }
 
     public boolean isConnectedToPrejob(String componentName) {
-        List<String> parents = new ArrayList<>();
-        if (connectionsParent.get(componentName)!=null){
-            parents.addAll(connectionsParent.get(componentName));
-        }
-        String parent = componentName;
-        while (!parents.isEmpty()) {
-            parent = parents.remove(0);
-            if (connectionsParent.get(parent)!=null) {
-                if (connectionsParent.get(parent)!=null) {
-                    parents.addAll(connectionsParent.get(parent));
-                }
+        List<ConnectionType> childrenOfPrejob = connections.get("tPrejob_1");
+        if (childrenOfPrejob==null) return false;
+        while (!childrenOfPrejob.isEmpty()) {
+            String child = childrenOfPrejob.remove(0).getTarget();
+            if (child.equals(componentName)) return true;
+            List<ConnectionType> c = connections.get(child);
+            if (c!=null) {
+                childrenOfPrejob.addAll(c);
             }
         }
-        return parent.startsWith("tPrejob");
+        return false;
     }
+
 }
