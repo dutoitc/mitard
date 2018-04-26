@@ -8,6 +8,7 @@ public class TOracleInputType extends AbstractNodeType {
 
     private String dbTable;
     private String query;
+    private boolean specifyDatasourceAlias;
 
     @Override
     public String toString() {
@@ -32,5 +33,13 @@ public class TOracleInputType extends AbstractNodeType {
 
     public String getText() {
         return "Table="+dbTable+",query="+query;
+    }
+
+    public void setSpecifyDatasourceAlias(boolean specifyDatasourceAlias) {
+        this.specifyDatasourceAlias = specifyDatasourceAlias;
+    }
+
+    public boolean isSpecifyDatasourceAlias() {
+        return specifyDatasourceAlias;
     }
 }

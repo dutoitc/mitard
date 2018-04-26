@@ -6,6 +6,7 @@ package ch.mno.talend.mitard.data;
 public class TOracleRowType extends AbstractNodeType {
 
     private String query;
+    private boolean specifyDatasourceAlias;
 
     public String getQuery() {
         return query;
@@ -20,4 +21,11 @@ public class TOracleRowType extends AbstractNodeType {
         return "TOracleRowType[" + getUniqueName() + "]";
     }
 
+    public void setSpecifyDatasourceAlias(boolean specifyDatasourceAlias) {
+        this.specifyDatasourceAlias = specifyDatasourceAlias;
+    }
+
+    public boolean isSpecifyDatasourceAlias() {
+        return specifyDatasourceAlias;
+    }
 }

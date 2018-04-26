@@ -156,6 +156,7 @@ public class ViolationsWriter extends AbstractNodeWriter {
         checkMDMCONNECTION_MUST_BE_CLOSED(fileViolations, process);
         checkDBCONNECTION_MUST_BE_CLOSED(fileViolations, process);
         checkORACLE_CONNECTION_SHOULD_USE_DATASOURCE(fileViolations, process);
+        checkORACLE_COMPONENT_MUST_USE_TORACLECONNECTION_OR_DATASOURCE(fileViolations, process);
 
         // RATIO_INACTIVE_MUST_BE_MAX_30_PERCENT
         if (nbInactive > process.getNodeList().size() / 3) {
@@ -395,6 +396,46 @@ public class ViolationsWriter extends AbstractNodeWriter {
     }
 
 
+
+    private void checkORACLE_COMPONENT_MUST_USE_TORACLECONNECTION_OR_DATASOURCE(JsonFileViolations fileViolations, ProcessType process) {
+        // TODO: make abstract TOracleComponent
+        process.getNodeList().stream()
+                .filter(n->n.isActive() && n instanceof TOracleRowType)
+                .map(n->(TOracleRowType)n)
+                .filter(n-> !n.isUseExistingConnection() && !n.isSpecifyDatasourceAlias())
+                .forEach(conn->
+                {
+                    // Les composant oracle devraient utiliser un tOracleConnection ou une datasource
+                    if (!conn.isSpecifyDatasourceAlias()) {
+                        fileViolations.addComponentViolation(conn.getComponentName(), JsonViolationEnum.ORACLE_COMPONENT_SHOULD_USE_DATASOURCE_OR_TORACLECONNECTION);
+                    }
+                });
+
+        process.getNodeList().stream()
+                .filter(n->n.isActive() && n instanceof TOracleInputType)
+                .map(n->(TOracleInputType)n)
+                .filter(n-> !n.isUseExistingConnection() && !n.isSpecifyDatasourceAlias())
+                .forEach(conn->
+                {
+                    // Les composant oracle devraient utiliser un tOracleConnection ou une datasource
+                    if (!conn.isSpecifyDatasourceAlias()) {
+                        fileViolations.addComponentViolation(conn.getComponentName(), JsonViolationEnum.ORACLE_COMPONENT_SHOULD_USE_DATASOURCE_OR_TORACLECONNECTION);
+                    }
+                });
+
+        process.getNodeList().stream()
+                .filter(n->n.isActive() && n instanceof TOracleOutputType)
+                .map(n->(TOracleOutputType)n)
+                .filter(n-> !n.isUseExistingConnection() && !n.isSpecifyDatasourceAlias())
+                .forEach(conn->
+                {
+                    // Les composant oracle devraient utiliser un tOracleConnection ou une datasource
+                    if (!conn.isSpecifyDatasourceAlias()) {
+                        fileViolations.addComponentViolation(conn.getComponentName(), JsonViolationEnum.ORACLE_COMPONENT_SHOULD_USE_DATASOURCE_OR_TORACLECONNECTION);
+                    }
+                });
+    }
+
     private void checkORACLE_CONNECTION_SHOULD_USE_DATASOURCE(JsonFileViolations fileViolations, ProcessType process) {
         process.getNodeList().stream()
                 .filter(n->n.isActive() && n instanceof TOracleConnectionType)
@@ -403,7 +444,7 @@ public class ViolationsWriter extends AbstractNodeWriter {
                 .forEach(conn->
                 {
                     // Les tOracleConnection devraient utiliser une datasource et non pas de paramètre en dur
-                    if (conn.isSpecifyDatasourceAlias()) {
+                    if (!conn.isSpecifyDatasourceAlias()) {
                         fileViolations.addComponentViolation(conn.getComponentName(), JsonViolationEnum.ORACLE_CONNECTION_SHOULD_USE_DATASOURCE);
                     }
                 });

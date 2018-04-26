@@ -678,6 +678,9 @@ public class ProcessReader extends DefaultHandler {
                 case "QUERY":
                     obj.setQuery(value);
                     break;
+                case "SPECIFY_DATASOURCE_ALIAS":
+                    obj.setSpecifyDatasourceAlias("TRUE".equalsIgnoreCase(value));
+                    break;
             }
         }
     }
@@ -891,6 +894,9 @@ public class ProcessReader extends DefaultHandler {
             case "QUERY":
                 obj.setQuery(value);
                 break;
+            case "SPECIFY_DATASOURCE_ALIAS":
+                obj.setSpecifyDatasourceAlias("TRUE".equalsIgnoreCase(value));
+                break;
             }
         }
     }
@@ -914,6 +920,9 @@ public class ProcessReader extends DefaultHandler {
                 break;
             case "SCHEMA_COLUMN":
                 obj.addSchemaColumn(value);
+                break;
+            case "SPECIFY_DATASOURCE_ALIAS":
+                obj.setSpecifyDatasourceAlias("TRUE".equalsIgnoreCase(value));
                 break;
             }
         }

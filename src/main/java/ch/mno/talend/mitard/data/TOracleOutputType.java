@@ -13,6 +13,7 @@ public class TOracleOutputType extends AbstractNodeType {
 
     private String dbTable;
     private List<String> schemaColumns = new ArrayList<>();
+    private boolean specifyDatasourceAlias;
 
     @Override
     public String toString() {
@@ -33,5 +34,13 @@ public class TOracleOutputType extends AbstractNodeType {
 
     public String getText() {
         return "Table="+dbTable+",schemaColumns="+ StringUtils.join(schemaColumns);
+    }
+
+    public void setSpecifyDatasourceAlias(boolean specifyDatasourceAlias) {
+        this.specifyDatasourceAlias = specifyDatasourceAlias;
+    }
+
+    public boolean isSpecifyDatasourceAlias() {
+        return specifyDatasourceAlias;
     }
 }
