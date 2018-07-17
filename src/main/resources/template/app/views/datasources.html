@@ -1,0 +1,14 @@
+<h1>Datasources</h1>
+
+<div class='panel panel-default' ng-repeat="(datasource,files) in datasources.datasourceUsage">
+    <div class="panel-body">
+        <h3>{{datasource}}</h3>
+
+
+        <ul>
+            <li ng-repeat="file in files">{{file}}</li>
+        </ul>
+        <br/><br/>
+
+    </div>
+</div>

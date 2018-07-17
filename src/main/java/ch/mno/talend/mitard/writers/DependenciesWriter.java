@@ -96,6 +96,10 @@ public class DependenciesWriter extends AbstractWriter {
     }
 
     private void addDependency(Map<String, List<String>> dependencies, String process, String dep) {
+        if (dep.contains("globalMap")) {
+            System.err.println("Ignoring dependency on " + dep);
+            return;
+        }
         if (dependencies.containsKey(process)) {
             dependencies.get(process).add(dep);
         } else {

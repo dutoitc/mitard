@@ -78,7 +78,7 @@ public class SearchWriter extends AbstractNodeWriter {
             return node.getText();
         } else if (abstractNode instanceof TOracleConnectionType) {
             TOracleConnectionType node = (TOracleConnectionType)abstractNode;
-            return node.getDbName();
+            return node.getDbName() + " " + (node.isSpecifyDatasourceAlias()?node.getDatasourceAlias():"");
         } else if (abstractNode instanceof TOracleRowType) {
             TOracleRowType node = (TOracleRowType)abstractNode;
             return node.getQuery();

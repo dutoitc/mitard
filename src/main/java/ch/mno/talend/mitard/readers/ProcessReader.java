@@ -236,6 +236,8 @@ public class ProcessReader extends DefaultHandler {
                 case "tMDMReceive":
                 case "tSchemaComplianceCheck":
                 case "tInfiniteLoop":
+                case "tMDMRestInput":
+                case "tExtractRegexFields":
                 case "cREST": // Note: URL could be read and correlated with service
                     reader = new TNodeReader(componentName);
                     break;
@@ -610,6 +612,9 @@ public class ProcessReader extends DefaultHandler {
                     break;
                 case "DBNAME":
                     obj.setDbName(value);
+                    break;
+                case "DATASOURCE_ALIAS":
+                    obj.setDatasourceAlias(value.replaceAll("&quot;", "'"));
                     break;
                 // TODO: read DBName (child)
             }

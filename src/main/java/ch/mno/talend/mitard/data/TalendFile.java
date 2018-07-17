@@ -35,6 +35,11 @@ public class TalendFile {
         return this.path + File.separatorChar + this.name + "-" + this.version + ".proc";
     }
 
+    /** Path and name */
+    public String getProcessFullPath() {
+        return getPath() + "/" + this.name + " " + this.version;
+    }
+
     public String getName() {
         return this.name;
     }

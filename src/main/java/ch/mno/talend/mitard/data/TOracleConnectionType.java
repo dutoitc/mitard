@@ -8,6 +8,7 @@ public class TOracleConnectionType extends AbstractNodeType {
     private boolean autoCommit;
     private String dbName;
     private boolean specifyDatasourceAlias;
+    private String datasourceAlias;
 
     public boolean isAutoCommit() {
         return autoCommit;
@@ -36,5 +37,13 @@ public class TOracleConnectionType extends AbstractNodeType {
 
     public boolean isSpecifyDatasourceAlias() {
         return specifyDatasourceAlias;
+    }
+
+    public void setDatasourceAlias(String datasourceAlias) {
+        this.datasourceAlias = datasourceAlias;
+    }
+
+    public String getDatasourceAlias() {
+        return datasourceAlias;
     }
 }
