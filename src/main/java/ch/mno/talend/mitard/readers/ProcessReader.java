@@ -237,6 +237,8 @@ public class ProcessReader extends DefaultHandler {
                 case "tSchemaComplianceCheck":
                 case "tInfiniteLoop":
                 case "tMDMRestInput":
+                case "tFileArchive":
+                case "tFileFetch":
                 case "tExtractRegexFields":
                 case "cREST": // Note: URL could be read and correlated with service
                     reader = new TNodeReader(componentName);
