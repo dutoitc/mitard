@@ -13,6 +13,7 @@ public class ProcessType {
     private List<AbstractNodeType> nodeList = new ArrayList<>();
     private Map<String, List<ConnectionType>> connections = new HashMap<>();
     private Map<String, List<ConnectionType>> connectionsParent = new HashMap<>();
+    private boolean usesStatCatcher;
 
     public void addNode(AbstractNodeType node) {
         nodeList.add(node);
@@ -67,4 +68,11 @@ public class ProcessType {
         return false;
     }
 
+    public void setUseStatCatcher() {
+        usesStatCatcher = true;
+    }
+
+    public boolean isUsesStatCatcher() {
+        return usesStatCatcher;
+    }
 }

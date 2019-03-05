@@ -172,6 +172,10 @@ public class ViolationsWriter extends AbstractNodeWriter {
             fileViolations.addGeneralViolation(JsonViolationEnum.TOO_MUCH_COMPONENTS);
         }
 
+        if (process.isUsesStatCatcher()) {
+            fileViolations.addGeneralViolation(JsonViolationEnum.AVOID_USING_STATCATCHER);
+        }
+
 
         // Properties
         fis = new FileInputStream(file.getPropertiesFilename());
@@ -403,7 +407,7 @@ public class ViolationsWriter extends AbstractNodeWriter {
             boolean hasFlow=false;
             for (ConnectionType ct: connections) {
                 hasOk = hasOk || ct.getConnectorName()== ConnectionType.CONNECTOR_NAME.COMPONENT_OK;
-                hasFlow = hasFlow || ct.getConnectorName()== ConnectionType.CONNECTOR_NAME.FLOW;
+                hasFlow = hasFlow || (ct.getConnectorName()== ConnectionType.CONNECTOR_NAME.FLOW);
             }
 
             if (hasOk && hasFlow) {
