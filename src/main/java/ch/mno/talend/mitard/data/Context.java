@@ -89,4 +89,8 @@ public class Context {
     public String getProjectProperties(String key) {
         return projectProperties.getProperty(key);
     }
+
+    public String getCustomDot() {
+        return getProperty("customDot");
+    }
 }

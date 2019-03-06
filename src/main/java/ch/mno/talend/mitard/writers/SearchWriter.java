@@ -16,7 +16,6 @@ public class SearchWriter extends AbstractNodeWriter {
 
     public static Logger LOG = LoggerFactory.getLogger(SearchWriter.class);
 
-
     public SearchWriter(Context context) {
         super(context);
     }
@@ -25,20 +24,18 @@ public class SearchWriter extends AbstractNodeWriter {
         try {
             JSonTextFiles textFiles = new JSonTextFiles();
 
-            for (TalendFile file : talendFiles.getProcesses()) {
+            for (TalendFile file : filterBlacklisted(talendFiles.getProcesses())) {
                 try {
-                if (isBlacklisted(file.getName()) || isBlacklisted(file.getPath())) continue;
+                    LOG.debug("Reading " + new File(file.getItemFilename()).getName());
 
-                LOG.debug("Reading " + new File(file.getItemFilename()).getName());
+                    JSonTextFile textFile = new JSonTextFile(file.getName());
+                    textFiles.addJSonTextFile(textFile);
 
-                JSonTextFile textFile = new JSonTextFile(file.getName());
-                textFiles.addJSonTextFile(textFile);
-
-                // Extract texts from all nodes of file
-                ProcessType process = ProcessReader.read(file.getItemFilename());
-                process.getNodeList().stream()
-                        .filter(node -> node.isActive())
-                        .forEach(node -> textFile.addText(node.getUniqueName(), extractText(node).toLowerCase()));
+                    // Extract texts from all nodes of file
+                    ProcessType process = ProcessReader.read(file.getItemFilename());
+                    process.getNodeList().stream()
+                            .filter(node -> node.isActive())
+                            .forEach(node -> textFile.addText(node.getUniqueName(), extractText(node).toLowerCase()));
 
                 } catch (Exception e) {
                     LOG.error("Error writing search infosfor " + file.getName() + " (ignoring file): " + e.getMessage());
@@ -77,10 +74,10 @@ public class SearchWriter extends AbstractNodeWriter {
             TOracleOutputType node = (TOracleOutputType) abstractNode;
             return node.getText();
         } else if (abstractNode instanceof TOracleConnectionType) {
-            TOracleConnectionType node = (TOracleConnectionType)abstractNode;
-            return node.getDbName() + " " + (node.isSpecifyDatasourceAlias()?node.getDatasourceAlias():"");
+            TOracleConnectionType node = (TOracleConnectionType) abstractNode;
+            return node.getDbName() + " " + (node.isSpecifyDatasourceAlias() ? node.getDatasourceAlias() : "");
         } else if (abstractNode instanceof TOracleRowType) {
-            TOracleRowType node = (TOracleRowType)abstractNode;
+            TOracleRowType node = (TOracleRowType) abstractNode;
             return node.getQuery();
         }
         return "";

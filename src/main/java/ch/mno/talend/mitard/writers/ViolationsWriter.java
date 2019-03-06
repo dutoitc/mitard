@@ -1,6 +1,29 @@
 package ch.mno.talend.mitard.writers;
 
-import ch.mno.talend.mitard.data.*;
+import ch.mno.talend.mitard.data.AbstractNodeType;
+import ch.mno.talend.mitard.data.ConnectionType;
+import ch.mno.talend.mitard.data.Context;
+import ch.mno.talend.mitard.data.ProcessType;
+import ch.mno.talend.mitard.data.PropertiesType;
+import ch.mno.talend.mitard.data.TJavaFlexType;
+import ch.mno.talend.mitard.data.TJavaRowType;
+import ch.mno.talend.mitard.data.TJavaType;
+import ch.mno.talend.mitard.data.TMDMCloseType;
+import ch.mno.talend.mitard.data.TMDMCommitType;
+import ch.mno.talend.mitard.data.TMDMConnectionType;
+import ch.mno.talend.mitard.data.TMDMRollbackType;
+import ch.mno.talend.mitard.data.TNodeType;
+import ch.mno.talend.mitard.data.TOracleCloseType;
+import ch.mno.talend.mitard.data.TOracleCommitType;
+import ch.mno.talend.mitard.data.TOracleConnectionType;
+import ch.mno.talend.mitard.data.TOracleInputType;
+import ch.mno.talend.mitard.data.TOracleOutputType;
+import ch.mno.talend.mitard.data.TOracleRollbackType;
+import ch.mno.talend.mitard.data.TOracleRowType;
+import ch.mno.talend.mitard.data.TRestRequestType;
+import ch.mno.talend.mitard.data.TRunJobType;
+import ch.mno.talend.mitard.data.TalendFile;
+import ch.mno.talend.mitard.data.TalendFiles;
 import ch.mno.talend.mitard.out.JsonFileViolations;
 import ch.mno.talend.mitard.out.JsonViolationEnum;
 import ch.mno.talend.mitard.readers.ProcessReader;
@@ -17,7 +40,6 @@ import java.io.FileInputStream;
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
-import java.util.Map;
 import java.util.stream.Collectors;
 
 /**
@@ -37,9 +59,8 @@ public class ViolationsWriter extends AbstractNodeWriter {
 
             writeUnstableFiled(talendFiles, allViolations);
 
-            for (TalendFile file : talendFiles.getProcesses()) {
+            for (TalendFile file : filterBlacklisted(talendFiles.getProcesses())) {
                 try {
-                    if (isBlacklisted(file.getName()) || isBlacklisted(file.getPath())) continue;
                     addProcessViolations(allViolations, file);
                 } catch (Exception e) {
                     LOG.error("Error writing violations(2) for " + file.getName() + " (ignoring file): " + e.getMessage());
@@ -51,7 +72,6 @@ public class ViolationsWriter extends AbstractNodeWriter {
 
             // TODO: services
 
-
             // Workflow
             for (TalendFile file : talendFiles.getMDMWorkflowProc()) {
                 try {
@@ -61,7 +81,6 @@ public class ViolationsWriter extends AbstractNodeWriter {
                     LOG.error("Error writing violations for proc " + file.getName() + " (ignoring file): " + e.getMessage());
                 }
             }
-
 
             // Count
             countViolations(allViolations);
@@ -98,9 +117,6 @@ public class ViolationsWriter extends AbstractNodeWriter {
         JsonFileViolations fileViolations = new JsonFileViolations(file.getPath(), file.getName(), file.getVersion());
 
         String procFilename = file.getProcFilename();
-        if (!new File(procFilename).exists()) {
-            procFilename = file.getProcFilenameTalend6();
-        }
 
         String data = IOUtils.toString(new FileInputStream(procFilename));
         if (data.contains("synchronous=\"false\"")) {

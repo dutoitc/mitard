@@ -32,18 +32,18 @@ public class StatisticsWriter extends AbstractWriter {
         try {
             Map<String, Integer> componentTypes = new HashMap<>();
             //
-            for (TalendFile file : talendFiles.getProcesses()) {
+            for (TalendFile file : filterBlacklisted(talendFiles.getProcesses())) {
                 try {
-                    if (isBlacklisted(file.getName()) || isBlacklisted(file.getPath())) continue;
                     LOG.debug("Reading " + new File(file.getItemFilename()).getName());
                     FileInputStream fis = new FileInputStream(file.getItemFilename());
                     ProcessType process = ProcessReader.read(fis);
                     for (AbstractNodeType node : process.getNodeList()) {
-//                    if (node.isActive()) {
-                        if (componentTypes.containsKey(node.getComponentName())) {
-                            componentTypes.put(node.getComponentName(), componentTypes.get(node.getComponentName()) + 1);
-                        } else {
-                            componentTypes.put(node.getComponentName(), 1);
+                        if (node.isActive()) {
+                            if (componentTypes.containsKey(node.getComponentName())) {
+                                componentTypes.put(node.getComponentName(), componentTypes.get(node.getComponentName()) + 1);
+                            } else {
+                                componentTypes.put(node.getComponentName(), 1);
+                            }
                         }
                     }
                 } catch (Exception e) {
@@ -51,27 +51,10 @@ public class StatisticsWriter extends AbstractWriter {
                 }
             }
 
-            int nbProcesses = 0;
-            int nbRoutes = 0;
-            int nbServices = 0;
-            for (TalendFile file : talendFiles.getProcesses()) {
-                if (isBlacklisted(file.getName()) || isBlacklisted(file.getPath())) continue;
-                nbProcesses++;
-            }
-            for (TalendFile file : talendFiles.getRoutes()) {
-                if (isBlacklisted(file.getName()) || isBlacklisted(file.getPath())) continue;
-                nbRoutes++;
-            }
-            for (TalendFile file : talendFiles.getServices()) {
-                if (isBlacklisted(file.getName()) || isBlacklisted(file.getPath())) continue;
-                nbServices++;
-            }
-
-
             JSonStatistics stats = new JSonStatistics();
-            stats.setNbProcesses(nbProcesses);
-            stats.setNbRoutes(nbRoutes);
-            stats.setNbServices(nbServices);
+            stats.setNbProcesses(filterBlacklisted(talendFiles.getProcesses()).size());
+            stats.setNbRoutes(filterBlacklisted(talendFiles.getRoutes()).size());
+            stats.setNbServices(filterBlacklisted(talendFiles.getServices()).size());
             stats.setComponentCounts(componentTypes);
             stats.setLastUpdate(System.currentTimeMillis());
             // TODO: number of components of each type

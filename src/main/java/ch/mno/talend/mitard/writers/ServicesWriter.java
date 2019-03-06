@@ -27,12 +27,10 @@ public class ServicesWriter extends AbstractNodeWriter {
     public void write(TalendFiles talendFiles) {
         try {
             JsonServices jsonServices = new JsonServices();
-            for (TalendFile file : talendFiles.getServices()) {
-                if (isBlacklisted(file.getName()) || isBlacklisted(file.getPath())) continue;
+            for (TalendFile file : filterBlacklisted(talendFiles.getServices())) {
                 LOG.debug("Reading " + new File(file.getItemFilename()).getName());
 
                 List<String> screenshots = extractScreenshots(file);
-
 
                 String data = new String(Files.readAllBytes(Paths.get(file.getPropertiesFilename())), "UTF-8");
 

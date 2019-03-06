@@ -1,9 +1,20 @@
 package ch.mno.talend.mitard.data;
 
+import org.apache.commons.io.IOUtils;
+
 import java.io.File;
+import java.io.FileInputStream;
+import java.io.IOException;
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
 
 /** A Talend file (in fact, a component, with .item, .properties, .screenshot, .proc?) */
 public class TalendFile {
+
+
+    public static final Pattern PAT_TALENDPROPERTIES_PROPERTY = Pattern.compile("TalendProperties:Property.*?\\ id=\"(.*?)\"");
+
+
     private String path;
     private String name;
     private String version;
@@ -22,18 +33,27 @@ public class TalendFile {
         return this.path + File.separatorChar + this.name + "_" + this.version + ".properties";
     }
 
+    public String getWSDLFilename() {
+        return this.path + File.separatorChar + this.name + "_" + this.version + ".wsdl";
+    }
+
     public String getScreenshotFilename() {
         return this.path + File.separatorChar + this.name + "_" + this.version + ".screenshot";
     }
 
     public String getProcFilename() {
-        return this.path + File.separatorChar + this.name + "_" + this.version + ".proc";
+        String filename = this.path + File.separatorChar + this.name + "_" + this.version + ".proc";
+        if (!new File(filename).exists()) {
+            // Talend 6.4 replaces _proc by -proc (bug?)
+            filename = this.path + File.separatorChar + this.name + "-" + this.version + ".proc";
+        }
+        return filename;
     }
 
     /** Talend 6.4 replaces _proc by -proc (bug?) */
-    public String getProcFilenameTalend6() {
+   /* public String getProcFilenameTalend6() {
         return this.path + File.separatorChar + this.name + "-" + this.version + ".proc";
-    }
+    }*/
 
     /** Path and name */
     public String getProcessFullPath() {
@@ -78,4 +98,20 @@ public class TalendFile {
         // Note: services have .wsdl but no .screenshot
         return new File(getItemFilename()).exists() && new File(getPropertiesFilename()).exists() && (this.path.contains("services") || new File(getScreenshotFilename()).exists());
     }
+
+    public String readPropertiesFileId() throws IOException {
+        String properties = IOUtils.toString(new FileInputStream(getPropertiesFilename()));
+        Matcher matcherItem = PAT_TALENDPROPERTIES_PROPERTY.matcher(properties);
+        if (!matcherItem.find()) throw new RuntimeException("Format error reading process of " + getName());
+        return matcherItem.group(1);
+    }
+
+    public String readServiceWSDLAddress() throws IOException {
+        String wsdl = IOUtils.toString(new FileInputStream(getWSDLFilename()));
+        Matcher matcherItem = Pattern.compile("soap:address location=\"(.*?)\"").matcher(wsdl);
+        if (!matcherItem.find()) throw new RuntimeException("Format error reading process of " + getName());
+        return matcherItem.group(1);
+    }
+
+
 }

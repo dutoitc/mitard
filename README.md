@@ -40,6 +40,14 @@ Create a new context.properties file:
     java -classpath mitard-1.0-SNAPSHOT.jar ch.mno.talend.mitard.Main context.properties
 
 
+## Website view
+To see the website, you need a web server (or deactivate CORS):
+- Deploy out files to apache server
+- Open index.html with Firefox
+- Using Python 4: python -m SimpleHTTPServer  then go to http://localhost:8000
+- Using Python 3: python -m http.server then go to http://localhost:8000
+- Using Node: "npm install http-server" -g then "npm http-server out"
+
 
 # Contribute
 Feel free to contribute by sending pull requests, patches, bugs...

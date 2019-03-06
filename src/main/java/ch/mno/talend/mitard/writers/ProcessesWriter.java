@@ -29,8 +29,7 @@ public class ProcessesWriter extends AbstractNodeWriter {
         try {
             JsonProcesses jsonProcesses = new JsonProcesses();
 
-            for (TalendFile file : talendFiles.getProcesses()) {
-                if (isBlacklisted(file.getName()) || isBlacklisted(file.getPath())) continue;
+            for (TalendFile file : filterBlacklisted(talendFiles.getProcesses())) {
                 LOG.debug("Reading " + new File(file.getItemFilename()).getName());
                 if (!new File(file.getPropertiesFilename()).exists()) {
                     LOG.warn("Skipping inexistent properties file: " + file.getPropertiesFilename() + "; this could be a project stability error (did the studio crashed with the job opened ?)");

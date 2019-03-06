@@ -5,6 +5,8 @@ import ch.mno.talend.mitard.data.Context;
 import ch.mno.talend.mitard.data.TalendFiles;
 import ch.mno.talend.mitard.helpers.TalendFileHelper;
 import ch.mno.talend.mitard.writers.*;
+import ch.mno.talend.mitard.writers.dependencies.DependenciesData;
+import ch.mno.talend.mitard.writers.dependencies.DependenciesWriter;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.xml.sax.SAXException;
@@ -38,11 +40,12 @@ public class Main {
 
         // Dependencies (start first, dot takes long time to run)
         WritersExecutor writersExecutor = new WritersExecutor();
-        writersExecutor.submit(new DependenciesWriter(context), talendFiles);
+        DependenciesWriter dependenciesWriter = new DependenciesWriter(context);
+        writersExecutor.submit(dependenciesWriter, talendFiles);
+        DependenciesData dependenciesData = dependenciesWriter.getDependenciesData();
 
         // Init production path
         new OutputWriter().write(context.getProductionPath());
-
 
         // JSON
         writersExecutor.submit(new ProcessesWriter(context), talendFiles);
@@ -52,6 +55,7 @@ public class Main {
         writersExecutor.submit(new ViolationsWriter(context), talendFiles);
         writersExecutor.submit(new SearchWriter(context), talendFiles);
         writersExecutor.submit(new DatasourcesWriter(context), talendFiles);
+        writersExecutor.submit(new CustomDotWriter(context, dependenciesData), talendFiles);
 
         // Finish
         writersExecutor.stop();

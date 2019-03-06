@@ -32,9 +32,8 @@ public class DatasourcesWriter extends AbstractWriter {
             UsageKeeper usageKeeper = new UsageKeeper();
 
             //
-            for (TalendFile file : talendFiles.getProcesses()) {
+            for (TalendFile file : filterBlacklisted(talendFiles.getProcesses())) {
                 try {
-                    if (isBlacklisted(file.getName()) || isBlacklisted(file.getPath())) continue;
                     LOG.debug("Reading " + new File(file.getItemFilename()).getName());
                     FileInputStream fis = new FileInputStream(file.getItemFilename());
                     ProcessType process = ProcessReader.read(fis);

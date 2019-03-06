@@ -16,14 +16,14 @@ public class DotWrapper {
 
     public static Logger LOG = LoggerFactory.getLogger(DotWrapper.class);
 
-    public static void generatePNG(String dotPath, String filename, File dotData) throws IOException {
+    public static void generatePNG(String dotPath, String filename, String dotFilename) throws IOException {
         // TODO: dot.exe ou dot ?
         String command;
 
         if (new File(dotPath +  File.separatorChar+"dot").exists()) {
-            command = dotPath + File.separatorChar + "dot -Tpng -o" + filename + " " + dotData.getAbsolutePath();
+            command = dotPath + File.separatorChar + "dot -Tpng -o" + filename + " " + dotFilename;
         } else if (new File(dotPath +  File.separatorChar+"dot.exe").exists()) {
-            command = dotPath + File.separatorChar + "dot.exe -Tpng -o" + filename + " " + dotData.getAbsolutePath();
+            command = dotPath + File.separatorChar + "dot.exe -Tpng -o" + filename + " " + dotFilename;
         } else {
             throw new RuntimeException("Graphviz Dot not found in "+dotPath+"!");
         }
