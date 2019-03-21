@@ -125,7 +125,7 @@ public class CustomDotBuilder {
     public String getDot() {
         StringBuilder sb = new StringBuilder();
         sb.append("digraph G{\r\n");
-        sb.append("graph [fontsize=10, margin=0.001];\r\n");//rankdir=LR,
+        sb.append("graph [rankdir=LR, fontsize=10, margin=0.001];\r\n");
 
 
         for (Map.Entry<String, StringBuilder> entry: sbGroups.entrySet()) {
