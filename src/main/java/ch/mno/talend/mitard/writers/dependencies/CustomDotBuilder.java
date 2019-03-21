@@ -20,6 +20,7 @@ import java.util.regex.Pattern;
 // TODO: support path regex, or entry point regex (need two pass to include downlink dependencies)
 public class CustomDotBuilder {
 
+    public static final String GROUP_VARIOUS = "Various";
     private StringBuilder sbRelations = new StringBuilder();
     private Map<String, StringBuilder> sbGroups = new HashMap<>();
     private List<Pair<Pattern, String>> groups = new ArrayList<>();
@@ -55,10 +56,12 @@ public class CustomDotBuilder {
         for (Map.Entry<String, List<String>> entry: dependencies.entrySet()) {
             String code = buildObjectCode(type, entry.getKey());
             String nameForGroup = findNameForGroup(dependenciesData, entry.getKey());
+            String group = findGroup(nameForGroup);
 
-            if (step==0) {
+            // On ne déclare pas les objets sans groupes. Ils seront crées au step1 par la relation x->y
+            if (step==0 && !GROUP_VARIOUS.equals(group)) {
                 declaredObjects.add(entry.getKey());
-                addObjectToGroup(nameForGroup, code);
+                addObjectToGroup(nameForGroup, group, code);
             }
 
             if (step==1) {
@@ -67,8 +70,9 @@ public class CustomDotBuilder {
                     if (!declaredObjects.contains(target)) {
                         String codeTarget = buildObjectCode(type, entry.getKey()); // Supose same type TODO: find type from name S_, P_... ?
                         String nameForGroupTarget = findNameForGroup(dependenciesData, target);
+                        String groupTarget = findGroup(nameForGroupTarget);
                         declaredObjects.add(target);
-                        addObjectToGroup(nameForGroupTarget, codeTarget);
+                        addObjectToGroup(nameForGroupTarget, groupTarget, codeTarget);
                     }
                     sbRelations.append("   " + entry.getKey() + "->" + target + "\r\n");
                 }
@@ -98,12 +102,12 @@ public class CustomDotBuilder {
                 return x.getValue();
             }
         }
-        return "various";
+        return GROUP_VARIOUS;
     }
 
     /** Add object code to matching group */
-    private void addObjectToGroup(String name, String content) {
-        String group = findGroup(name);
+    private void addObjectToGroup(String name, String group, String content) {
+        if (group==null) group="External";
         if (!sbGroups.containsKey(group)) {
             sbGroups.put(group, new StringBuilder());
         }
@@ -121,11 +125,12 @@ public class CustomDotBuilder {
     public String getDot() {
         StringBuilder sb = new StringBuilder();
         sb.append("digraph G{\r\n");
-        sb.append("graph [rankdir=LR, fontsize=10, margin=0.001];\r\n");
+        sb.append("graph [fontsize=10, margin=0.001];\r\n");//rankdir=LR,
 
 
         for (Map.Entry<String, StringBuilder> entry: sbGroups.entrySet()) {
             sb.append("subgraph cluster_").append(entry.getKey()).append("{ rankdir=LR\r\n").append(entry.getValue()).append("}\r\n");
+
         }
 
         sb.append("\r\n");

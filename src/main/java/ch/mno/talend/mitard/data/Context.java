@@ -7,6 +7,7 @@ import java.io.FileInputStream;
 import java.io.FileNotFoundException;
 import java.io.IOException;
 import java.io.InputStream;
+import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
 import java.util.Properties;
@@ -90,7 +91,13 @@ public class Context {
         return projectProperties.getProperty(key);
     }
 
-    public String getCustomDot() {
-        return getProperty("customDot");
+    public List<String> getCustomDots() {
+        List<String> lst = new ArrayList<>();
+        int i=1;
+        while (properties.getProperty("customDot"+i)!=null) {
+            lst.add(properties.getProperty("customDot"+i));
+            i++;
+        }
+        return lst;
     }
 }

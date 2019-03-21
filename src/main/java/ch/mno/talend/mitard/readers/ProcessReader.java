@@ -240,6 +240,8 @@ public class ProcessReader extends DefaultHandler {
                 case "tFileArchive":
                 case "tFileFetch":
                 case "tExtractRegexFields":
+                case "tIterateToFlow":
+                case "tParseRecordSet":
                 case "cREST": // Note: URL could be read and correlated with service
                     reader = new TNodeReader(componentName);
                     break;
