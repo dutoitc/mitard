@@ -117,7 +117,7 @@ public class CustomDotBuilder {
 
     private String buildObjectCode(String shape, String name) {
         StringBuilder sb = new StringBuilder();
-        sb.append("").append(name + " [shape=").append(shape).append(", style=filled, fillcolor=green, color=green, label=\"" + name + "\"];\r\n");
+        sb.append(name + " [shape=").append(shape).append(", style=filled, fillcolor=green, color=green, label=\"" + name + "\"];\r\n");
         return sb.toString();
     }
 
@@ -125,7 +125,8 @@ public class CustomDotBuilder {
     public String getDot() {
         StringBuilder sb = new StringBuilder();
         sb.append("digraph G{\r\n");
-        sb.append("graph [rankdir=LR, fontsize=10, margin=0.001];\r\n");
+        //sb.append("graph [rankdir=LR, fontsize=10, margin=0.001];\r\n");
+        sb.append("graph [rankdir=LR];\r\n");
 
 
         for (Map.Entry<String, StringBuilder> entry: sbGroups.entrySet()) {
