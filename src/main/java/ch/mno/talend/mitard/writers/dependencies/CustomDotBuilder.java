@@ -64,7 +64,7 @@ public class CustomDotBuilder {
                 addObjectToGroup(nameForGroup, group, code);
             }
 
-            if (step==1) {
+            if (step==1 && !GROUP_VARIOUS.equals(group)) {
                 for (String target : entry.getValue()) {
                     if (StringUtils.isEmpty(target)) continue;
                     if (!declaredObjects.contains(target)) {
@@ -130,6 +130,7 @@ public class CustomDotBuilder {
 
 
         for (Map.Entry<String, StringBuilder> entry: sbGroups.entrySet()) {
+			if (GROUP_VARIOUS.equals(entry.getKey())) continue; // Special group not to be displayed
             sb.append("subgraph cluster_").append(entry.getKey()).append("{ rankdir=LR\r\n").append(entry.getValue()).append("}\r\n");
 
         }
