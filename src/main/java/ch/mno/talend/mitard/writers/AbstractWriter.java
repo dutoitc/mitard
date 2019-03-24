@@ -31,7 +31,8 @@ public abstract class AbstractWriter {
     /** Write obj as JSON in productionPath/data/filename */
     protected void writeJson(String filename, Object obj) throws IOException {
         String pathname = context.getProductionPath() + "/data/" + filename;
-        (new JSonWriter()).writeJSon(new File(pathname), obj);
+        JSonWriter writer = new JSonWriter();
+        writer.writeJSon(new File(pathname), obj);
     }
 
     /** Check if the given name is in the context blacklist */

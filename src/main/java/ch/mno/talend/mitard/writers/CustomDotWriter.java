@@ -10,6 +10,8 @@ import org.apache.commons.io.IOUtils;
 import java.io.File;
 import java.io.FileWriter;
 import java.io.IOException;
+import java.io.Serializable;
+import java.util.ArrayList;
 import java.util.List;
 
 /**
@@ -29,14 +31,17 @@ public class CustomDotWriter extends AbstractWriter {
     public void write(TalendFiles talendFiles) {
         try {
             List<String> definitions = getContext().getCustomDots();
+            List<CustomDotJSon> list4Json = new ArrayList<>();
             int i=1;
             for (String definition: definitions) {
+                //Definition: ["Alimentation;B_.*;Alimentation", ...]
+                list4Json.add(new CustomDotJSon("custom"+i+".png",definition.split(";")[0]));
                 writeDot(i++, definition);
             }
+            writeJson("diagrams.json", list4Json);
         } catch (Exception e) {
             System.err.println("Ignoring Dot generation due to an error: " + e.getMessage());
         }
-
     }
 
     private void writeDot(int noCustom, String customDotBuilderDefinition) throws IOException {
@@ -56,5 +61,22 @@ public class CustomDotWriter extends AbstractWriter {
         DotWrapper.generatePNG(getContext().getDotPath(), getContext().getProductionPath() + "/data/custom"+noCustom+".png", dotFilename);
     }
 
+    private class CustomDotJSon implements Serializable {
+        String filename;
+        String schemaName;
+
+        public CustomDotJSon(String filename, String schemaName) {
+            this.filename = filename;
+            this.schemaName = schemaName;
+        }
+
+        public String getFilename() {
+            return filename;
+        }
+
+        public String getSchemaName() {
+            return schemaName;
+        }
+    }
 
 }
