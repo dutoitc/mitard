@@ -31,8 +31,8 @@ public enum JsonViolationEnum {
     ORACLE_CONNECTION_SHOULD_USE_DATASOURCE("A tOracleConnection SHOULD use a datasource", "Using a specific connection to a database means injecting user/password and multiplying connections for each jobs, which could lead to a connection number too big. Using a datasource will delegate/centralize authentification and connections handling"),
     ORACLE_COMPONENT_SHOULD_USE_DATASOURCE_OR_TORACLECONNECTION("an oracle component SHOULD use a datasource or a tOracleConnection", "Defining user/password in jobs is potentialy dangerous, as values could be forgotten and not updated, leading to account lock. Also using datasource is a best-practice to centralize connections management."),
     COMPONENT_SHOULD_NOT_USE_ONCOMPONENTOK_WITH_FLOW_TRANSITION("a component should not define a 'onComponentOk' when having a flow transition", "The onComponentOk will execute before the flow executes, leading in miscomprehension"),
-    AVOID_USING_STATCATCHER ("statCatcher should not be used.","statCatcher writes to SAM, which is unperfect, lead to big DB and little overhead. Avoid.");
-
+    AVOID_USING_STATCATCHER ("statCatcher should not be used.","statCatcher writes to SAM, which is unperfect, lead to big DB and little overhead. Avoid."),
+    AVOID_USING_SAM("SAM (Service Activity Monitoring) Should not be used", "Using SAM could lead to big databases and little overhead, is to be avoided. Prefer log and filters.");
 
 
     private String description;

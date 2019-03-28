@@ -16,6 +16,15 @@ public class AbstractNodeType {
     private Date modificationDate;
     private boolean active=true;
     private boolean useExistingConnection;
+    private boolean sam; // service_activity_monitor
+
+    public boolean isSam() {
+        return sam;
+    }
+
+    public void setSam(boolean sam) {
+        this.sam = sam;
+    }
 
     public String getUniqueName() {
         return uniqueName;

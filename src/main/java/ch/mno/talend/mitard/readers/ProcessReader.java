@@ -319,13 +319,17 @@ public class ProcessReader extends DefaultHandler {
                     obj.setActive("true".equals(value));
                 } else if ("USE_EXISTING_CONNECTION".equals(name)) {
                     obj.setUseExistingConnection("true".equals(value));
-                } else {
-                    handleElement(name, value);
+                } else if ("SERVICE_ACTIVITY_MONITOR".equals(name)) {
+                    obj.setSam("true".equals(value));
                 }
+                handleElement(name, value);
             }
             if (localName.equals("elementValue")) {
                 String name = getAttribute(attributes, "elementRef");
                 String value = getAttribute(attributes, "value");
+                if ("SERVICE_ACTIVITY_MONITOR".equals(name)) {
+                    obj.setSam("true".equals(value));
+                }
                 handleElement(name, value);
             }
         }
