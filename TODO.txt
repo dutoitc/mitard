@@ -6,11 +6,22 @@
 [ ] vues composants
 [ ] best practices
 [ ] recherche de composants et exploration
-[ ] produire dans un dossier à publier (pas dans template) à la fin du dev
-[ ] nom auteur
 [ ] vue globale routes, services, process, filtrable par date, auteur, mot-clé, violations...
 [ ] Créer des services pour lire les JSON
 [ ] input, last(si tBufferOutput) devrait avoir les stats du tStatCatcher activés
 [ ] afficher les missingTests
 [ ] Criticité pour les violations
 [ ] afficher tous les jobs qui ont des oracle qui sont en builtin
+
+[ ] ajouter les metadata
+[ ] ajouter les vues MDM + usage
+[ ] ajouter les jars ?inutiles?
+
+
+Process: read context:
+<context xmi:id="_hPUlYWO-EeGNfJXQ2KgFRg" confirmationNeeded="false" name="Default">
+    <contextParameter xmi:id="_hPUlYmO-EeGNfJXQ2KgFRg" comment="" name="brokerURL" prompt="Please enter the brocker URL" promptNeeded="false" type="id_String" value="&quot;tcp://localhost:61616&quot;"/>
+  </context>
+
+  then check usage: (except if in group ?)
+    <elementParameter xmi:id="_hPVMfGO-EeGNfJXQ2KgFRg" field="TEXT" name="AMQ_BROKER_URI" value="context.brokerURL"/>
