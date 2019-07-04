@@ -52,14 +52,11 @@ public class PropertiesReader extends DefaultHandler {
         int p = path.lastIndexOf("/");
         String lastPath = path.substring(p + 1);
         path = path.substring(0, p);
-
-//        buffer = "";
     }
 
 
     public void characters(char ch[], int start, int length)
             throws SAXException {
-//        buffer += new String(ch, start, length);
     }
 
 
