@@ -25,6 +25,7 @@
 ./app/views/services.html
 ./app/views/versions.html
 ./app/views/violations.html
+./app/views/workflows.html
 ./css
 ./css/bootstrap.min.css
 ./css/dashboard.css

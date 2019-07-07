@@ -55,6 +55,7 @@ public class StatisticsWriter extends AbstractWriter {
             stats.setNbProcesses(filterBlacklisted(talendFiles.getProcesses()).size());
             stats.setNbRoutes(filterBlacklisted(talendFiles.getRoutes()).size());
             stats.setNbServices(filterBlacklisted(talendFiles.getServices()).size());
+            stats.setNbWorkflows(filterBlacklisted(talendFiles.getMDMWorkflowProc()).size());
             stats.setComponentCounts(componentTypes);
             stats.setLastUpdate(System.currentTimeMillis());
             // TODO: number of components of each type

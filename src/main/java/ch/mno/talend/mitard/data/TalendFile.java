@@ -89,6 +89,9 @@ public class TalendFile {
      * @return path after routes/, services/, process/
      */
     public String getPath() {
+        if (path.contains("workflow")) {
+            return "/"; // Workflow are stored as root (no nfolder)
+        }
         int p = Math.max(path.indexOf("routes"), Math.max(path.indexOf("services"), path.indexOf("process")));
         p = Math.max(path.indexOf("/", p), path.indexOf('\\', p));
         return path.substring(p+1);

@@ -55,6 +55,7 @@ public class Main {
         writersExecutor.submit(new ViolationsWriter(context), talendFiles);
         writersExecutor.submit(new SearchWriter(context), talendFiles);
         writersExecutor.submit(new DatasourcesWriter(context), talendFiles);
+        writersExecutor.submit(new WorkflowsWriter(context), talendFiles);
         writersExecutor.submit(new CustomDotWriter(context, dependenciesData), talendFiles);
 
         // Finish

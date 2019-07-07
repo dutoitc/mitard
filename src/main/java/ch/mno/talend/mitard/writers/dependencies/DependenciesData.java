@@ -104,6 +104,9 @@ public class DependenciesData {
     }
 
     String findLatestService(String service) {
+        if (service.endsWith("Operation")) {
+            service = service.substring(0, service.length()-"Operation".length());
+        }
         String needle = "S_" + service; // TODO: normalize ?
         String best = "";
         for (String key : serviceDependencies.keySet()) {

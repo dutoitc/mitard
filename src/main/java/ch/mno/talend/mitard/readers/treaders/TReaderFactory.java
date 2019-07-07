@@ -5,6 +5,7 @@ package ch.mno.talend.mitard.readers.treaders;
  */
 public class TReaderFactory {
 
+    // Note: keep list instead of default to enforce adding thoses types or ignoring them manually
     public static AbstractTReader build(String componentName) {
         switch (componentName) {
             case "tRESTRequest":
@@ -174,6 +175,7 @@ public class TReaderFactory {
             case "tExtractRegexFields":
             case "tIterateToFlow":
             case "tParseRecordSet":
+            case "tReplace":
             case "cREST": // Note: URL could be read and correlated with service
                 return new TNodeReader(componentName);
             default:

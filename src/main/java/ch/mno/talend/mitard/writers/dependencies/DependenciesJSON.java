@@ -1,6 +1,5 @@
 package ch.mno.talend.mitard.writers.dependencies;
 
-import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
@@ -11,16 +10,17 @@ import java.util.Map;
  */
 public class DependenciesJSON {
 
-    private Map<String, List<String>> processDependencies = new HashMap<>();
-    private Map<String, List<String>> routeDependencies = new HashMap<>();
-    private Map<String, List<String>> serviceDependencies = new HashMap<>();
+    private Map<String, List<String>> processDependencies;
+    private Map<String, List<String>> routeDependencies;
+    private Map<String, List<String>> serviceDependencies;
+    private Map<String, List<String>> workflowsDependencies;
 
 
     public DependenciesJSON(DependenciesData dependenciesData) {
         this.processDependencies = dependenciesData.getProcessDependencies();
         this.routeDependencies = dependenciesData.getRouteDependencies();
         this.serviceDependencies = dependenciesData.getServiceDependencies();
-        // TODO: WorkflowDependendies
+        this.workflowsDependencies = dependenciesData.getWorkflowDependencies();
     }
 
     public Map<String, List<String>> getProcessDependencies() {
@@ -47,4 +47,11 @@ public class DependenciesJSON {
         this.serviceDependencies = serviceDependencies;
     }
 
+    public Map<String, List<String>> getWorkflowsDependencies() {
+        return workflowsDependencies;
+    }
+
+    public void setWorkflowsDependencies(Map<String, List<String>> workflowsDependencies) {
+        this.workflowsDependencies = workflowsDependencies;
+    }
 }

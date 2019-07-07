@@ -30,8 +30,7 @@ angular.module('mitardApp.dependencies', ['ngRoute'])
 
         self.findDependencies = function(query, contains, indent, limit) {
             var result="";
-            var lst = $.extend({}, $scope.dependencies.processDependencies, $scope.dependencies.serviceDependencies, $scope.dependencies.routeDependencies);
-
+            var lst = $.extend({}, $scope.dependencies.processDependencies, $scope.dependencies.serviceDependencies, $scope.dependencies.routeDependencies, $scope.dependencies.workflowsDependencies);
 
             var lquery = query.toLowerCase();
             for (var key in lst) {
