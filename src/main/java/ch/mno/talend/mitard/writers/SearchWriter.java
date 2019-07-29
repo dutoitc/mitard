@@ -2,6 +2,9 @@ package ch.mno.talend.mitard.writers;
 
 import ch.mno.talend.mitard.data.*;
 import ch.mno.talend.mitard.readers.ProcessReader;
+import ch.mno.talend.mitard.readers.treaders.TMDMRestInput;
+import ch.mno.talend.mitard.readers.treaders.TMDMViewSearch;
+import org.apache.commons.lang3.StringUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -78,6 +81,18 @@ public class SearchWriter extends AbstractNodeWriter {
             return node.getDbName() + " " + (node.isSpecifyDatasourceAlias() ? node.getDatasourceAlias() : "");
         } else if (abstractNode instanceof TOracleRowType) {
             TOracleRowType node = (TOracleRowType) abstractNode;
+            return node.getQuery();
+        } else if (abstractNode instanceof TMDMInputType) {
+            TMDMInputType node = (TMDMInputType) abstractNode;
+            return node.getConcept();
+        } else if (abstractNode instanceof TMDMOutputType) {
+            TMDMOutputType node = (TMDMOutputType) abstractNode;
+            return StringUtils.join(node.getPath(), ';');
+        } else if (abstractNode instanceof TMDMViewSearchType) {
+            TMDMViewSearchType node = (TMDMViewSearchType) abstractNode;
+            return StringUtils.join(node.getOperations(), ';');
+        } else if (abstractNode instanceof TMDMRestInputType) {
+            TMDMRestInputType node = (TMDMRestInputType) abstractNode;
             return node.getQuery();
         }
         return "";

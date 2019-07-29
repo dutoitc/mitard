@@ -62,6 +62,14 @@ public class TReaderFactory {
                 return new TMDMRollback(componentName);
             case "tOracleRow":
                 return new TORacleRow(componentName);
+            case "tMDMInput":
+                return new TMDMInput(componentName);
+            case "tMDMOutput":
+                return new TMDMOutput(componentName);
+            case "tMDMViewSearch":
+                return new TMDMViewSearch(componentName);
+            case "tMDMRestInput":
+                return new TMDMRestInput(componentName);
             case "tFileOutputJSON":
             case "tFileInputPositional":
             case "tLogRow":
@@ -72,9 +80,7 @@ public class TReaderFactory {
             case "tMysqlOutput":
             case "tESBProviderResponse":
             case "tRESTResponse":
-            case "tMDMInput":
             case "tPostjob":
-            case "tMDMOutput":
             case "tMDMInputNullOptional":
             case "tFileInputRaw":
             case "tHashInput":
@@ -119,7 +125,6 @@ public class TReaderFactory {
             case "tFileDelete":
             case "tFileInputXML":
             case "tCreateTemporaryFile":
-            case "tMDMViewSearch":
             case "tOracleTableList":
             case "tMDMTriggerInput":
             case "tParallelize":
@@ -169,7 +174,6 @@ public class TReaderFactory {
             case "tMDMReceive":
             case "tSchemaComplianceCheck":
             case "tInfiniteLoop":
-            case "tMDMRestInput":
             case "tFileArchive":
             case "tFileFetch":
             case "tExtractRegexFields":

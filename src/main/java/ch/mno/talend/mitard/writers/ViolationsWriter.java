@@ -1,29 +1,6 @@
 package ch.mno.talend.mitard.writers;
 
-import ch.mno.talend.mitard.data.AbstractNodeType;
-import ch.mno.talend.mitard.data.ConnectionType;
-import ch.mno.talend.mitard.data.Context;
-import ch.mno.talend.mitard.data.ProcessType;
-import ch.mno.talend.mitard.data.PropertiesType;
-import ch.mno.talend.mitard.data.TJavaFlexType;
-import ch.mno.talend.mitard.data.TJavaRowType;
-import ch.mno.talend.mitard.data.TJavaType;
-import ch.mno.talend.mitard.data.TMDMCloseType;
-import ch.mno.talend.mitard.data.TMDMCommitType;
-import ch.mno.talend.mitard.data.TMDMConnectionType;
-import ch.mno.talend.mitard.data.TMDMRollbackType;
-import ch.mno.talend.mitard.data.TNodeType;
-import ch.mno.talend.mitard.data.TOracleCloseType;
-import ch.mno.talend.mitard.data.TOracleCommitType;
-import ch.mno.talend.mitard.data.TOracleConnectionType;
-import ch.mno.talend.mitard.data.TOracleInputType;
-import ch.mno.talend.mitard.data.TOracleOutputType;
-import ch.mno.talend.mitard.data.TOracleRollbackType;
-import ch.mno.talend.mitard.data.TOracleRowType;
-import ch.mno.talend.mitard.data.TRestRequestType;
-import ch.mno.talend.mitard.data.TRunJobType;
-import ch.mno.talend.mitard.data.TalendFile;
-import ch.mno.talend.mitard.data.TalendFiles;
+import ch.mno.talend.mitard.data.*;
 import ch.mno.talend.mitard.out.JsonFileViolations;
 import ch.mno.talend.mitard.out.JsonViolationEnum;
 import ch.mno.talend.mitard.readers.ProcessReader;
@@ -244,8 +221,8 @@ public class ViolationsWriter extends AbstractNodeWriter {
 
     private void checkFIRECREATEEVENT_MUST_BE_SET(JsonFileViolations fileViolations, AbstractNodeType node, ProcessType process) {
         if (node.getComponentName().equals("tMDMOutput")) {
-            TNodeType nodeType = (TNodeType) node;
-            if ("false".equals(nodeType.getValue("WITHREPORT"))) {
+            TMDMOutputType nodeType = (TMDMOutputType) node;
+            if (!nodeType.isWithReport()) {
                 fileViolations.addComponentViolation(node.getUniqueName(), JsonViolationEnum.FIRECREATEEVENT_MUST_BE_SET);
             }
         }
