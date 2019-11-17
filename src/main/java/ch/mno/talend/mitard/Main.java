@@ -4,15 +4,22 @@ package ch.mno.talend.mitard;
 import ch.mno.talend.mitard.data.Context;
 import ch.mno.talend.mitard.data.TalendFiles;
 import ch.mno.talend.mitard.helpers.TalendFileHelper;
-import ch.mno.talend.mitard.writers.*;
+import ch.mno.talend.mitard.writers.AbstractWriter;
+import ch.mno.talend.mitard.writers.CustomDotWriter;
+import ch.mno.talend.mitard.writers.DatasourcesWriter;
+import ch.mno.talend.mitard.writers.OutputWriter;
+import ch.mno.talend.mitard.writers.ProcessesWriter;
+import ch.mno.talend.mitard.writers.RoutesWriter;
+import ch.mno.talend.mitard.writers.SearchWriter;
+import ch.mno.talend.mitard.writers.ServicesWriter;
+import ch.mno.talend.mitard.writers.StatisticsWriter;
+import ch.mno.talend.mitard.writers.ViolationsWriter;
+import ch.mno.talend.mitard.writers.WorkflowsWriter;
 import ch.mno.talend.mitard.writers.dependencies.DependenciesData;
 import ch.mno.talend.mitard.writers.dependencies.DependenciesWriter;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import org.xml.sax.SAXException;
 
-import javax.xml.bind.JAXBException;
-import javax.xml.parsers.ParserConfigurationException;
 import java.io.FileInputStream;
 import java.io.IOException;
 import java.util.concurrent.ExecutorService;
@@ -23,7 +30,7 @@ public class Main {
 
     public static Logger LOG = LoggerFactory.getLogger(Main.class);
 
-    public static void main(String[] args) throws IOException, JAXBException, ParserConfigurationException, SAXException {
+    public static void main(String[] args) throws IOException {
         long t0 = System.currentTimeMillis();
 
         // Pre-requisites

@@ -25,14 +25,14 @@ import java.net.URL;
 public class XSDValidator {
 
     @Test
-    public void testProcess1() throws URISyntaxException, JAXBException, IOException {
+    public void testProcess1() throws URISyntaxException, IOException, JAXBException {
         System.out.println(new File(".").getAbsolutePath());
         validateXMLSchema("/ESBTUTORIALPROJECT/process/RESTService_0.3.item");
         validateUnmarshaller("/ESBTUTORIALPROJECT/process/RESTService_0.3.item");
     }
 
 
-    public static void validateXMLSchema(String xmlPath) throws URISyntaxException, JAXBException, IOException {
+    public static void validateXMLSchema(String xmlPath) throws URISyntaxException, IOException {
         String xml = IOUtils.toString(XSDValidator.class.getResourceAsStream(xmlPath));
         //xml = xml.replace("<talendfile.*?>", "<ProcessType>");
 
@@ -53,7 +53,7 @@ public class XSDValidator {
         Assert.assertTrue(true);
     }
 
-    public static void validateUnmarshaller(String xmlPath) throws JAXBException, IOException {
+    public static void validateUnmarshaller(String xmlPath) throws IOException, JAXBException {
         String s = IOUtils.toString(XSDValidator.class.getResourceAsStream(xmlPath));
         s=s.replace("talendfile:", "");
 

@@ -10,6 +10,10 @@
   <name>MITARD: the MIssing TAlend Roadside Documentation</name>
   <url>http://www.mno-software.ch</url>
 
+<properties>
+        <jackson.version>2.10.1</jackson.version>
+</properties>
+
     <build>
         <pluginManagement>
             <plugins>
@@ -187,17 +191,17 @@
       <dependency>
           <groupId>com.fasterxml.jackson.core</groupId>
           <artifactId>jackson-core</artifactId>
-          <version>2.9.10.1</version>
+          <version>${jackson.version}</version>
       </dependency>
       <dependency>
           <groupId>com.fasterxml.jackson.core</groupId>
           <artifactId>jackson-annotations</artifactId>
-          <version>2.9.10.1</version>
+          <version>${jackson.version}</version>
       </dependency>
       <dependency>
           <groupId>com.fasterxml.jackson.core</groupId>
           <artifactId>jackson-databind</artifactId>
-          <version>2.9.10.1</version>
+          <version>${jackson.version}</version>
       </dependency>
 
       <dependency>
@@ -231,6 +235,22 @@
           <artifactId>slf4j-simple</artifactId>
           <version>1.7.13</version>
       </dependency>
+      <dependency>
+          <groupId>javax.xml.bind</groupId>
+          <artifactId>jaxb-api</artifactId>
+          <version>2.3.0</version>
+      </dependency>
+      <dependency>
+          <groupId>com.sun.xml.bind</groupId>
+          <artifactId>jaxb-core</artifactId>
+          <version>2.3.0</version>
+      </dependency>
+      <dependency>
+          <groupId>com.sun.xml.bind</groupId>
+          <artifactId>jaxb-impl</artifactId>
+          <version>2.3.0</version>
+      </dependency>
+
 
       <!-- https://mvnrepository.com/artifact/org.mockito/mockito-all -->
       <dependency>

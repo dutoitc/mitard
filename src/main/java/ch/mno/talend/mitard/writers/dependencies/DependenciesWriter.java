@@ -19,7 +19,6 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.xml.sax.SAXException;
 
-import javax.xml.bind.JAXBException;
 import javax.xml.parsers.ParserConfigurationException;
 import java.io.File;
 import java.io.FileInputStream;
@@ -45,7 +44,6 @@ public class DependenciesWriter extends AbstractWriter {
     /**
      * produce dependencies.dot, dependencies.png depending on Graphviz'dot
      *
-     * @throws JAXBException
      * @throws IOException
      * @throws SAXException
      * @throws ParserConfigurationException
