@@ -73,11 +73,9 @@ public class DatasourcesWriter extends AbstractWriter {
                     if (node instanceof TOracleConnectionType) {
                         foundComponentWithoutAlias = foundComponentWithoutAlias || (!handleTOracleConnection((TOracleConnectionType) node, file));
                     } else if (node instanceof TOracleInputType) {
-                        TOracleInputType inputType = (TOracleInputType) node;
-                        foundComponentWithoutAlias = foundComponentWithoutAlias || (!inputType.isSpecifyDatasourceAlias());
+                        foundComponentWithoutAlias = handleTOracleInput(foundComponentWithoutAlias, (TOracleInputType) node);
                     } else if (node instanceof TOracleOutputType) {
-                        TOracleOutputType inputType = (TOracleOutputType) node;
-                        foundComponentWithoutAlias = foundComponentWithoutAlias || (!inputType.isSpecifyDatasourceAlias());
+                        foundComponentWithoutAlias = handleTOracleOutput(foundComponentWithoutAlias, (TOracleOutputType) node);
                     }
                 }
             }
@@ -94,6 +92,22 @@ public class DatasourcesWriter extends AbstractWriter {
                 found = true;
             }
             return found;
+        }
+
+        private boolean handleTOracleOutput(boolean foundComponentWithoutAlias, TOracleOutputType node) {
+            TOracleOutputType inputType = node;
+            if (!inputType.isUseExistingConnection()) {
+                foundComponentWithoutAlias = foundComponentWithoutAlias || (!inputType.isSpecifyDatasourceAlias());
+            }
+            return foundComponentWithoutAlias;
+        }
+
+        private boolean handleTOracleInput(boolean foundComponentWithoutAlias, TOracleInputType node) {
+            TOracleInputType inputType = node;
+            if (!inputType.isUseExistingConnection()) {
+                foundComponentWithoutAlias = foundComponentWithoutAlias || (!inputType.isSpecifyDatasourceAlias());
+            }
+            return foundComponentWithoutAlias;
         }
 
         private void addUsage(String datasourceAlias, String processFullPath) {
@@ -117,6 +131,7 @@ public class DatasourcesWriter extends AbstractWriter {
             }
         }
     }
+
 
 
 }
