@@ -180,6 +180,12 @@ public class TReaderFactory {
             case "tIterateToFlow":
             case "tParseRecordSet":
             case "tReplace":
+            case "tJDBCConnection":
+            case "tJDBCClose":
+            case "tJDBCRollback":
+            case "tJDBCInput":
+            case "tJDBCOutput":
+            case "tJDBCCommit":
             case "cREST": // Note: URL could be read and correlated with service
                 return new TNodeReader(componentName);
             default:
