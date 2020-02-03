@@ -136,6 +136,7 @@ public class ViolationsWriter extends AbstractNodeWriter {
             checkCOMPONENT_MUST_USE_EXISTING_CONNECTION(fileViolations, node);
             checkCOMPONENT_MUST_NOT_CLOSE_CONNECTION(fileViolations, node);
             checkAVOID_SYSTEM_OUT(fileViolations, node);
+            checkAVOID_TLOGROW(fileViolations, node);
             checkTLOGCATCHER_MUST_NOT_CHAIN_TDIE(fileViolations, node, process);
             checkFIRECREATEEVENT_MUST_BE_SET(fileViolations, node, process);
             checkTRUNJOB_MUST_PROPAGATE_CHILD_RESULT(fileViolations, node);
@@ -579,6 +580,13 @@ public class ViolationsWriter extends AbstractNodeWriter {
                     || tJava.getCodeEnd().contains("System.out") || tJava.getCodeEnd().contains("System.err")) {
                 fileViolations.addComponentViolation(node.getUniqueName(), JsonViolationEnum.AVOID_SYSTEM_OUT);
             }
+        }
+    }
+
+
+    private void checkAVOID_TLOGROW(JsonFileViolations fileViolations, AbstractNodeType node) {
+        if (node.getComponentName().equals("tLogRow")) {
+            fileViolations.addComponentViolation(node.getUniqueName(), JsonViolationEnum.AVOID_TLOGROW);
         }
     }
 
