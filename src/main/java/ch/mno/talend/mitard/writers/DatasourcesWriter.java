@@ -71,7 +71,7 @@ public class DatasourcesWriter extends AbstractWriter {
             for (AbstractNodeType node : process.getNodeList()) {
                 if (node.isActive()) {
                     if (node instanceof TOracleConnectionType) {
-                        handleTOracleConnection((TOracleConnectionType) node, file);
+                        foundComponentWithoutAlias = foundComponentWithoutAlias || handleTOracleConnection((TOracleConnectionType) node, file);
                     } else if (node instanceof TOracleInputType) {
                         TOracleInputType inputType = (TOracleInputType) node;
                         foundComponentWithoutAlias = foundComponentWithoutAlias || (!inputType.isSpecifyDatasourceAlias());
