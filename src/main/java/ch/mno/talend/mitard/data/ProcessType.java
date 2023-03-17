@@ -1,9 +1,6 @@
 package ch.mno.talend.mitard.data;
 
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
+import java.util.*;
 
 /**
  * Created by dutoitc on 10.05.2015.
@@ -13,6 +10,7 @@ public class ProcessType {
     private List<AbstractNodeType> nodeList = new ArrayList<>();
     private Map<String, List<ConnectionType>> connections = new HashMap<>();
     private Map<String, List<ConnectionType>> connectionsParent = new HashMap<>();
+    private Set<String> contextNames = new HashSet<>();
     private boolean usesStatCatcher;
 
     public void addNode(AbstractNodeType node) {
@@ -75,4 +73,13 @@ public class ProcessType {
     public boolean isUsesStatCatcher() {
         return usesStatCatcher;
     }
+
+    public void addContextName(String name) {
+        contextNames.add(name);
+    }
+
+    public Set<String> getContextNames() {
+        return contextNames;
+    }
+
 }

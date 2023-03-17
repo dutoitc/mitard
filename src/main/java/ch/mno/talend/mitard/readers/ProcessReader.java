@@ -47,14 +47,20 @@ public class ProcessReader extends DefaultHandler {
         int p = localName.indexOf(":");
         path = path + "/" + localName.substring(p + 1);
 
-        if (localName.equals("node")) {
-            readNode(localName, attributes);
-        } else if (localName.equals("connection")) {
-            process.addConnection(new ConnectionType(getAttribute(attributes, "source"), getAttribute(attributes, "target"), getAttribute(attributes, "connectorName")));
-        } else if (localName.equals("elementParameter")) {
-            if ("ON_STATCATCHER_FLAG".equals(attributes.getValue("name")) && "true".equals(attributes.getValue("value"))) {
-                process.setUseStatCatcher();
-            }
+        switch (localName) {
+            case "node":
+                readNode(localName, attributes);
+                break;
+            case "connection":
+                process.addConnection(new ConnectionType(getAttribute(attributes, "source"), getAttribute(attributes, "target"), getAttribute(attributes, "connectorName")));
+                break;
+            case "elementParameter":
+                if ("ON_STATCATCHER_FLAG".equals(attributes.getValue("name")) && "true".equals(attributes.getValue("value"))) {
+                    process.setUseStatCatcher();
+                }
+                break;
+            case "context":
+                process.addContextName(attributes.getValue("name"));
         }
 
         if (reader != null) {

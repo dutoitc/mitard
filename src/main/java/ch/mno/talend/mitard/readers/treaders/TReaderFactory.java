@@ -186,6 +186,26 @@ public class TReaderFactory {
             case "tJDBCInput":
             case "tJDBCOutput":
             case "tJDBCCommit":
+            case "tSAPBapi":
+            case "tFileInputJSON":
+            case "tSAPConnection":
+            case "tDB2Connection":
+            case "tDB2Input":
+            case "tRouteFault":
+            case "tMomInput":
+            case "tSetKeystore":
+            case "tFTPFileList":
+            case "tFTPGet":
+            case "tFileTouch":
+            case "tMatchGroup":
+            case "tStewardshipTaskInput":
+            case "tStewardshipTaskDelete":
+            case "tMysqlConnection":
+            case "tMysqlClose":
+            case "tSystem":
+            case "tOracleSP":
+            case "tXSLT":
+            case "tFileUnarchive":
             case "cREST": // Note: URL could be read and correlated with service
                 return new TNodeReader(componentName);
             default:

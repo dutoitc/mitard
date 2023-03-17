@@ -153,6 +153,7 @@ public class ViolationsWriter extends AbstractNodeWriter {
         checkORACLE_CONNECTION_SHOULD_USE_DATASOURCE(fileViolations, process);
         checkORACLE_COMPONENT_MUST_USE_TORACLECONNECTION_OR_DATASOURCE(fileViolations, process);
         checkCOMPONENT_SHOULD_NOT_USE_ONCOMPONENTOK_WITH_FLOW_TRANSITION(fileViolations, process);
+        checkPROCESS_SHOULD_DEFINE_DEFAULT_CONTEXT(fileViolations, process);
 
         // RATIO_INACTIVE_MUST_BE_MAX_30_PERCENT
         if (nbInactive > process.getNodeList().size() / 3) {
@@ -415,6 +416,11 @@ public class ViolationsWriter extends AbstractNodeWriter {
                 fileViolations.addComponentViolation(component.getComponentName(), JsonViolationEnum.COMPONENT_SHOULD_NOT_USE_ONCOMPONENTOK_WITH_FLOW_TRANSITION);
             }
         });
+    }
+    private void checkPROCESS_SHOULD_DEFINE_DEFAULT_CONTEXT(JsonFileViolations fileViolations, ProcessType process) {
+        if (!process.getContextNames().contains("Default")) {
+            fileViolations.addGeneralViolation(JsonViolationEnum.DEFINE_DEFAULT_CONTEXT);
+        }
     }
 
 
