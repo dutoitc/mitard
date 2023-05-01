@@ -7,6 +7,8 @@ public class TRestClientType extends AbstractNodeType {
 
     private String url;
     private String path;
+    private String authUsername;
+    private String authPassword;
 
     @Override
     public String toString() {
@@ -27,5 +29,21 @@ public class TRestClientType extends AbstractNodeType {
 
     public void setPath(String path) {
         this.path = path;
+    }
+
+    public String getAuthUsername() {
+        return authUsername;
+    }
+
+    public void setAuthUsername(String authUsername) {
+        this.authUsername = authUsername;
+    }
+
+    public String getAuthPassword() {
+        return authPassword;
+    }
+
+    public void setAuthPassword(String authPassword) {
+        this.authPassword = authPassword;
     }
 }

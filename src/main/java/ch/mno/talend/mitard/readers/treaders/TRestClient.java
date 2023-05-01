@@ -20,6 +20,12 @@ public class TRestClient extends AbstractTReader {
             case "PATH":
                 obj.setPath(value);
                 break;
+            case "AUTH_USERNAME":
+                obj.setAuthUsername(value);
+                break;
+            case "AUTH_PASSWORD":
+                obj.setAuthPassword(value);
+                break;
         }
     }
 }

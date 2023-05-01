@@ -34,7 +34,9 @@ public enum JsonViolationEnum {
     COMPONENT_SHOULD_NOT_USE_ONCOMPONENTOK_WITH_FLOW_TRANSITION("a component should not define a 'onComponentOk' when having a flow transition", "The onComponentOk will execute before the flow executes, leading in miscomprehension"),
     AVOID_USING_STATCATCHER ("statCatcher should not be used.","statCatcher writes to SAM, which is unperfect, lead to big DB and little overhead. Avoid."),
     AVOID_USING_SAM("SAM (Service Activity Monitoring) Should not be used", "Using SAM could lead to big databases and little overhead, is to be avoided. Prefer log and filters."),
-    DEFINE_DEFAULT_CONTEXT("'Default' context should be defined", "If applications load context properties from files, context must not be defined in processes but related to files, and at least context 'Default' must be defined. For dev, one can configure a 'Dev' context.");
+    DEFINE_DEFAULT_CONTEXT("'Default' context should be defined", "If applications load context properties from files, context must not be defined in processes but related to files, and at least context 'Default' must be defined. For dev, one can configure a 'Dev' context."),
+    COMPONENT_MUST_USE_CONTEXT_VALUE_FOR_USERNAME("Username must be read from context", "Username can change, it must be in context value."),
+    COMPONENT_MUST_USE_CONTEXT_VALUE_FOR_PASSWORD("Password must be read from context", "Password must not be hardcoded, event if encrypted, for production. It could also change, so must be a context value.");
 
 
     private String description;

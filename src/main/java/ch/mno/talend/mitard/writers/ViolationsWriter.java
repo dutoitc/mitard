@@ -5,6 +5,7 @@ import ch.mno.talend.mitard.out.JsonFileViolations;
 import ch.mno.talend.mitard.out.JsonViolationEnum;
 import ch.mno.talend.mitard.readers.ProcessReader;
 import ch.mno.talend.mitard.readers.PropertiesReader;
+import ch.mno.talend.mitard.readers.treaders.TRestClient;
 import org.apache.commons.io.IOUtils;
 import org.apache.commons.lang3.StringUtils;
 import org.slf4j.Logger;
@@ -141,6 +142,7 @@ public class ViolationsWriter extends AbstractNodeWriter {
             checkFIRECREATEEVENT_MUST_BE_SET(fileViolations, node, process);
             checkTRUNJOB_MUST_PROPAGATE_CHILD_RESULT(fileViolations, node);
             checkCOMPONENT_SHOULD_NOT_USE_SAM(fileViolations, node);
+            checkUSER_PASS_MUST_BE_FROM_CONTEXT(fileViolations, node);
         }
         checkSERVICE_MUST_NOT_SET_DB_CONNECTION_IN_PREJOB(fileViolations, process);
         checkMDM_MUST_AUTOCOMMIT_OR_MANAGE_CONNECTION(fileViolations, process);
@@ -196,6 +198,18 @@ public class ViolationsWriter extends AbstractNodeWriter {
 
         if (fileViolations.hasViolations()) {
             allViolations.add(fileViolations);
+        }
+    }
+
+    private void checkUSER_PASS_MUST_BE_FROM_CONTEXT(JsonFileViolations fileViolations, AbstractNodeType node) {
+        if (node.getComponentName().equals("tRestClient")) {
+            TRestClientType client = (TRestClientType)node;
+            if (!client.getAuthUsername().startsWith("context")) {
+                fileViolations.addComponentViolation(node.getUniqueName(), JsonViolationEnum.COMPONENT_MUST_USE_CONTEXT_VALUE_FOR_USERNAME);
+            }
+            if (!client.getAuthPassword().startsWith("context")) {
+                fileViolations.addComponentViolation(node.getUniqueName(), JsonViolationEnum.COMPONENT_MUST_USE_CONTEXT_VALUE_FOR_PASSWORD);
+            }
         }
     }
 
