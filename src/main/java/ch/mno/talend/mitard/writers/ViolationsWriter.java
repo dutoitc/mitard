@@ -202,7 +202,7 @@ public class ViolationsWriter extends AbstractNodeWriter {
     }
 
     private void checkUSER_PASS_MUST_BE_FROM_CONTEXT(JsonFileViolations fileViolations, AbstractNodeType node) {
-        if (node.getComponentName().equals("tRestClient")) {
+        if (node.getComponentName().equals("tRESTClient")) {
             TRestClientType client = (TRestClientType)node;
             if (!client.getAuthUsername().startsWith("context")) {
                 fileViolations.addComponentViolation(node.getUniqueName(), JsonViolationEnum.COMPONENT_MUST_USE_CONTEXT_VALUE_FOR_USERNAME);
